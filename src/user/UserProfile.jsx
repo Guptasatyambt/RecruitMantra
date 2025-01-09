@@ -48,7 +48,7 @@ const Profile = () => {
 
   return (
     <div className="bg-gradient-to-r from-blue-50 to-blue-100 min-h-screen py-10">
-      <div className="max-w-5xl mx-auto bg-white shadow-2xl rounded-lg overflow-hidden p-8">
+      <div className="max-w-5xl mx-auto bg-white shadow-2xl rounded-lg overflow-hidden p-4 md:p-8">
         {/* Profile Header */}
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6 border-b pb-6">
           <img
@@ -57,14 +57,14 @@ const Profile = () => {
             className="w-36 h-36 rounded-full border-4 border-blue-300 object-cover"
           />
           <div>
-            <h2 className="text-3xl font-bold text-gray-800">{user.name}</h2>
-            <p className="text-lg text-gray-600 mt-1">{user.college}</p>
-            <p className="text-md text-gray-500">{user.branch}</p>
+            <h2 className="text-xl md:text-3xl font-bold text-gray-800">{user.name}</h2>
+            <p className="text-base md:text-lg text-gray-600 mt-1">{user.college}</p>
+            <p className="text-sm md:text-lg text-gray-600">{user.branch}</p>
             <a
               href={`/${user.resume}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 inline-block bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+              className="text-sm md:text-base mt-3 inline-block bg-blue-600 text-white px-2 md:px-4 py-2 rounded-md hover:bg-blue-700"
             >
               📄 Download Resume
             </a>
@@ -72,19 +72,19 @@ const Profile = () => {
         </div>
 
         {/* Stats Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center my-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center my-6 px-4">
           <div className="bg-gray-50 p-4 rounded-lg shadow-md">
-            <h4 className="text-2xl font-bold text-blue-600">{user.coins}</h4>
+            <h4 className="text-lg md:text-2xl font-bold text-blue-600">{user.coins}</h4>
             <p className="text-gray-500">Coins Earned</p>
           </div>
           <div className="bg-gray-50 p-4 rounded-lg shadow-md">
-            <h4 className="text-2xl font-bold text-blue-600">
+            <h4 className="text-lg md:text-2xl font-bold text-blue-600">
               {user.specialization}
             </h4>
             <p className="text-gray-500">Specialization</p>
           </div>
           <div className="bg-gray-50 p-4 rounded-lg shadow-md">
-            <h4 className="text-2xl font-bold text-blue-600">
+            <h4 className="text-lg md:text-2xl font-bold text-blue-600">
               {user.interest}
             </h4>
             <p className="text-gray-500">Interest</p>
@@ -93,15 +93,15 @@ const Profile = () => {
 
         {/* Interview Results */}
         <div className="mt-8">
-          <h3 className="text-2xl font-bold text-gray-800 mb-4">
+          <h3 className="text-lg md:text-2xl font-bold text-gray-800 mb-4">
             📊 Interview Results
           </h3>
           <div className="overflow-hidden border rounded-lg shadow-md">
             <table className="w-full text-sm text-left text-gray-700">
               <thead className="bg-blue-600 text-white">
                 <tr>
-                  <th className="px-4 py-3 text-center">Interview ID</th>
-                  <th className="px-4 py-3 text-center">Result</th>
+                  <th className="px-2 md:px-4 py-3 text-center">Interview ID</th>
+                  <th className="px-2 md:px-4 py-3 text-center">Result</th>
                 </tr>
               </thead>
               <tbody>
@@ -112,10 +112,10 @@ const Profile = () => {
                       index % 2 === 0 ? "bg-gray-50" : "bg-white"
                     } hover:bg-blue-50`}
                   >
-                    <td className="px-4 py-3 text-center font-medium">
+                    <td className="px-1 md:px-4 text-xs md:text-base py-3 text-center font-medium">
                       {interview.interview_id}
                     </td>
-                    <td className="px-4 py-3 text-center">
+                    <td className="px-1 md:px-4 text-sm md:text-base py-3 text-center">
                       {interview.result}
                     </td>
                   </tr>
@@ -125,7 +125,7 @@ const Profile = () => {
           </div>
         </div>
 
-        <div className="text-right space-x-6 mt-8">
+        <div className="text-right space-x-2 md:space-x-6 mt-8">
           <button
             onClick={() => navigate("/edit-profile")}
             className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"

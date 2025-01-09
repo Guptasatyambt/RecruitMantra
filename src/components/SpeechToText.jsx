@@ -36,7 +36,7 @@ const Answer = () => {
     <div className="my-4">
       <div className="border h-80 p-4 my-4 border-orange-950">
         <div className="flex flex-row justify-between">
-          <h2 className="text-xl font-semibold">Answer</h2>
+          <h2 className="text-lg md:text-xl font-semibold">Answer</h2>
           <p>
             {listening ? (
               <BiMicrophone className="size-6" />
