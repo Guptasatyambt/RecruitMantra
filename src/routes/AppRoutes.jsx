@@ -8,7 +8,6 @@ import ContactUs from "../pages/ContactUs";
 import RedeemCoins from "../pages/RedeemCoins";
 import Intermediate from "../pages/Intermediate";
 import Feedback from "../pages/Feedback";
-import Profile from "../pages/Profile";
 import Interview from "../pages/Interview";
 import SignUp from "../auth/SignUp";
 import Login from "../auth/Login";

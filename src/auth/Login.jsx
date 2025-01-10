@@ -23,11 +23,11 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen px-32 items-center justify-center bg-gray-100">
-    <div className='w-1/2 mx-8'>
-      <img className='w-[70%]' src='https://internview-assets.s3.ap-south-1.amazonaws.com/RecruitMantra_with_black_BG.jpg' alt='Login image' />
+    <div className="flex flex-col md:flex-row space-y-12 min-h-screen md:px-32 items-center justify-center bg-gray-100">
+    <div className='md:w-1/2 md:mx-8 ml-16'>
+      <img className='w-[70%] block' src='https://internview-assets.s3.ap-south-1.amazonaws.com/RecruitMantra_with_black_BG.jpg' alt='Login image' />
     </div>
-      <div className="w-1/2 max-w-md bg-white rounded-lg shadow-md p-6">
+      <div className="md:w-1/2 max-w-md bg-white rounded-lg shadow-md p-6">
         <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
         <form onSubmit={handleLogin}>
           <div className="mb-4">

@@ -3,8 +3,7 @@ import React from "react";
 const OrderForm = () => {
   return (
     <div className="max-w-2xl mx-auto">
-      <form className="bg-white p-6 rounded-lg shadow-md space-y-4 text-left">
-        <h2 className="text-2xl font-bold mb-4">Order</h2>
+      <form className="bg-gray-200 text-sm md:text-base p-6 rounded-lg shadow-md space-y-4 text-left">
 
         <div>
           <label className="block text-gray-700">Item</label>
@@ -53,12 +52,15 @@ const OrderForm = () => {
         </div>
 
         {/* Submit Button */}
+        <div className="flex justify-center">
         <button
           type="submit"
-          className="w-full bg-brown-600 text-white py-2 rounded-md hover:bg-brown-700"
+          className="w-1/3 bg-amber-900 text-white py-2 rounded-3xl hover:bg-brown-700"
         >
           Order
         </button>
+        </div>
+        
       </form>
     </div>
   );

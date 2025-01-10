@@ -47,24 +47,24 @@ function RedeemCoins() {
     fetchUserCoins();
   }, []);
   return (
-    <div className="text-center">
-      <h2 className="text-2xl font-bold mb-4">Redeem RecruitMantra Coins</h2>
-      <div className="text-right p-10">
-        <span className="text-orange-500 text-lg font-medium border-2 border-black p-2">
-          🪙 Your Coins: {coins}
+    <div className="text-center p-6">
+      <h2 className="text-xl md:text-3xl text-left font-bold mb-4">Redeem</h2>
+      <div className="text-right px-10 py-4">
+        <span className=" text-xl font-bold p-2">
+          🪙: {coins}
         </span>
       </div>
-      <div className="justify-center items-center">
-        <div className="w-full">
+      <div className="flex flex-col md:flex-row justify-center items-start space-y-8">
+        <div className="w-full md:w-1/2">
           <h3 className="text-xl font-bold mb-4">Products</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 place-items-center">
             {products.map((product) => (
               <ProductCard key={product.id} {...product} coins={coins} />
             ))}
           </div>
         </div>
 
-        <div className="w-full mx-auto">
+        <div className="w-full md:w-1/2 mx-auto">
           <OrderForm />
         </div>
       </div>

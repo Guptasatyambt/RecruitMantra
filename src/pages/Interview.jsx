@@ -74,10 +74,15 @@ function Interview() {
         );
         const videoKey = response.data.key;
         console.log("Video-Key",videoKey);
+        const file = new File([videoBlob], `${currentQuestion}.webm`, { type: "video/webm" });
+      const formData = new FormData();
+      formData.append("video", file);
 
         try {
-          const response = await axios.put(videoKey, {
-            url: url,
+          const response = await axios.put(videoKey, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
           });
           console.log(response.data);
         } catch (error) {
@@ -161,42 +166,41 @@ function Interview() {
   }, []);
 
   return (
-    <div className="flex h-screen justify-center gap-4 py-5 px-10">
-      <div className="py-5 px-5 w-[50%]">
-        <h2 className="text-3xl font-bold">Beginner</h2>
-        <p className="text-lg py-6 pr-6">
+    <div className="flex flex-col md:flex-row overflow-x-hidden justify-center gap-4 py-5 px-4 md:px-10">
+      <div className="py-5 px-5 w-full md:w-[50%]">
+        <h2 className="text-2xl md:text-3xl font-bold">Beginner</h2>
+        <p className="md:text-lg py-6 md:pr-6">
           Get started with our beginner-friendly courses, designed to help you
           develop essential skills and knowledge for your job search.
         </p>
-        <div className="flex my-10">
+        <div className="flex flex-col items-center md:flex-row my-5 md:my-10">
           <video
-            className="size-96"
+            className="size-80 md:size-96"
             src="assets/beginnerGif.mp4"
             alt="Beginner Page Gif"
           ></video>
-          <div className="mx-4">
-            {" "}
+          <div className="md:mx-4">
             <RecordWebcam
               startRecording={startRecording}
               handleRecordedVideo={handleRecordedVideo}
             />
           </div>
         </div>
-        <button
+        {/* <button
           onClick={handleCameraAccess}
-          className="text-xl bg-green-600 text-white p-3 rounded-md"
+          className="text-base md:text-xl bg-green-600 text-white p-3 rounded-md"
         >
           {!cameraEnabled ? "Enable Camera" : "Disable Camera"}
-        </button>
+        </button> */}
       </div>
-      <div className="mx-10 py-5 px-5 w-[50%]">
-        <div className="flex justify-between">
-          <h2 className="text-3xl font-semibold">Question</h2>
+      <div className="md:mx-10 py-5 md:px-5 md:w-[50%]">
+        <div className="md:flex md:justify-between">
+          <h2 className="text-2xl md:text-3xl font-semibold">Question</h2>
           {/* Timer */}
           {restartAgain ? (
             <StopTimer handleTimerExpired={handleTimerExpired} />
           ) : (
-            <span className="text-xl text-red-600 font-semibold">
+            <span className="text-lg md:text-xl text-red-600 font-semibold">
               You can go to next question!!
             </span>
           )}
@@ -211,14 +215,14 @@ function Interview() {
           </button>
           {isExpired ? (
             <button
-              className="text-2xl w-40 bg-orange-950 rounded-full p-2 text-slate-200"
+              className="text-xl md:text-2xl w-40 bg-orange-950 rounded-full p-2 text-slate-200"
               onClick={handleNextQuestion}
             >
               Next
             </button>
           ) : (
             <button
-              className="text-2xl w-40 opacity-25 bg-orange-950 rounded-full p-2 text-slate-200"
+              className="text-xl md:text-2xl w-40 opacity-25 bg-orange-950 rounded-full p-2 text-slate-200"
               disabled={true}
             >
               Next

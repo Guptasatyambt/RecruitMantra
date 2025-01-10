@@ -82,7 +82,7 @@ export default function RecordWebcam({ startRecording, handleRecordedVideo, vide
 
   return (
     <Draggable>
-      <div className="w-96">
+      <div className="w-60 md:w-80">
         <Webcam
           ref={webcamRef}
           screenshotFormat="image/jpeg"

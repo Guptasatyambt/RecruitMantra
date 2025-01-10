@@ -45,15 +45,15 @@ const SignUp = () => {
   };
 
   return (
-    <div className="flex min-h-screen px-40 items-center justify-center bg-gray-100">
-      <div className="w-1/2">
+    <div className="flex flex-col md:flex-row min-h-screen px-10 md:px-40 space-y-8 items-center justify-center bg-gray-100">
+      <div className="md:w-1/2">
         <img
-          className="w-[60%]"
+          className="w-[60%] ml-12"
           src="https://internview-assets.s3.ap-south-1.amazonaws.com/RecruitMantra_with_black_BG.jpg"
           alt="Login image"
         />
       </div>
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
+      <div className="w-full bg-white rounded-lg shadow-md p-6">
         <h2 className="text-2xl font-bold text-center mb-6">Sign Up</h2>
 
         {/* Display error message */}
