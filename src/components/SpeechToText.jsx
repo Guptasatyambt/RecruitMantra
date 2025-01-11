@@ -51,7 +51,7 @@ const Answer = () => {
       <div className="flex w-36 justify-between">
         <button className="bg-green-600 px-3 py-1 rounded-md text-base" onClick={SpeechRecognition.startListening}>Start</button>
         {/* <button className="bg-red-600 px-3 py-1 rounded-md text-base" onClick={SpeechRecognition.stopListening}>Stop</button> */}
-        <button className="bg-orange-600 px-3 py-1 rounded-md text-base" onClick={resetTranscript}>Reset</button>
+        {/* <button className="bg-orange-600 px-3 py-1 rounded-md text-base" onClick={resetTranscript}>Reset</button> */}
       </div>
     </div>
   );

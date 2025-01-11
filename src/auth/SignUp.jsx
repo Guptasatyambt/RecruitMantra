@@ -29,7 +29,7 @@ const SignUp = () => {
         password,
       });
 
-      // console.log(response.data);
+      console.log(response.data);
 
       const token = response.data.data.token;
       localStorage.setItem("token", token);

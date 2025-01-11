@@ -16,6 +16,8 @@ import Answer from "../components/SpeechToText";
 import UserProfile from "../user/UserProfile";
 import EditProfile from "../user/EditProfile";
 import InterviewDetails from "../pages/InterviewDetails";
+import SetupProfile from "../user/SetupProfile";
+import AssetUpload from "../user/AssetUpload";
 
 function AppRoutes() {
   return (
@@ -29,13 +31,19 @@ function AppRoutes() {
       <Route exact path="/redeem-coins" element={<RedeemCoins />} />
       <Route exact path="/intermediate" element={<Intermediate />} />
       <Route exact path="/feedback" element={<Feedback />} />
+
+      {/* Interview Routes */}
+      <Route exact path="/interview/advanced/:id" element={<Interview />} />
+      <Route exact path="/interview/intermediate/:id" element={<Interview />} />
+      <Route exact path="/interview/beginner/:id" element={<Interview />} />
+      <Route exact path="/feedback/:id" element={<Feedback />} />
       <Route exact path="/interview-details/:id" element={<InterviewDetails />} />
 
-
       {/* User Routes */}
+      <Route path="/setup-profile" element={<SetupProfile />} />
+      <Route path="/upload-documents" element={<AssetUpload />} />
       <Route exact path="/profile" element={<UserProfile />} />
       <Route path="/edit-profile" element={<EditProfile />} />
-      <Route exact path="/interview" element={<Interview />} />
 
       {/* Authorization Routes */}
       <Route exact path="/signup" element={<SignUp />} />

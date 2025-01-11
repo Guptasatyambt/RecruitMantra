@@ -3,6 +3,32 @@ import { useNavigate } from "react-router-dom";
 
 function Intermediate() {
   const navigate = useNavigate();
+
+  const handleStartInterview = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        "http://15.206.133.74/interview/start",
+        {
+          level: "intermediate",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(response.data.data.id);
+
+      navigate(
+        `/interview/intermediate/${response.data.data.id || "123"}`,
+        { replace: true }
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div className="flex flex-col lg:flex-row justify-center gap-4 py-5 px-10">
       <div className="py-5 px-5 space-y-8">
@@ -12,7 +38,7 @@ function Intermediate() {
           develop essential skills and knowledge for your job search.
         </p> */}
         <img
-          className="md:w-[60rem]"
+          className="md:h-[31rem]"
           src="assets/beginnerPage.jpg"
           alt="Intermediate Page"
         ></img>
@@ -33,10 +59,8 @@ function Intermediate() {
           <li>Focus Camera on your face and be audible for better Result</li>
         </ol>
         <button
-          className="text-2xl md:text-4xl bg-orange-950 rounded-2xl my-6 p-5 text-slate-200"
-          onClick={() => {
-            navigate("/interview");
-          }}
+          className="text-xl md:text-3xl bg-orange-950 rounded-2xl my-6 p-5 text-slate-200"
+          onClick={handleStartInterview}
         >
           Start Interview
         </button>

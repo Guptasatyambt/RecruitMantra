@@ -3,6 +3,8 @@ import StopTimer from "../components/StopTimer";
 import Answer from "../components/SpeechToText";
 import RecordWebcam from "../components/RecordWebcam";
 import axios from "axios";
+import { useParams, useNavigate } from "react-router-dom";
+
 
 function Interview() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -18,6 +20,10 @@ function Interview() {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [startRecording, setStartRecording] = useState(true);
+
+  const interviewId = useParams().id;
+  const navigate = useNavigate();
+
 
   const handleTimerExpired = () => {
     setIsExpired(true);
@@ -153,6 +159,30 @@ function Interview() {
     }
   };
 
+  const handleEndInterview = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No token found.");
+      }
+      const response = await axios.post(
+        "http://15.206.133.74/interview/stop",
+        {
+          interview_id: interviewId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("Interview ended successfully");
+
+      navigate(`/feedback/${interviewId}`);
+    } catch (err) {
+      console.error("Failed to end interview:", err);
+    }
+  }
   // useEffect(() => {
   //   audioAnalyse();
   //   videoAnalyse();
@@ -210,7 +240,7 @@ function Interview() {
         </div>
         <Answer />
         <div className="flex justify-between space-x-10">
-          <button className="text-2xl w-40 bg-red-800 rounded-full p-2 text-slate-200">
+          <button className="text-2xl w-40 bg-red-800 rounded-full p-2 text-slate-200" onClick={handleEndInterview}>
             End
           </button>
           {isExpired ? (
