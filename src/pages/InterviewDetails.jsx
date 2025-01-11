@@ -1,10 +1,10 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const InterviewDetails = () => {
   const interviewId = useParams().id;
-  console.log(interviewId);
+  const navigate = useNavigate();
 
   const [details, setDetails] = useState();
   const [videos, setVideos] = useState();
@@ -18,7 +18,7 @@ const InterviewDetails = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          withCredentials: true,
+          // withCredentials: true,
         }
       );
       setDetails(response.data.interview);
@@ -35,7 +35,7 @@ const InterviewDetails = () => {
     return <div>Loading...</div>;
   }
   return (
-    <div className="bg-gray-100 min-h-screen p-6 space-y-8">
+    <div className="bg-gray-100 p-6 space-y-8">
       <div className="bg-white p-6 rounded-lg shadow-md flex flex-col justify-evenly items-center md:flex-row md:gap-6">
         <div className="flex-shrink-0">
           <img
@@ -49,19 +49,19 @@ const InterviewDetails = () => {
           <h2 className="text-xl font-bold">Interview Details</h2>
           <div className="grid grid-cols-2 text-center gap-4 mt-4 text-gray-700">
             <div className="border-2 border-black rounded-md p-2 ">
-              <p className="font-semibold w-40">Result</p>
+              <p className="font-semibold">Result</p>
               <p>{details.Result}</p>
             </div>
             <div className="border-2 border-black rounded-md p-2 ">
-              <p className="font-semibold w-40">Confidence</p>
+              <p className="font-semibold">Confidence</p>
               <p>{details.overallConfidence}</p>
             </div>
             <div className="border-2 border-black rounded-md p-2 ">
-              <p className="font-semibold w-40">Level</p>
+              <p className="font-semibold">Level</p>
               <p>{details.level}</p>
             </div>
             <div className="border-2 border-black rounded-md p-2 ">
-              <p className="font-semibold w-40">Accuracy</p>
+              <p className="font-semibold">Accuracy</p>
               <p>{details.overallAccuracy}</p>
             </div>
           </div>
@@ -120,6 +120,10 @@ const InterviewDetails = () => {
           </>
         ))}
       </div>
+      <div className="flex justify-center items-center">
+      <button onClick={()=>{navigate('/')}} className="text-center mt-6 px-5 py-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-semibold rounded-lg shadow-md hover:from-blue-600 hover:to-blue-800 transition-transform transform hover:-translate-y-1 sm:py-2 lg:py-4">Return to Home</button>
+      </div>
+
     </div>
   );
 };

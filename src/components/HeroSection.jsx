@@ -4,6 +4,7 @@ import { Pagination, Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
+import Carousel from "./xx";
 
 function HeroSection() {
   const slides = [
@@ -20,7 +21,7 @@ function HeroSection() {
 
   return (
     <>
-    <section className="py-4 md:py-12 px-4">
+      <section className="py-4 md:py-12 px-4">
         <Swiper
           modules={[Pagination, Navigation, Autoplay]}
           spaceBetween={30}
@@ -47,9 +48,12 @@ function HeroSection() {
           ))}
         </Swiper>
       </section>
-    <section className="w-full px-8 lg:flex gap-52 my-4 md:my-10 md:py-12">
+
+      <section className="w-full px-8 lg:flex gap-52 my-4 md:my-10 md:py-12">
         <div className="container lg:w-[50%] px-8 mx-auto flex flex-col items-center lg:text-left">
-          <h2 className="text-4xl md:text-7xl py-8 md:mb-4 text-amber-950 font-serif">Welcome to RecruitMantra</h2>
+          <h2 className="text-4xl md:text-7xl py-8 md:mb-4 text-amber-950 font-serif">
+            Welcome to RecruitMantra
+          </h2>
           <p className="text-base md:text-lg">
             We are dedicated to preparing you for your upcoming interviews
             through our comprehensive levels of interview preparation. Our goal
@@ -61,11 +65,13 @@ function HeroSection() {
           </p>
         </div>
         <div className="mt-10 lg:w-[50%] mx-auto text-center">
-          <img className="h-40 mx-auto md:h-96" src="/assets/image1.png" alt=""/>
+          <img
+            className="h-40 mx-auto md:h-96"
+            src="/assets/image1.png"
+            alt=""
+          />
         </div>
       </section>
-      
-      
     </>
   );
 }

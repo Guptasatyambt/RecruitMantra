@@ -38,7 +38,7 @@ function LevelsSection() {
     <section className="py-12">
       <div className="container p-16 mx-auto">
         <h3 className="text-4xl md:text-6xl text-amber-950 font-normal text-center mb-8 font-serif">Interviews</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-[80%]s gap-32 py-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-[80%]s gap-16 lg:gap-32 py-3">
           {levels.map((level, index) => (
             <div
               key={index}
