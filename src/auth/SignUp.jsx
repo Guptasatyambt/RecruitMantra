@@ -48,12 +48,12 @@ const SignUp = () => {
     <div className="flex flex-col md:flex-row min-h-screen px-10 md:px-40 space-y-8 items-center justify-center bg-gray-100">
       <div className="md:w-1/2">
         <img
-          className="w-[60%] ml-12"
+          className="w-[60%] hidden md:block ml-12"
           src="https://internview-assets.s3.ap-south-1.amazonaws.com/RecruitMantra_with_black_BG.jpg"
-          alt="Login image"
+          alt="Signup image"
         />
       </div>
-      <div className="w-full bg-white rounded-lg shadow-md p-6">
+      <div className="md:w-1/2 bg-white rounded-lg shadow-md p-6">
         <h2 className="text-2xl font-bold text-center mb-6">Sign Up</h2>
 
         {/* Display error message */}
@@ -117,8 +117,8 @@ const SignUp = () => {
           </div>
           <button
             type="submit"
-            className={`w-full bg-green-500 text-white p-2 rounded-md ${
-              loading ? "opacity-50 cursor-not-allowed" : "hover:bg-green-600"
+            className={`w-full bg-amber-800 text-white p-2 rounded-md ${
+              loading ? "opacity-50 cursor-not-allowed" : "hover:bg-amber-900"
             }`}
             disabled={loading}
           >

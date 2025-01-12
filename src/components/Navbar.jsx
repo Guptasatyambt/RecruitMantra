@@ -34,13 +34,13 @@ function Navbar() {
     console.log("Token", localStorage.getItem("token"));
 
     localStorage.removeItem("token");
-    navigate('/');
+    navigate("/");
     window.location.reload();
   };
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
-      <nav className="container mx-auto flex justify-between items-center p-4">
+      <nav className="container mx-auto flex justify-between items-center px-4 py-2">
         <div className="">
           <img
             className="size-10 md:size-14 cursor-pointer inline"
@@ -69,7 +69,13 @@ function Navbar() {
                   <a
                     href="#profile"
                     className="block text-lg"
-                    onClick={() => { if(token) { navigate("/profile") } else { navigate("/login") }}}
+                    onClick={() => {
+                      if (token) {
+                        navigate("/profile");
+                      } else {
+                        navigate("/login");
+                      }
+                    }}
                   >
                     <CgProfile className="inline mr-2" />
                     Your Profile
@@ -79,7 +85,13 @@ function Navbar() {
                   <a
                     href="#profile"
                     className="block text-lg"
-                    onClick={() => { if(token) { navigate("/edit-profile") } else { navigate("/login") }}}
+                    onClick={() => {
+                      if (token) {
+                        navigate("/edit-profile");
+                      } else {
+                        navigate("/login");
+                      }
+                    }}
                   >
                     <BiEdit className="inline mr-2" />
                     Edit Profile
@@ -89,7 +101,13 @@ function Navbar() {
                   <a
                     href="#profile"
                     className="block text-lg"
-                    onClick={() => { if(token) { navigate("/redeem-coins") } else { navigate("/login") }}}
+                    onClick={() => {
+                      if (token) {
+                        navigate("/redeem-coins");
+                      } else {
+                        navigate("/login");
+                      }
+                    }}
                   >
                     <BiCoinStack className="inline mr-2" />
                     Redeem Coins
@@ -115,16 +133,18 @@ function Navbar() {
                     About Us
                   </a>
                 </li>
-                <li>
-                  <a
-                    href="#logout"
-                    className="block text-lg"
-                    onClick={handleLogout}
-                  >
-                    <BiLogOut className="inline mr-2" />
-                    Log Out
-                  </a>
-                </li>
+                {token && (
+                  <li>
+                    <a
+                      href="#logout"
+                      className="block text-lg"
+                      onClick={handleLogout}
+                    >
+                      <BiLogOut className="inline mr-2" />
+                      Log Out
+                    </a>
+                  </li>
+                )}
               </ul>
             </div>
           </div>
@@ -132,19 +152,19 @@ function Navbar() {
         {token ? (
           <ul className="flex items-center text-lg font-medium space-x-10">
             <li
-              className="hidden md:block rounded-lg px-3 py-1 hover:bg-gray-400"
+              className="hidden md:block rounded-lg px-3 py-1 hover:bg-gray-300"
               onClick={() => navigate("/feedback")}
             >
               <a href="#feedback">Feedback</a>
             </li>
             <li
-              className="hidden md:block rounded-lg px-3 py-1 hover:bg-gray-400"
+              className="hidden md:block rounded-lg px-3 py-1 hover:bg-gray-300"
               onClick={() => navigate("/contact-us")}
             >
               <a href="#contact">Contact Us</a>
             </li>
             <li
-              className="hidden md:block rounded-lg px-3 py-1 hover:bg-gray-400"
+              className="hidden md:block rounded-lg px-3 py-1 hover:bg-gray-300"
               onClick={() => navigate("/about-us")}
             >
               <a href="#about">About Us</a>
@@ -217,13 +237,13 @@ function Navbar() {
         ) : (
           <ul className="flex items-center text-lg font-medium space-x-10">
             <li
-              className="hidden md:block rounded-lg px-3 py-1 hover:bg-gray-400"
+              className="hidden md:block rounded-lg px-3 py-1 hover:bg-gray-300"
               onClick={() => navigate("/signup")}
             >
               <a href="#feedback">Sign Up</a>
             </li>
             <li
-              className="hidden md:block rounded-lg px-3 py-1 hover:bg-gray-400"
+              className="hidden md:block rounded-lg px-3 py-1 hover:bg-gray-300"
               onClick={() => navigate("/login")}
             >
               <a href="#contact">Log In</a>
@@ -281,13 +301,13 @@ function Navbar() {
                       <ImInfo className="inline mr-2" />
                       About us
                     </li>
-                    <li
+                    {/* <li
                       className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                       onClick={handleLogout}
                     >
                       <BiLogOut className="inline mr-2" />
                       Log Out
-                    </li>
+                    </li> */}
                   </ul>
                 </div>
               )}
