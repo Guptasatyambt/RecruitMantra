@@ -6,7 +6,7 @@ import AppRoutes from "./routes/AppRoutes.jsx";
 
 function App() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-gray-100 flex flex-col">
       <BrowserRouter>
         <Navbar />
         <AppRoutes />

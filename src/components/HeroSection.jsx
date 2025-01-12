@@ -20,13 +20,15 @@ function HeroSection() {
 
   return (
     <>
-      <section className="py-4 md:py-12 px-4">
+      <section className="py-4 md:py-6 px-4">
         <Swiper
           modules={[Pagination, Navigation, Autoplay]}
+          
           spaceBetween={30}
-          slidesPerView={1}
-          pagination={{ clickable: true }}
-          navigation={true}
+          slidesPerView={1.5}
+          // pagination={{ clickable: true }}
+          // navigation={true}
+          centeredSlides={true}
           height={400}
           autoplay={{
           delay: 2500, 
@@ -48,9 +50,9 @@ function HeroSection() {
         </Swiper>
       </section>
 
-      <section className="w-full px-8 lg:flex gap-52 my-4 md:my-10 md:py-12">
+      <section className="w-full px-8 lg:flex gap-52 my-4 md:my-5 md:py-6">
         <div className="container lg:w-[50%] px-8 mx-auto flex flex-col items-center lg:text-left">
-          <h2 className="text-4xl md:text-7xl py-8 md:mb-4 text-amber-950 font-serif">
+          <h2 className="text-4xl md:text-6xl py-8 md:mb-4 text-amber-950 font-serif">
             Welcome to RecruitMantra
           </h2>
           <p className="text-base md:text-lg">

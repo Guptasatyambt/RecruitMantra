@@ -48,7 +48,7 @@ function Beginner() {
         <h2 className="text-2xl lg:text-4xl text-center font-semibold">Key Instruction</h2>
         <ol
           style={{ listStyleType: "decimal" }}
-          className="text-base lg:text-xl border-2 rounded-xl px-8 mt-6 py-6 space-y-8"
+          className="text-base lg:text-lg border-2 rounded-xl px-8 mt-6 py-6 space-y-8"
         >
           <li>10 Seconds is Minimum Spent time for each question</li>
           <li>Ensure You have stable and Strong internet Connectivity.</li>
@@ -60,7 +60,7 @@ function Beginner() {
           <li>Focus Camera on your face and be audible for better Result</li>
         </ol>
         <button
-          className="text-xl md:text-3xl bg-orange-950 rounded-2xl my-6 p-5 text-slate-200"
+          className="text-xl md:text-2xl bg-orange-950 rounded-2xl my-6 p-5 text-slate-200"
           onClick={handleStartInterview}
         >
           Start Interview

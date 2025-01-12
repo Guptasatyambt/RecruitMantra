@@ -112,7 +112,6 @@ function Interview() {
       });
       console.log(response.data.resume);
       const resumeUrl = response.data.resume;
-      setTimeout(() => {}, 100);
       const skillsResponse = await axios.post(
         "http://13.235.4.87/skills/extract_skills",
         {
@@ -189,10 +188,9 @@ function Interview() {
   //   answerAccuracy();
   // }, [currentQuestionIndex]);
   useEffect(() => {
-    setTimeout(() => {
+ 
       fetchUserData();
  
-    }, 100);
   }, []);
 
   return (
@@ -225,7 +223,7 @@ function Interview() {
       </div>
       <div className="md:mx-10 py-5 md:px-5 md:w-[50%]">
         <div className="md:flex md:justify-between">
-          <h2 className="text-2xl md:text-3xl font-semibold">Question</h2>
+          <h2 className="text-xl md:text-2xl font-semibold">Question</h2>
           {/* Timer */}
           {restartAgain ? (
             <StopTimer handleTimerExpired={handleTimerExpired} />

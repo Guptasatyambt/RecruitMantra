@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { useState } from "react";
 
 function ContactUs() {
@@ -16,11 +17,25 @@ function ContactUs() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Form Submitted:", formData);
     setSubmitted(true);
-    // Add API call here if needed
+
+    try {
+      const response = await axios.post(
+        "http://15.206.133.74/feedback/contact-us",
+        {
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+        }
+      );
+      console.log(response.data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
