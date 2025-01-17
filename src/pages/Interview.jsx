@@ -67,7 +67,7 @@ function Interview() {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.post(
-          "http://15.206.133.74/interview/uploadvideo",
+          "https://15.206.133.74/interview/uploadvideo",
           {
             interview_id: "6768f509f542f11b428bf216",
             question_number: currentQuestionIndex,
@@ -105,7 +105,7 @@ function Interview() {
       if (!token) {
         throw new Error("No token found.");
       }
-      const response = await axios.get("http://15.206.133.74/user/getinfo", {
+      const response = await axios.get("https://15.206.133.74/user/getinfo", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -113,7 +113,7 @@ function Interview() {
       console.log(response.data.resume);
       const resumeUrl = response.data.resume;
       const skillsResponse = await axios.post(
-        "http://13.235.4.87/skills/extract_skills",
+        "https://13.235.4.87/skills/extract_skills",
         {
           resume_url: resumeUrl,
         }
@@ -128,7 +128,7 @@ function Interview() {
   };
   const audioAnalyse = async () => {
     try {
-      await axios.post("http://13.235.4.87/audio_emotion/process_video", {
+      await axios.post("https://13.235.4.87/audio_emotion/process_video", {
         video_url:
           "https://commondatastorage.googleapis.com/gtvvideosbucket/sample/ForBiggerFun.mp4",
       });
@@ -138,7 +138,7 @@ function Interview() {
   };
   const videoAnalyse = async () => {
     try {
-      await axios.post("http://13.235.4.87/video_emotion/upload", {
+      await axios.post("https://13.235.4.87/video_emotion/upload", {
         video_url:
           "https://commondatastorage.googleapis.com/gtvvideosbucket/sample/ForBiggerFun.mp4",
       });
@@ -148,7 +148,7 @@ function Interview() {
   };
   const answerAccuracy = async () => {
     try {
-      await axios.post("http://13.235.4.87/video_text/process", {
+      await axios.post("https://13.235.4.87/video_text/process", {
         question: questions[currentQuestionIndex],
         video_url:
           "https://commondatastorage.googleapis.com/gtvvideosbucket/sample/ForBiggerFun.mp4",
@@ -165,7 +165,7 @@ function Interview() {
         throw new Error("No token found.");
       }
       const response = await axios.post(
-        "http://15.206.133.74/interview/stop",
+        "https://15.206.133.74/interview/stop",
         {
           interview_id: interviewId,
         },
@@ -177,7 +177,7 @@ function Interview() {
       );
       console.log("Interview ended successfully");
 
-      navigate(`/feedback/${interviewId}`);
+      navigate(`/feedback/${interviewId}`, {replace: true});
     } catch (err) {
       console.error("Failed to end interview:", err);
     }

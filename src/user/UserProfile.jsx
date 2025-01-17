@@ -34,7 +34,7 @@ const Profile = () => {
         return;
       }
       try {
-        const response = await axios.get("http://15.206.133.74/user/getinfo", {
+        const response = await axios.get("https://15.206.133.74/user/getinfo", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUser(response.data.user);

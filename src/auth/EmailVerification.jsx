@@ -25,7 +25,7 @@ const EmailVerification = () => {
       console.log(token);
       
       const response = await axios.post(
-        'http://15.206.133.74/user/emailvarification',
+        'https://15.206.133.74/user/emailvarification',
         {},
         {
           headers: {
@@ -54,7 +54,7 @@ const EmailVerification = () => {
 
     try {
       const response = await axios.post(
-        'http://15.206.133.74/user/varifyemail',
+        'https://15.206.133.74/user/varifyemail',
         { otp: otp },
         {
           headers: {

@@ -55,7 +55,7 @@ function AssetUpload() {
       // First API call to get upload URLs
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        'http://15.206.133.74/user/updateassets',
+        'https://15.206.133.74/user/updateassets',
         {},
         {
           headers: {

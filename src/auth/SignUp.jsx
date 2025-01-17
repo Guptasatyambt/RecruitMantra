@@ -24,7 +24,7 @@ const SignUp = () => {
     setError("");
 
     try {
-      const response = await axios.post("http://15.206.133.74/user/signin", {
+      const response = await axios.post("https://15.206.133.74/user/signin", {
         email,
         password,
       });
@@ -49,7 +49,7 @@ const SignUp = () => {
       <div className="md:w-1/2">
         <img
           className="w-[60%] hidden md:block ml-12"
-          src="https://internview-assets.s3.ap-south-1.amazonaws.com/RecruitMantra_with_black_BG.jpg"
+          src="https://internview-assets.s3.ap-south-1.amazonaws.com/batch-13---originals-8-high-resolution-logo-transparent+(1).png"
           alt="Signup image"
         />
       </div>

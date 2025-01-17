@@ -24,7 +24,7 @@ function ContactUs() {
 
     try {
       const response = await axios.post(
-        "http://15.206.133.74/feedback/contact-us",
+        "https://15.206.133.74/feedback/contact-us",
         {
           name: formData.name,
           email: formData.email,
@@ -48,7 +48,7 @@ function ContactUs() {
         back to you as soon as possible.
       </p>
       <img
-        className="w-20 h-20 mx-auto my-5 sm:w-16 sm:h-16 md:w-24 md:h-24"
+        className="sm:w-20 sm:h-20 mx-auto my-5 w-0 h-0 md:w-24 md:h-24"
         alt="Recruit-Mantra-Logo"
         src="https://internview-assets.s3.ap-south-1.amazonaws.com/batch-13---originals-8-high-resolution-logo-grayscale-transparent+(1).png"
       />

@@ -19,14 +19,23 @@ export default function RecordWebcam({ startRecording, handleRecordedVideo, vide
   );
 
   const handleStartCaptureClick = useCallback(() => {
-    if (webcamRef.current && webcamRef.current.video && webcamRef.current.video.srcObject) {
+    if (webcamRef.current && webcamRef.current.video && webcamRef.current?.video?.srcObject) {
       setRecording(true);
       const stream = webcamRef.current.video.srcObject; // Ensure the stream is valid
-      mediaRecorderRef.current = new RecordRTC(stream, {
-        type: "video",
-      });
-      mediaRecorderRef.current.startRecording();
-      mediaRecorderRef.current.ondataavailable = handleDataAvailable;
+      if(stream) {
+        if (!stream.getAudioTracks().length) {
+          console.warn("No audio tracks found, recording video only.");
+        }
+        mediaRecorderRef.current = new RecordRTC(stream, {
+          type: "video",
+        });
+        mediaRecorderRef.current.startRecording();
+        mediaRecorderRef.current.ondataavailable = handleDataAvailable;
+      }
+      else {
+        console.error("Webcam stream is not ready.");
+      }
+      
     } else {
       console.error("Webcam stream is not ready.");
     }

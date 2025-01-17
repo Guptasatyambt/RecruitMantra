@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BiMicrophone, BiMicrophoneOff } from "react-icons/bi";
 import SpeechRecognition, {
   useSpeechRecognition,
@@ -14,23 +14,36 @@ const Answer = () => {
     isMicrophoneAvailable,
   } = useSpeechRecognition();
 
+  useEffect(() => {
+    if (!browserSupportsSpeechRecognition) {
+      alert("Browser doesn't support speech recognition.");
+      return;
+    }
+
+    if (!isMicrophoneAvailable) {
+      alert("Microphone permission not allowed");
+      return;
+    }
+
+    if (browserSupportsContinuousListening) {
+      SpeechRecognition.startListening({ continuous: true });
+    } else {
+      SpeechRecognition.startListening();
+    }
+
+    return () => {
+      SpeechRecognition.stopListening();
+    };
+  }, [browserSupportsSpeechRecognition, browserSupportsContinuousListening, isMicrophoneAvailable]);
+
   if (!browserSupportsSpeechRecognition) {
-    alert("Browser doesn't support speech recognition.");
     return <span>Browser doesn't support speech recognition.</span>;
   }
-  if(listening) {
-    if (browserSupportsContinuousListening) {
-        SpeechRecognition.startListening({ continuous: true })
-      } else {
-        // Fallback behaviour
-      }
-  }
-  
+
   if (!isMicrophoneAvailable) {
-    // Render some fallback content
-    alert("Microphone permission not allowed");
     return <span>Microphone permission not allowed</span>;
   }
+
 
   return (
     <div className="my-4">
@@ -49,7 +62,7 @@ const Answer = () => {
         <p className="text-2xl">{transcript}</p>
       </div>
       <div className="flex w-36 justify-between">
-        <button className="bg-green-600 px-3 py-1 rounded-md text-base" onClick={SpeechRecognition.startListening}>Start</button>
+        {/* <button className="bg-green-600 px-3 py-1 rounded-md text-base" onClick={SpeechRecognition.startListening}>Start</button> */}
         {/* <button className="bg-red-600 px-3 py-1 rounded-md text-base" onClick={SpeechRecognition.stopListening}>Stop</button> */}
         {/* <button className="bg-orange-600 px-3 py-1 rounded-md text-base" onClick={resetTranscript}>Reset</button> */}
       </div>
