@@ -9,7 +9,7 @@ function Intermediate() {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        "http://15.206.133.74/interview/start",
+        "https://15.206.133.74/interview/start",
         {
           level: "intermediate",
         },
@@ -31,7 +31,7 @@ function Intermediate() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row justify-center gap-4 py-5 px-10">
+    <div className="min-h-screen flex flex-col lg:flex-row justify-center gap-4 py-5 px-5">
       <div className="py-5 px-5 space-y-8">
         <h2 className="text-2xl md:text-3xl font-bold">Intermediate</h2>
         {/* <p className="text-lg py-6 pr-6">
@@ -44,11 +44,13 @@ function Intermediate() {
           alt="Intermediate Page"
         ></img>
       </div>
-      <div className="py-5 px-5 mt-6 lg:mt-14">
-        <h2 className="text-2xl lg:text-4xl text-center font-semibold">Key Instruction</h2>
+      <div className="py-5 sm:px-5 mt-6 lg:mt-14">
+        <h2 className="text-2xl lg:text-4xl text-center font-semibold">
+          Key Instruction
+        </h2>
         <ol
           style={{ listStyleType: "decimal" }}
-          className="text-base lg:text-lg border-2 rounded-xl px-8 mt-6 py-6 space-y-8"
+          className="text-base lg:text-lg border-2 rounded-xl px-8 mt-6 py-6 space-y-4 md:space-y-2 xl:space-y-8"
         >
           <li>10 Seconds is Minimum Spent time for each question</li>
           <li>Ensure You have stable and Strong internet Connectivity.</li>

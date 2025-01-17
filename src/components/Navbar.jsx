@@ -67,7 +67,7 @@ function Navbar() {
               <ul className="mt-16 space-y-6 px-6">
                 <li>
                   <a
-                    href="#profile"
+                    href=""
                     className="block text-lg"
                     onClick={() => {
                       if (token) {
@@ -83,7 +83,7 @@ function Navbar() {
                 </li>
                 <li>
                   <a
-                    href="#profile"
+                    href=""
                     className="block text-lg"
                     onClick={() => {
                       if (token) {
@@ -99,7 +99,7 @@ function Navbar() {
                 </li>
                 <li>
                   <a
-                    href="#profile"
+                    href=""
                     className="block text-lg"
                     onClick={() => {
                       if (token) {
@@ -115,7 +115,7 @@ function Navbar() {
                 </li>
                 <li>
                   <a
-                    href="#about"
+                    href=""
                     className="block text-lg"
                     onClick={() => navigate("/contact-us")}
                   >
@@ -125,7 +125,7 @@ function Navbar() {
                 </li>
                 <li>
                   <a
-                    href="#about"
+                    href=""
                     className="block text-lg"
                     onClick={() => navigate("/about-us")}
                   >
@@ -136,7 +136,7 @@ function Navbar() {
                 {token && (
                   <li>
                     <a
-                      href="#logout"
+                      href=""
                       className="block text-lg"
                       onClick={handleLogout}
                     >
@@ -155,19 +155,19 @@ function Navbar() {
               className="hidden md:block rounded-lg px-3 py-1 hover:bg-gray-300"
               onClick={() => navigate("/feedback")}
             >
-              <a href="#feedback">Feedback</a>
+              <a href="">Feedback</a>
             </li>
             <li
               className="hidden md:block rounded-lg px-3 py-1 hover:bg-gray-300"
               onClick={() => navigate("/contact-us")}
             >
-              <a href="#contact">Contact Us</a>
+              <a href="">Contact Us</a>
             </li>
             <li
               className="hidden md:block rounded-lg px-3 py-1 hover:bg-gray-300"
               onClick={() => navigate("/about-us")}
             >
-              <a href="#about">About Us</a>
+              <a href="">About Us</a>
             </li>
             <div className="relative">
               <img
@@ -240,13 +240,13 @@ function Navbar() {
               className="hidden md:block rounded-lg px-3 py-1 hover:bg-gray-300"
               onClick={() => navigate("/signup")}
             >
-              <a href="#feedback">Sign Up</a>
+              <a href="">Sign Up</a>
             </li>
             <li
               className="hidden md:block rounded-lg px-3 py-1 hover:bg-gray-300"
               onClick={() => navigate("/login")}
             >
-              <a href="#contact">Log In</a>
+              <a href="">Log In</a>
             </li>
             <div className="relative">
               <img

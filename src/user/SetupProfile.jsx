@@ -29,7 +29,7 @@ function SetupProfile() {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.post("http://15.206.133.74/user/uploadinfo", formData, {
+      const response = await axios.post("https://15.206.133.74/user/uploadinfo", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

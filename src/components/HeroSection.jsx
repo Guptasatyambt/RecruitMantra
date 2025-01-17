@@ -1,9 +1,12 @@
-import React from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Navigation, Autoplay } from "swiper/modules";
+import React, { useEffect } from "react";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
+import { Card } from "./Card";
+import {
+  ResponsiveContainer,
+  StackedCarousel,
+} from "react-stacked-center-carousel";
 
 function HeroSection() {
   const slides = [
@@ -17,40 +20,42 @@ function HeroSection() {
       image: "assets/slider 3.png",
     },
   ];
+  const ref = React.useRef();
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      ref.current?.goNext();
+    }, 3000); 
+    return () => clearInterval(interval); 
+  }, []);
 
   return (
     <>
       <section className="py-4 md:py-6 px-4">
-        <Swiper
-          modules={[Pagination, Navigation, Autoplay]}
-          
-          spaceBetween={30}
-          slidesPerView={1.5}
-          // pagination={{ clickable: true }}
-          // navigation={true}
-          centeredSlides={true}
-          height={400}
-          autoplay={{
-          delay: 2500, 
-          disableOnInteraction: false, 
-        }}
-        >
-          {slides.map((slide, index) => (
-            <SwiperSlide key={index}>
-              <div className="md:h-[30rem] flex flex-col justify-center items-center">
-                <img
-                  src={slide.image}
-                  alt={`Slide ${index + 1}`}
-                  className="h-full object-center rounded-md mb-4"
-                />
-                <p className="text-lg">{slide.caption}</p>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+        <ResponsiveContainer
+          carouselRef={ref}
+          render={(parentWidth, carouselRef) => {
+            let currentVisibleSlide = 3;
+            if (parentWidth <= 1440) currentVisibleSlide = 3;
+            if (parentWidth <= 1080) currentVisibleSlide = 1;
+            console.log(parentWidth);
+            return (
+              <StackedCarousel
+                ref={carouselRef}
+                slideComponent={Card}
+                slideWidth={parentWidth < 800 ? parentWidth - 40 : 750}
+                carouselWidth={parentWidth}
+                height={parentWidth < 500 ? parentWidth - 120 : 500}
+                data={slides}
+                currentVisibleSlide={currentVisibleSlide}
+                maxVisibleSlide={5}
+              />
+            );
+          }}
+        />
       </section>
 
-      <section className="w-full px-8 lg:flex gap-52 my-4 md:my-5 md:py-6">
+      <section className="w-full md:px-8 px-4 lg:flex gap-52 my-4 md:my-5 md:py-6">
         <div className="container lg:w-[50%] px-8 mx-auto flex flex-col items-center lg:text-left">
           <h2 className="text-4xl md:text-6xl py-8 md:mb-4 text-amber-950 font-serif">
             Welcome to RecruitMantra

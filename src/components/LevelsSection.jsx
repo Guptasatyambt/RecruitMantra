@@ -35,7 +35,7 @@ function LevelsSection() {
   ];
 
   return (
-    <section className="py-6 md:py-8">
+    <section className="py-1 md:py-2">
       <div className="container px-16 mx-auto">
         <h3 className="text-4xl md:text-5xl text-amber-950 font-normal text-center mb-8 font-serif">
           Interviews

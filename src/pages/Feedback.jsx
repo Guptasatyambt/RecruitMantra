@@ -26,7 +26,7 @@ function Feedback() {
     setSubmitted(true);
     try {
       const response = await axios.post(
-        "http://15.206.133.74/feedback/uploadfeedback",
+        "https://15.206.133.74/feedback/uploadfeedback",
         {
           userFeedback: formData.feedback,
         }
@@ -46,7 +46,7 @@ function Feedback() {
         Help us improve by sharing your thoughts!
       </p>
       <img
-        className="w-20 h-20 mx-auto my-5 sm:w-16 sm:h-16 md:w-24 md:h-24"
+        className="sm:w-20 sm:h-20 mx-auto my-5 w-0 h-0 md:w-24 md:h-24"
         alt="Recruit-Mantra-Logo"
         src="https://internview-assets.s3.ap-south-1.amazonaws.com/batch-13---originals-8-high-resolution-logo-grayscale-transparent+(1).png"
       />
