@@ -6,13 +6,19 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [loading, setLoading] = useState(false); // For loading state
-  const [error, setError] = useState(""); // For error message
+  const [loading, setLoading] = useState(false); 
+  const [error, setError] = useState(""); 
+  const [showPassword, setShowPassword] = useState(false); 
 
   const navigate = useNavigate();
 
   const handleSignUp = async (e) => {
     e.preventDefault();
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
 
     // Simple validation for matching passwords
     if (password !== confirmPassword) {
@@ -89,7 +95,7 @@ const SignUp = () => {
               Password
             </label>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -98,6 +104,7 @@ const SignUp = () => {
               required
             />
           </div>
+
           <div className="mb-4">
             <label
               htmlFor="confirmPassword"
@@ -106,7 +113,7 @@ const SignUp = () => {
               Confirm Password
             </label>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               id="confirmPassword"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
@@ -114,6 +121,18 @@ const SignUp = () => {
               placeholder="Confirm your password"
               required
             />
+          </div>
+          <div className="flex items-center mb-4">
+            <input
+              type="checkbox"
+              id="showPassword"
+              checked={showPassword}
+              onChange={() => setShowPassword(!showPassword)}
+              className="mr-2"
+            />
+            <label htmlFor="showPassword" className="text-sm text-gray-700">
+              Show Password
+            </label>
           </div>
           <button
             type="submit"

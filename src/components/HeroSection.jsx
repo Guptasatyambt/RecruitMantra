@@ -2,57 +2,14 @@ import React, { useEffect } from "react";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
-import { Card } from "./Card";
-import {
-  ResponsiveContainer,
-  StackedCarousel,
-} from "react-stacked-center-carousel";
+import CenteredCarousel from "./CenteredCarousel";
 
 function HeroSection() {
-  const slides = [
-    {
-      image: "assets/slider 1.png",
-    },
-    {
-      image: "assets/slider 2.png",
-    },
-    {
-      image: "assets/slider 3.png",
-    },
-  ];
-  const ref = React.useRef();
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      ref.current?.goNext();
-    }, 3000); 
-    return () => clearInterval(interval); 
-  }, []);
 
   return (
     <>
       <section className="py-4 md:py-6 px-4">
-        <ResponsiveContainer
-          carouselRef={ref}
-          render={(parentWidth, carouselRef) => {
-            let currentVisibleSlide = 3;
-            if (parentWidth <= 1440) currentVisibleSlide = 3;
-            if (parentWidth <= 1080) currentVisibleSlide = 1;
-            console.log(parentWidth);
-            return (
-              <StackedCarousel
-                ref={carouselRef}
-                slideComponent={Card}
-                slideWidth={parentWidth < 800 ? parentWidth - 40 : 750}
-                carouselWidth={parentWidth}
-                height={parentWidth < 500 ? parentWidth - 120 : 500}
-                data={slides}
-                currentVisibleSlide={currentVisibleSlide}
-                maxVisibleSlide={5}
-              />
-            );
-          }}
-        />
+        <CenteredCarousel />
       </section>
 
       <section className="w-full md:px-8 px-4 lg:flex gap-52 my-4 md:my-5 md:py-6">

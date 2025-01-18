@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false); 
+  
 
   const navigate = useNavigate();
 
@@ -25,7 +27,6 @@ const Login = () => {
 
     } catch (error) {
       console.error('Login failed:', error.response?.data || error.message);
-      alert('Login failed!');
     }
   };
 
@@ -56,7 +57,7 @@ const Login = () => {
               Password
             </label>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -64,6 +65,18 @@ const Login = () => {
               placeholder="Enter your password"
               required
             />
+          </div>
+          <div className="flex items-center mb-4">
+            <input
+              type="checkbox"
+              id="showPassword"
+              checked={showPassword}
+              onChange={() => setShowPassword(!showPassword)}
+              className="mr-2"
+            />
+            <label htmlFor="showPassword" className="text-sm text-gray-700">
+              Show Password
+            </label>
           </div>
           <button
             type="submit"
