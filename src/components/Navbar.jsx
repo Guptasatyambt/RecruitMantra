@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
   const buttonRef = useRef(null);
