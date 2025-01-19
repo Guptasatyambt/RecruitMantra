@@ -26,7 +26,7 @@ function Feedback() {
     setSubmitted(true);
     try {
       const response = await axios.post(
-        "https://15.206.133.74/feedback/uploadfeedback",
+        "https://api.recruitmantra.com/feedback/uploadfeedback",
         {
           userFeedback: formData.feedback,
         }

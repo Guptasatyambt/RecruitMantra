@@ -30,7 +30,7 @@ const SignUp = () => {
     setError("");
 
     try {
-      const response = await axios.post("https://15.206.133.74/user/signin", {
+      const response = await axios.post("https://api.recruitmantra.com/user/signin", {
         email,
         password,
       });

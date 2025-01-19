@@ -9,7 +9,7 @@ function Intermediate() {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        "https://15.206.133.74/interview/start",
+        "https://api.recruitmantra.com/interview/start",
         {
           level: "intermediate",
         },
