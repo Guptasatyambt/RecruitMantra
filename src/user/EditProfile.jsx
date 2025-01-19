@@ -30,7 +30,7 @@ const EditProfile = () => {
     try {
       // Get the profile image upload URL
       const profileImageUrlResponse = await axios.post(
-        "https://15.206.133.74/user/updateimage",
+        "https://api.recruitmantra.com/user/updateimage",
         {},
         {
           headers: {
@@ -54,7 +54,7 @@ const EditProfile = () => {
 
       // Get the resume upload URL
       const resumeUrlResponse = await axios.post(
-        "https://15.206.133.74/user/updateresume",
+        "https://api.recruitmantra.com/user/updateresume",
         {},
         {
           headers: {
@@ -78,7 +78,7 @@ const EditProfile = () => {
 
       // Update year
       await axios.post(
-        "https://15.206.133.74/user/updateyear",
+        "https://api.recruitmantra.com/user/updateyear",
         { year: formData.year },
         {
           headers: {

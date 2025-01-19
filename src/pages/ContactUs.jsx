@@ -24,7 +24,7 @@ function ContactUs() {
 
     try {
       const response = await axios.post(
-        "https://15.206.133.74/feedback/contact-us",
+        "https://api.recruitmantra.com/feedback/contact-us",
         {
           name: formData.name,
           email: formData.email,

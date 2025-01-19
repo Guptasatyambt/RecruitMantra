@@ -13,7 +13,7 @@ const InterviewDetails = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `https://15.206.133.74/interview/getdetail?interview_id=${interviewId}`,
+        `https://api.recruitmantra.com/interview/getdetail?interview_id=${interviewId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

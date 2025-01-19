@@ -32,7 +32,7 @@ function RedeemCoins() {
   const fetchUserCoins = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("https://15.206.133.74/user/getcoin", {
+      const response = await axios.get("https://api.recruitmantra.com/user/getcoin", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
