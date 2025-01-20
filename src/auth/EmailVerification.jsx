@@ -65,7 +65,7 @@ const EmailVerification = () => {
       if (response.data.success) {
         setMessage(response.data.message);  // "OTP verified successfully"
         setTimeout(() => {
-          navigate("/login");
+          navigate("/setup-profile");
         }, 2000);
       }
     } catch (error) {

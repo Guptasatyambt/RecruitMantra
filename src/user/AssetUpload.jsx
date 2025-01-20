@@ -195,6 +195,15 @@ function AssetUpload() {
               </button>
             </div>
           </form>
+          <div className="my-2 flex justify-center">
+            <button
+              type="button"
+              onClick={()=> navigate("/")}
+              className=" flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-800 hover:bg-amber-900"
+            >
+              Skip
+            </button>
+          </div>
         </div>
       </div>
     </div>

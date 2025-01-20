@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import LineGraph from "../components/LineChart";
 
 const InterviewDetails = () => {
   const interviewId = useParams().id;
@@ -23,7 +24,7 @@ const InterviewDetails = () => {
       );
       setDetails(response.data.interview);
       setVideos(response.data.videos);
-      console.log(details);
+      console.log(response.data);
     } catch (error) {
       console.error(error);
     }
@@ -75,21 +76,14 @@ const InterviewDetails = () => {
           {/* Accuracy Graph */}
           <div className="bg-white p-4 rounded-lg shadow-md text-center">
             <h3 className="font-semibold mb-2">Accuracy Graph</h3>
-            <img
-              src="https://via.placeholder.com/300x200"
-              alt="Accuracy Graph"
-              className="w-full"
-            />
+            <LineGraph data={details?.accuracy} />
           </div>
 
           {/* Confidence Graph */}
           <div className="bg-white p-4 rounded-lg shadow-md text-center">
             <h3 className="font-semibold mb-2">Confidence Graph</h3>
-            <img
-              src="https://via.placeholder.com/300x200"
-              alt="Confidence Graph"
-              className="w-full"
-            />
+            <LineGraph data={details?.confidence} />
+
           </div>
         </div>
       </div>

@@ -14,7 +14,7 @@ const CenteredCarousel = () => {
   ];
 
   return (
-    <div className="w-full mx-auto pt-12 px-4 sm:px-8 md:px-16 lg:px-32">
+    <div className="w-full mx-auto pt-12 px-4 sm:px-8 md:px-16 lg:px-32 overflow-x-hidden">
       <Swiper
         effect={"coverflow"}
         grabCursor={true}
@@ -37,7 +37,7 @@ const CenteredCarousel = () => {
         }}
         coverflowEffect={{
           rotate: 50,
-          stretch: 0,
+          stretch: -200,
           depth: 100,
           modifier: 1,
           slideShadows: true,

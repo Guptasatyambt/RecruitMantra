@@ -24,25 +24,30 @@ const Profile = () => {
   };
 
   const [user, setUser] = useState(demoUser);
+  const [resumeLink, setResumeLink] = useState();
+  const [imageLink, setImageLink] = useState();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/signup");
-        return;
-      }
-      try {
-        const response = await axios.get("https://api.recruitmantra.com/user/getinfo", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUser(response.data.user);
-      } catch (err) {
-        console.error("Error fetching user data:", err);
-      }
-    };
+  const fetchUserData = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/signup");
+      return;
+    }
+    try {
+      const response = await axios.get("https://api.recruitmantra.com/user/getinfo", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUser(response.data.user);
+      setResumeLink(response.data.resume);
+      setImageLink(response.data.image);
+    } catch (err) {
+      console.error("Error fetching user data:", err);
+    }
+  };
 
+  useEffect(() => {
+    
     fetchUserData();
   }, [navigate]);
 
@@ -52,7 +57,7 @@ const Profile = () => {
         {/* Profile Header */}
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6 border-b pb-6">
           <img
-            src={`/${user.profileimage}`}
+            src={imageLink}
             alt="Profile"
             className="w-36 h-36 rounded-full border-4 border-blue-300 object-cover"
           />
@@ -61,7 +66,7 @@ const Profile = () => {
             <p className="text-base md:text-lg text-gray-600 mt-1">{user.college}</p>
             <p className="text-sm md:text-lg text-gray-600">{user.branch}</p>
             <a
-              href={`/${user.resume}`}
+              href={resumeLink}
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm md:text-base mt-3 inline-block bg-blue-600 text-white px-2 md:px-4 py-2 rounded-md hover:bg-blue-700"
