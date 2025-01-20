@@ -29,18 +29,20 @@ function SetupProfile() {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.post("https://api.recruitmantra.com/user/uploadinfo", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.post(
+        "https://api.recruitmantra.com/user/uploadinfo",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    //   console.log(response.data);
+      //   console.log(response.data);
       navigate("/upload-documents");
     } catch (error) {
-
-        console.log(error.message);
-        
+      console.log(error.message);
     } finally {
       setLoading(false);
     }
@@ -183,6 +185,15 @@ function SetupProfile() {
               </button>
             </div>
           </form>
+          <div className="my-2 flex justify-center">
+            <button
+              type="button"
+              onClick={()=> navigate("/")}
+              className=" flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-800 hover:bg-amber-900"
+            >
+              Skip
+            </button>
+          </div>
         </div>
       </div>
     </div>
