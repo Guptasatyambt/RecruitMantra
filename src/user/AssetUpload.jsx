@@ -195,7 +195,7 @@ function AssetUpload() {
               </button>
             </div>
           </form>
-          <div className="my-2 flex justify-center">
+{/*           <div className="my-2 flex justify-center">
             <button
               type="button"
               onClick={()=> navigate("/")}
@@ -203,7 +203,7 @@ function AssetUpload() {
             >
               Skip
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
