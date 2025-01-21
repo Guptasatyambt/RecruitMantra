@@ -15,16 +15,33 @@ const SignUp = () => {
   const handleSignUp = async (e) => {
     e.preventDefault();
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters long.");
-      return;
-    }
+    // if (password.length < 8) {
+    //   setError("Password must be at least 8 characters long.");
+    //   return;
+    // }
 
-    // Simple validation for matching passwords
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
+    // // Simple validation for matching passwords
+    // if (password !== confirmPassword) {
+    //   setError("Passwords do not match.");
+    //   return;
+    // }
+    const validationErrors = [];
+    if (value.length < 8) {
+      validationErrors.push("Password must be at least 8 characters long.");
     }
+    if (!/[A-Z]/.test(value)) {
+      validationErrors.push("Password must contain at least one uppercase letter.");
+    }
+    if (!/[a-z]/.test(value)) {
+      validationErrors.push("Password must contain at least one lowercase letter.");
+    }
+    if (!/[0-9]/.test(value)) {
+      validationErrors.push("Password must contain at least one number.");
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) {
+      validationErrors.push("Password must contain at least one special character.");
+    }
+    setErrors(validationErrors);
 
     setLoading(true);
     setError("");
