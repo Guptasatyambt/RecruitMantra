@@ -20,29 +20,37 @@ const SignUp = () => {
     //   return;
     // }
 
-    // // Simple validation for matching passwords
-    // if (password !== confirmPassword) {
-    //   setError("Passwords do not match.");
-    //   return;
-    // }
-    const validationErrors = [];
+    // const validationErrors = [];
     if (password.length < 8) {
-      validationErrors.push("Password must be at least 8 characters long.");
+        setError("Password must be at least 8 characters long.");
+      return;
+      // validationErrors.push("Password must be at least 8 characters long.");
     }
     if (!/[A-Z]/.test(password)) {
-      validationErrors.push("Password must contain at least one uppercase letter.");
+        setError("Password must contain at least one uppercase letter.");
+      return;
+      // validationErrors.push("Password must contain at least one uppercase letter.");
     }
     if (!/[a-z]/.test(password)) {
-      validationErrors.push("Password must contain at least one lowercase letter.");
+        setError("Password must contain at least one lowercase letter.");
+      return;
+      // validationErrors.push("Password must contain at least one lowercase letter.");
     }
     if (!/[0-9]/.test(password)) {
-      validationErrors.push("Password must contain at least one number.");
+        setError("Password must contain at least one number.");
+      return;
+      // validationErrors.push("Password must contain at least one number.");
     }
     if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-      validationErrors.push("Password must contain at least one special character.");
+        setError("Password must contain at least one special character.");
+      return;
     }
-    setError(validationErrors);
-
+    // setError(validationErrors);
+ // Simple validation for matching passwords
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
     setLoading(true);
     setError("");
 
