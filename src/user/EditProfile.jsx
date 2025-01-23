@@ -66,23 +66,23 @@ const EditProfile = () => {
       // Upload resume to the returned URL
       if (formData.resume) {
         const resumeUploadUrl = resumeUrlResponse.data.data.resume;
-        // const resumeFormData = new FormData();
-        // resumeFormData.append("file", formData.resume);
+        const resumeFormData = new FormData();
+        resumeFormData.append("file", formData.resume);
         
-      //   await axios.put(resumeUploadUrl, resumeFormData, {
-      //     headers: {
-      //       "Content-Type": "multipart/form-data",
-      //     },
-      //   });
-      // }
-        const fileBytesResume = await formData.resume.arrayBuffer();// Convert file to ArrayBuffer (binary data)
+        await axios.put(resumeUploadUrl, resumeFormData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      }
+        // const fileBytesResume = await formData.resume.arrayBuffer();// Convert file to ArrayBuffer (binary data)
 
     // Send the PUT request to upload the file
-    const response = await axios.put(resumeUploadUrl, fileBytesResume, {
-      headers: {
-        'Content-Type': 'application/pdf', // Correct MIME type for the file
-      },
-    });
+    // const response = await axios.put(resumeUploadUrl, fileBytesResume, {
+    //   headers: {
+    //     'Content-Type': 'application/pdf', // Correct MIME type for the file
+    //   },
+    // });
 
       // Update year
       await axios.post(
