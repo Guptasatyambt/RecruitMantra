@@ -67,7 +67,7 @@ function AssetUpload() {
 
       await axios.put(response.data.url_image, photo, {
         headers: {
-          'Content-Type': photo.type
+          'Content-Type': image/jpeg
         },
         onUploadProgress: (progressEvent) => {
           const progress = Math.round((progressEvent.loaded * 50) / progressEvent.total);
@@ -77,7 +77,7 @@ function AssetUpload() {
 
       await axios.put(response.data.url_resume, resume, {
         headers: {
-          'Content-Type': resume.type
+          'Content-Type': application/pdf
         },
         onUploadProgress: (progressEvent) => {
           const progress = 50 + Math.round((progressEvent.loaded * 50) / progressEvent.total);
