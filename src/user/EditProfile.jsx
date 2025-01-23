@@ -193,12 +193,14 @@ const EditProfile = () => {
       // Upload profile image to the returned URL
       if (formData.profileimage) {
         const profileImageUploadUrl = profileImageUrlResponse.data.data.profile;
-        const imageFormData = new FormData();
-        imageFormData.append("file", formData.profileimage);
+        const fileBytesImage = await formData.profileimage.arrayBuffer();
+        // const imageFormData = new FormData();
+        // imageFormData.append("file", formData.profileimage);
         
-        await axios.put(profileImageUploadUrl, imageFormData, {
+        
+        await axios.put(profileImageUploadUrl, fileBytesImage, {
           headers: {
-            "Content-Type": "multipart/form-data",
+            "Content-Type": "image/jpeg",
           },
         });
       }
@@ -216,17 +218,7 @@ const EditProfile = () => {
       
       // Upload resume to the returned URL
       if (formData.resume) {
-        // const resumeUploadUrl = resumeUrlResponse.data.data.resume;
-        // const resumeFormData = new FormData();
-        // resumeFormData.append("file", formData.resume);
-        
-        // await axios.put(resumeUploadUrl, resumeFormData, {
-        //   headers: {
-        //     "Content-Type": "multipart/form-data",
-        //   },
-        // });
         const resumeUploadUrl = resumeUrlResponse.data.data.resume;
-
         const fileBytesResume = await formData.resume.arrayBuffer(); // Convert file to ArrayBuffer
         await axios.put(resumeUploadUrl, fileBytesResume, {
           headers: {
