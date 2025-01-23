@@ -38,13 +38,13 @@ const EditProfile = () => {
           },
         }
       );
-      
-      // Upload profile image to the returned URL
+
+      // Upload profile image
       if (formData.profileimage) {
         const profileImageUploadUrl = profileImageUrlResponse.data.data.profile;
         const imageFormData = new FormData();
         imageFormData.append("file", formData.profileimage);
-        
+
         await axios.put(profileImageUploadUrl, imageFormData, {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -62,27 +62,18 @@ const EditProfile = () => {
           },
         }
       );
-      
-      // Upload resume to the returned URL
+
+      // Upload resume
       if (formData.resume) {
         const resumeUploadUrl = resumeUrlResponse.data.data.resume;
-        const resumeFormData = new FormData();
-        resumeFormData.append("file", formData.resume);
-        
-        await axios.put(resumeUploadUrl, resumeFormData, {
+
+        const fileBytesResume = await formData.resume.arrayBuffer(); // Convert file to ArrayBuffer
+        await axios.put(resumeUploadUrl, fileBytesResume, {
           headers: {
-            "Content-Type": "multipart/form-data",
+            "Content-Type": "application/pdf", // Correct MIME type for resume
           },
         });
       }
-        // const fileBytesResume = await formData.resume.arrayBuffer();// Convert file to ArrayBuffer (binary data)
-
-    // Send the PUT request to upload the file
-    // const response = await axios.put(resumeUploadUrl, fileBytesResume, {
-    //   headers: {
-    //     'Content-Type': 'application/pdf', // Correct MIME type for the file
-    //   },
-    // });
 
       // Update year
       await axios.post(
@@ -119,78 +110,7 @@ const EditProfile = () => {
           />
         </div>
 
-        {/* Email */}
-        <div className="form-group">
-          <label className="text-gray-800 text-lg font-semibold">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full p-4 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ease-in-out duration-200"
-          />
-        </div>
-
-        {/* College */}
-        <div className="form-group">
-          <label className="text-gray-800 text-lg font-semibold">College</label>
-          <input
-            type="text"
-            name="college"
-            value={formData.college}
-            onChange={handleChange}
-            className="w-full p-4 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ease-in-out duration-200"
-          />
-        </div>
-
-        {/* Branch */}
-        <div className="form-group">
-          <label className="text-gray-800 text-lg font-semibold">Branch</label>
-          <input
-            type="text"
-            name="branch"
-            value={formData.branch}
-            onChange={handleChange}
-            className="w-full p-4 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ease-in-out duration-200"
-          />
-        </div>
-
-        {/* Specialization */}
-        <div className="form-group">
-          <label className="text-gray-800 text-lg font-semibold">Specialization</label>
-          <input
-            type="text"
-            name="specialization"
-            value={formData.specialization}
-            onChange={handleChange}
-            className="w-full p-4 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ease-in-out duration-200"
-          />
-        </div>
-
-        {/* Year */}
-        <div className="form-group">
-          <label className="text-gray-800 text-lg font-semibold">Year</label>
-          <input
-            type="text"
-            name="year"
-            value={formData.year}
-            onChange={handleChange}
-            className="w-full p-4 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ease-in-out duration-200"
-          />
-        </div>
-
-        {/* Interest */}
-        <div className="form-group">
-          <label className="text-gray-800 text-lg font-semibold">Interest</label>
-          <input
-            type="text"
-            name="interest"
-            value={formData.interest}
-            onChange={handleChange}
-            className="w-full p-4 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ease-in-out duration-200"
-          />
-        </div>
-
+        {/* Add other input fields as per your code */}
         {/* Profile Image */}
         <div className="form-group">
           <label className="text-gray-800 text-lg font-semibold">Profile Image</label>
@@ -215,7 +135,7 @@ const EditProfile = () => {
           />
         </div>
 
-        {/* Submit Button */}
+        {/* Submit */}
         <button
           type="submit"
           className="w-full bg-blue-600 text-white py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition duration-200 ease-in-out"
