@@ -185,7 +185,7 @@ const EditProfile = () => {
         {},
         {
           headers: {
-            Authorization: Bearer ${localStorage.getItem("token")},
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
@@ -209,7 +209,7 @@ const EditProfile = () => {
         {},
         {
           headers: {
-            Authorization: Bearer ${localStorage.getItem("token")},
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
@@ -249,7 +249,7 @@ const EditProfile = () => {
         { year: formData.year },
         {
           headers: {
-            Authorization: Bearer ${localStorage.getItem("token")},
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
