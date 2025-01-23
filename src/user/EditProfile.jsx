@@ -216,13 +216,21 @@ const EditProfile = () => {
       
       // Upload resume to the returned URL
       if (formData.resume) {
-        const resumeUploadUrl = resumeUrlResponse.data.data.resume;
-        const resumeFormData = new FormData();
-        resumeFormData.append("file", formData.resume);
+        // const resumeUploadUrl = resumeUrlResponse.data.data.resume;
+        // const resumeFormData = new FormData();
+        // resumeFormData.append("file", formData.resume);
         
-        await axios.put(resumeUploadUrl, resumeFormData, {
+        // await axios.put(resumeUploadUrl, resumeFormData, {
+        //   headers: {
+        //     "Content-Type": "multipart/form-data",
+        //   },
+        // });
+        const resumeUploadUrl = resumeUrlResponse.data.data.resume;
+
+        const fileBytesResume = await formData.resume.arrayBuffer(); // Convert file to ArrayBuffer
+        await axios.put(resumeUploadUrl, fileBytesResume, {
           headers: {
-            "Content-Type": "multipart/form-data",
+            "Content-Type": "application/pdf", // Correct MIME type for resume
           },
         });
       }
