@@ -53,15 +53,12 @@ export default function RecordWebcam({ startRecording, handleRecordedVideo, vide
         // if (handleRecordedVideo) {
           // console.log("Video sent to parent", blob);
           
-          handleRecordedVideo(blob, videoName);
+          handleRecordedVideo(blob, videoName, mediaRecorderRef.current);
         // }
       });
     }
   }, [handleRecordedVideo]);
 
-  const convertWebMToMP4 = async (blob, videoName) => {
-    
-  };
 
 
   const handleDownload = useCallback(() => {

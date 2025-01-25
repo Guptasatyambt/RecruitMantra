@@ -4,7 +4,7 @@ import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
 
-const Answer = () => {
+const Answer = ({startListening}) => {
   const {
     transcript,
     listening,
@@ -25,7 +25,7 @@ const Answer = () => {
       return;
     }
 
-    if (browserSupportsContinuousListening) {
+    if (browserSupportsContinuousListening && startListening) {
       SpeechRecognition.startListening({ continuous: true });
     } else {
       SpeechRecognition.startListening();
@@ -34,7 +34,7 @@ const Answer = () => {
     return () => {
       SpeechRecognition.stopListening();
     };
-  }, [browserSupportsSpeechRecognition, browserSupportsContinuousListening, isMicrophoneAvailable]);
+  }, [browserSupportsSpeechRecognition, browserSupportsContinuousListening, isMicrophoneAvailable, startListening]);
 
   if (!browserSupportsSpeechRecognition) {
     return <span>Browser doesn't support speech recognition.</span>;

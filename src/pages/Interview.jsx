@@ -20,11 +20,15 @@ function Interview() {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [startRecording, setStartRecording] = useState(true);
+  const [startListening, setStartListening] = useState(true);
+  const [mediaRecorderRef, setMediaRecorderRef] = useState();
 
   const interviewId = useParams().id;
   const navigate = useNavigate();
 
-
+ const params = useParams();
+ console.log(params);
+ 
   const handleTimerExpired = () => {
     setIsExpired(true);
     setRestartAgain(false);
@@ -32,6 +36,9 @@ function Interview() {
 
   const handleNextQuestion = () => {
     setStartRecording(false);
+    audioAnalyse();
+    videoAnalyse();
+    answerAccuracy();
     setCurrentQuestionIndex((prevIndex) =>
       prevIndex < questions.length - 1 ? prevIndex + 1 : 0
     );
@@ -58,7 +65,8 @@ function Interview() {
     }
   };
 
-  const handleRecordedVideo = async (videoBlob, currentQuestion) => {
+  const handleRecordedVideo = async (videoBlob, currentQuestion, mediaRecorderRefCurrent) => {
+    setMediaRecorderRef(mediaRecorderRefCurrent);
     if (videoBlob) {
       const url = URL.createObjectURL(videoBlob);
       setVideoUrl(url);
@@ -159,6 +167,11 @@ function Interview() {
   };
 
   const handleEndInterview = async () => {
+
+    if(mediaRecorderRef) {
+      mediaRecorderRef.destroy();
+    }
+    setStartRecording(false);
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -236,7 +249,7 @@ function Interview() {
         <div className="border p-4 my-4 border-orange-950">
           <p className="">{questions[currentQuestionIndex]}</p>
         </div>
-        <Answer />
+        <Answer startListening={startListening} />
         <div className="flex justify-between space-x-10">
           <button className="text-2xl w-40 bg-red-800 rounded-full p-2 text-slate-200" onClick={handleEndInterview}>
             End
