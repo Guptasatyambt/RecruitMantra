@@ -18,6 +18,9 @@ import EditProfile from "../user/EditProfile";
 import InterviewDetails from "../pages/InterviewDetails";
 import SetupProfile from "../user/SetupProfile";
 import AssetUpload from "../user/AssetUpload";
+import Dashboard from "../components/Dashboard";
+import Companies from "../components/Companies";
+import Students from "../components/Student";
 
 function AppRoutes() {
   return (
@@ -51,6 +54,11 @@ function AppRoutes() {
       <Route exact path="/email-verification" element={<EmailVerification />} />
       {/* Test Route */}
       <Route exact path="/test" element={<Answer />} />
+
+      {/* TNP Routes */}
+      <Route exact path = "/dashboard" element={<Dashboard/>}/>
+      <Route exact path = "/companies" element={<Companies/>}/>
+      <Route exact path = "/students" element={<Students/>}/>
     </Routes>
   );
 }
