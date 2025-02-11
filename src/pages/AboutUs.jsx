@@ -3,121 +3,97 @@ import { BiLogoInstagram, BiLogoLinkedin } from "react-icons/bi";
 
 function AboutUs() {
   return (
-    <div className="text-center mt-10 p-5">
-      <h1 className="text-4xl font-semibold"> About Us</h1>
-      <div className="flex flex-col md:flex-row justify-center py-10 text-center md:text-left">
-        <div className="md:w-1/2 flex justify-center p-4">
+    <div className="min-h-screen bg-gray-100 text-gray-800">
+      {/* Hero Section */}
+      <div className="relative flex flex-col items-center justify-center text-center py-20 px-6 bg-gradient-to-r from-gray-700 to-gray-800 text-white">
+        <h1 className="text-6xl font-bold tracking-tight leading-none transform transition-all duration-500 hover:scale-105">
+          About Us
+        </h1>
+        <p className="mt-6 text-xl max-w-3xl text-gray-200">
+          Empowering individuals with confidence through structured interview preparation.
+        </p>
+      </div>
+
+      {/* Mission Section */}
+      <div className="container mx-auto px-6 py-24 bg-white">
+        <div className="flex flex-col md:flex-row items-center gap-16">
           <img
-            className="size-60 sm:size-64 lg:size-96 object-cover rounded-full"
-            alt=""
+            className="w-60 sm:w-72 md:w-96 rounded-2xl shadow-2xl transform hover:scale-105 transition duration-500"
             src="https://internview-assets.s3.ap-south-1.amazonaws.com/RecruitMantra_with_black_BG.jpg"
+            alt="RecruitMantra"
           />
-        </div>
-        <div className="md:w-1/2 p-4 space-y-2">
-          <h2 className="text-3xl font-medium">Our Aim</h2>
-          <p className="text-base md:text-lg">
-            At RecruitMantra, We are dedicated to preparing you for your
-            upcoming interviews through our comprehensive levels of interview
-            preparation. Our goal is to instill confidence in you and equip you
-            with the skills and knowledge needed to excel in your interviews,
-            ultimately making you job-ready. With our tailored approach and real
-            time analysis of your interview, we ensure that you are fully
-            prepared to tackle any interview scenario with confidence and
-            success.
-          </p>
+          <div className="md:w-1/2">
+            <h2 className="text-4xl font-bold text-gray-700">Our Mission</h2>
+            <p className="mt-6 text-xl text-gray-600 leading-relaxed">
+              At <span className="font-semibold text-gray-700">RecruitMantra</span>, our goal is to prepare you for your dream job
+              by providing real-time interview analysis, structured training, and confidence-building techniques.
+              We believe that every opportunity should be met with readiness and excellence.
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Our Team */}
-      <h1 className="text-4xl font-semibold mx-auto">Our Team</h1>
-      <div className="flex flex-col md:flex-row justify-center my-16 text-left border-2">
-        <div className="md:w-1/2 p-4">
-          <div className="flex justify-center">
-            <img
-              className="size-60 sm:size-64 lg:size-96 object-cover rounded-full"
-              alt=""
-              src="https://internview-assets.s3.ap-south-1.amazonaws.com/satyam+(2).jpg"
-            />
-          </div>
+      {/* Team Section */}
+      <div className="bg-gray-50 py-24">
+        <div className="container mx-auto px-6">
+          <h2 className="text-4xl font-bold text-center text-gray-700 mb-16">Meet Our Team</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            
+            {/* CEO Section */}
+            <div className="flex flex-col items-center bg-white p-8 rounded-2xl shadow-xl transform hover:scale-105 transition duration-500">
+              <img
+                className="w-56 h-56 rounded-full shadow-2xl object-cover border-4 border-gray-50"
+                src="https://internview-assets.s3.ap-south-1.amazonaws.com/satyam+(2).jpg"
+                alt="CEO"
+              />
+              <h3 className="text-2xl font-bold mt-6 text-gray-700">Satyam Upadhyay</h3>
+              <p className="text-gray-500 text-lg">Founder & CEO</p>
+              <p className="mt-4 text-center text-gray-600 text-lg italic">
+                "Confidence is the product of preparation, and success is its reward."
+              </p>
+              <div className="flex mt-6 gap-6">
+                <a href="https://www.linkedin.com/in/satyam-upadhyay-ba0582228/" className="text-gray-600 text-3xl transform hover:scale-110 transition duration-300 hover:text-gray-800">
+                  <BiLogoLinkedin />
+                </a>
+                <a href="https://www.instagram.com/satya.am._/" className="text-gray-600 text-3xl transform hover:scale-110 transition duration-300 hover:text-gray-800">
+                  <BiLogoInstagram />
+                </a>
+              </div>
+            </div>
 
-          <div className="flex justify-center">
-            <a href="#">
+            {/* CTO Section */}
+            <div className="flex flex-col items-center bg-white p-8 rounded-2xl shadow-xl transform hover:scale-105 transition duration-500">
               <img
-                className="w-10 m-4 inline"
-                src="https://internview-assets.s3.ap-south-1.amazonaws.com/Linkedin+(1).png"
-                alt="linkedin"
+                className="w-56 h-56 rounded-full shadow-2xl object-cover border-4 border-gray-50"
+                src="https://internview-assets.s3.ap-south-1.amazonaws.com/upendra+(1).jpg"
+                alt="CTO"
               />
-            </a>
-            <a href="#">
-              <img
-                className="w-10 m-4 inline"
-                src="https://internview-assets.s3.ap-south-1.amazonaws.com/Instagram+(1).png"
-                alt="instagram"
-              />
-            </a>
+              <h3 className="text-2xl font-bold mt-6 text-gray-700">Upendra Singh</h3>
+              <p className="text-gray-500 text-lg">Chief Technology Officer</p>
+              <p className="mt-4 text-center text-gray-600 text-lg italic">
+                "Through technology, we turn preparation into opportunity and dreams into reality."
+              </p>
+              <div className="flex mt-6 gap-6">
+                <a href="https://www.linkedin.com/in/upendra-singh-68b94622a/" className="text-gray-600 text-3xl transform hover:scale-110 transition duration-300 hover:text-gray-800">
+                  <BiLogoLinkedin />
+                </a>
+                <a href="https://www.instagram.com/mr_upen_/" className="text-gray-600 text-3xl transform hover:scale-110 transition duration-300 hover:text-gray-800">
+                  <BiLogoInstagram />
+                </a>
+              </div>
+            </div>
+
           </div>
-        </div>
-        <div className="md:w-1/2 p-4 space-y-10 md:space-y-16">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-center">Our CEO's Message</h2>
-          <p className="text-base sm:text-lg lg:text-xl text-center md:text-left">
-            As the Founder and CEO of RecruitMantra, I firmly believe that
-            preparation is the key to unlocking one's true potential. Our
-            mission is to empower individuals to approach interviews with
-            confidence, clarity, and the skills they need to succeed. Every mock
-            interview is a step toward transforming dreams into reality, and we
-            are proud to be part of that journey. Remember, success is not about
-            luck; it's about being ready for the moment when opportunity knocks.{" "}
-            <span className="font-semibold block">
-              "Confidence is the product of preparation, and success is its
-              reward."
-            </span>
-          </p>
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row justify-center my-16 text-left border-2">
-        <div className="md:w-1/2 p-4">
-          <div className="flex justify-center">
-            <img
-              className="size-60 sm:size-64 lg:size-96 object-cover rounded-full"
-              alt=""
-              src="https://internview-assets.s3.ap-south-1.amazonaws.com/upendra+(1).jpg"
-            />
-          </div>
-
-          <div className="flex justify-center">
-            <a href="#">
-              <img
-                className="w-10 m-4 inline"
-                src="https://internview-assets.s3.ap-south-1.amazonaws.com/Linkedin+(1).png"
-                alt="linkedin"
-              />
-            </a>
-            <a href="#">
-              <img
-                className="w-10 m-4 inline"
-                src="https://internview-assets.s3.ap-south-1.amazonaws.com/Instagram+(1).png"
-                alt="instagram"
-              />
-            </a>
-          </div>
-        </div>
-        <div className="md:w-1/2 p-4 space-y-10 md:space-y-16">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-center">Our CTO's Message</h2>
-          <p className="text-base sm:text-lg lg:text-xl text-center md:text-left">
-            At RecruitMantra, technology is the backbone of our mission to
-            empower individuals and transform aspirations into achievements. As
-            the CTO, I focus on building innovative solutions that make
-            preparation seamless and impactful. Our AI-driven platform ensures
-            every candidate is equipped with the confidence and skills to excel
-            when opportunity strikes. Together, we are redefining how people
-            prepare for success.{" "}
-            <span className="font-semibold block">
-              "Through technology, we turn preparation into opportunity and
-              dreams into reality."
-            </span>
-          </p>
-        </div>
+      {/* Closing Statement */}
+      <div className="bg-gradient-to-r from-gray-700 to-gray-800 text-white text-center py-16 px-6">
+        <h3 className="text-4xl font-bold tracking-tight">Join Us in Building a Confident Future</h3>
+        <p className="mt-6 text-xl max-w-3xl mx-auto text-gray-200">
+          We are committed to helping individuals excel in their interviews and career journeys.
+          With RecruitMantra, success is not a dream—it's a preparation away.
+        </p>
       </div>
     </div>
   );

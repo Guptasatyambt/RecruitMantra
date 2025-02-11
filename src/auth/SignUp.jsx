@@ -31,7 +31,7 @@ const SignUp = () => {
       setError("Password must contain at least one number.");
       return;
     }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) { 
       setError("Password must contain at least one special character.");
       return;
     }

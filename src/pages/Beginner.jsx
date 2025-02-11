@@ -1,11 +1,14 @@
 import axios from "axios";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 function Beginner() {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleStartInterview = async () => {
+    setIsLoading(true);
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
@@ -27,47 +30,93 @@ function Beginner() {
       );
     } catch (error) {
       console.error(error);
+      setIsLoading(false);
     }
   };
 
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.2 } },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
+
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row justify-center gap-4 py-5 px-5">
-      <div className="py-5 px-5 space-y-8">
-        <h2 className="text-2xl md:text-3xl font-bold">Beginner</h2>
-        {/* <p className="text-lg py-6 pr-6">
-          Get started with our beginner-friendly courses, designed to help you
-          develop essential skills and knowledge for your job search.
-        </p> */}
-        <img
-          className="md:h-[31rem]"
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col lg:flex-row justify-center items-center gap-8 py-8 px-4 sm:px-8">
+      {/* Left Section - Image and Title */}
+      <motion.div
+        className="w-full lg:w-1/2 max-w-2xl bg-white rounded-2xl shadow-lg p-6"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.h2
+          className="text-3xl md:text-4xl font-bold text-gray-800 mb-6"
+          variants={itemVariants}
+        >
+          Beginner
+        </motion.h2>
+        <motion.img
+          className="w-full h-auto rounded-lg"
           src="assets/beginnerPage.jpg"
           alt="Beginner Page"
-        ></img>
-      </div>
-      <div className="py-5 sm:px-5 mt-6 lg:mt-14">
-        <h2 className="text-2xl lg:text-4xl text-center font-semibold">
-          Key Instruction
-        </h2>
-        <ol
-          style={{ listStyleType: "decimal" }}
-          className="text-base lg:text-lg border-2 rounded-xl px-8 mt-6 py-6 space-y-4 md:space-y-2 xl:space-y-6"
+          variants={itemVariants}
+          whileHover={{ scale: 1.02 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        />
+      </motion.div>
+
+      {/* Right Section - Instructions and Button */}
+      <motion.div
+        className="w-full lg:w-1/2 max-w-2xl bg-white rounded-2xl shadow-lg p-6"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.h2
+          className="text-3xl lg:text-4xl font-semibold text-gray-800 text-center mb-6"
+          variants={itemVariants}
         >
-          <li>10 Seconds is Minimum Spent time for each question</li>
-          <li>Ensure You have stable and Strong internet Connectivity.</li>
-          <li>
-            Do Not Press Back Or Quit Interview In Middle to avoid Punishment in
-            form of Coins
-          </li>
-          <li>Try Answering Every Question For Better Result.</li>
-          <li>Focus Camera on your face and be audible for better Result</li>
-        </ol>
-        <button
-          className="text-xl md:text-2xl bg-orange-950 rounded-2xl my-6 p-5 text-slate-200"
+          Key Instructions
+        </motion.h2>
+        <motion.ol
+          className="space-y-4 text-gray-700 text-lg border-l-4 border-gray-300 pl-6"
+          variants={containerVariants}
+        >
+          {[
+            "Spend at least 10 seconds on each question.",
+            "Ensure you have a stable and strong internet connection.",
+            "Avoid pressing back or quitting the interview midway to prevent penalties.",
+            "Try to answer every question for better results.",
+            "Keep the camera focused on your face and speak clearly for better results.",
+          ].map((instruction, index) => (
+            <motion.li key={index} variants={itemVariants}>
+              <span className="font-semibold">{index + 1}.</span> {instruction}
+            </motion.li>
+          ))}
+        </motion.ol>
+        <motion.button
+          className="w-full mt-8 py-4 bg-gray-800 text-white text-xl md:text-2xl font-semibold rounded-xl shadow-md hover:bg-gray-700 transition-colors flex items-center justify-center gap-2"
           onClick={handleStartInterview}
+          variants={itemVariants}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          disabled={isLoading}
         >
-          Start Interview
-        </button>
-      </div>
+          {isLoading ? (
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>Starting...</span>
+            </div>
+          ) : (
+            "Start Interview"
+          )}
+        </motion.button>
+      </motion.div>
     </div>
   );
 }

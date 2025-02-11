@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useState } from "react";
+import { Send, Mail, User, Phone, MessageSquare, FileText } from "lucide-react";
 
 function ContactUs() {
   const [formData, setFormData] = useState({
@@ -39,108 +40,157 @@ function ContactUs() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-8 bg-white shadow-xl rounded-2xl mt-10 border border-gray-200 sm:p-6 md:p-8 lg:p-10">
-      <h2 className="text-3xl font-bold text-center text-gray-800 mb-6 sm:text-2xl lg:text-4xl">
-        Get in Touch
-      </h2>
-      <p className="text-center text-gray-500 mb-8 sm:text-sm md:text-base lg:text-lg">
-        We'd love to hear from you. Please fill out the form below and we'll get
-        back to you as soon as possible.
-      </p>
-      <img
-        className="sm:w-20 sm:h-20 mx-auto my-5 w-0 h-0 md:w-24 md:h-24"
-        alt="Recruit-Mantra-Logo"
-        src="https://internview-assets.s3.ap-south-1.amazonaws.com/batch-13---originals-8-high-resolution-logo-grayscale-transparent+(1).png"
-      />
-      {submitted ? (
-        <p className="text-green-600 text-center font-medium text-lg sm:text-base lg:text-xl">
-          Thank you for reaching out! We'll get back to you soon.
-        </p>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-gray-700 font-medium mb-1 sm:text-sm md:text-base">
-              Subject
-            </label>
-            <input
-              type="text"
-              name="subject"
-              value={formData.subject}
-              onChange={handleChange}
-              placeholder="Enter subject"
-              className="w-full mt-1 p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 sm:p-2 lg:p-4"
-              required
-            />
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 p-8">
+      <div className="max-w-4xl mx-auto">
+        {/* Header Section */}
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold text-gray-800 mb-4">
+            Get in Touch
+          </h2>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            We'd love to hear from you. Please fill out the form below, and we'll get back to you as soon as possible.
+          </p>
+        </div>
 
-          <div>
-            <label className="block text-gray-700 font-medium mb-1 sm:text-sm md:text-base">
-              Your Name
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Enter your full name"
-              className="w-full mt-1 p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 sm:p-2 lg:p-4"
-              required
-            />
-          </div>
+        {/* Main Content */}
+        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+          <div className="grid md:grid-cols-5">
+            {/* Left Side - Contact Info */}
+            <div className="md:col-span-2 bg-gradient-to-br from-gray-800 to-gray-900 p-8 text-white">
+              <div className="h-full flex flex-col justify-between">
+                <div>
+                  <img
+                    className="w-32 h-32 mx-auto mb-8"
+                    alt="Recruit-Mantra-Logo"
+                    src="https://internview-assets.s3.ap-south-1.amazonaws.com/batch-13---originals-8-high-resolution-logo-grayscale-transparent+(1).png"
+                  />
+                  <h3 className="text-2xl font-semibold mb-6">Let's Connect</h3>
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                      <Mail className="w-5 h-5" />
+                      <span>support@recruitmantra.com</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <Phone className="w-5 h-5" />
+                      <span>+91 XXX XXX XXXX</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-8 text-gray-300 text-sm">
+                  Working Hours: Monday - Friday, 9:00 AM - 6:00 PM IST
+                </div>
+              </div>
+            </div>
 
-          <div>
-            <label className="block text-gray-700 font-medium mb-1 sm:text-sm md:text-base">
-              Email Address
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Enter your email"
-              className="w-full mt-1 p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 sm:p-2 lg:p-4"
-              required
-            />
-          </div>
+            {/* Right Side - Form */}
+            <div className="md:col-span-3 p-8">
+              {submitted ? (
+                <div className="h-full flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Send className="w-8 h-8 text-green-600" />
+                    </div>
+                    <p className="text-2xl font-semibold text-green-600 mb-2">Message Sent!</p>
+                    <p className="text-gray-600">Thank you for reaching out. We'll get back to you soon.</p>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Subject */}
+                    <div className="md:col-span-2 relative group">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <FileText className="h-5 w-5 text-gray-400 group-focus-within:text-gray-600" />
+                      </div>
+                      <input
+                        type="text"
+                        name="subject"
+                        value={formData.subject}
+                        onChange={handleChange}
+                        placeholder="Subject"
+                        className="w-full pl-12 pr-4 py-3 border-b-2 border-gray-200 focus:border-gray-600 outline-none transition-colors bg-gray-50 rounded-lg"
+                        required
+                      />
+                    </div>
 
-          <div>
-            <label className="block text-gray-700 font-medium mb-1 sm:text-sm md:text-base">
-              Contact no.
-            </label>
-            <input
-              type="tel"
-              name="contact"
-              value={formData.contact}
-              onChange={handleChange}
-              placeholder="Enter your contact number"
-              className="w-full mt-1 p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 sm:p-2 lg:p-4"
-              required
-            />
-          </div>
+                    {/* Name */}
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <User className="h-5 w-5 text-gray-400 group-focus-within:text-gray-600" />
+                      </div>
+                      <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        placeholder="Your Name"
+                        className="w-full pl-12 pr-4 py-3 border-b-2 border-gray-200 focus:border-gray-600 outline-none transition-colors bg-gray-50 rounded-lg"
+                        required
+                      />
+                    </div>
 
-          <div>
-            <label className="block text-gray-700 font-medium mb-1 sm:text-sm md:text-base">
-              Your Message
-            </label>
-            <textarea
-              name="message"
-              value={formData.message}
-              onChange={handleChange}
-              placeholder="Type your message here"
-              rows="5"
-              className="w-full mt-1 p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 sm:p-2 lg:p-4"
-              required
-            />
-          </div>
+                    {/* Email */}
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <Mail className="h-5 w-5 text-gray-400 group-focus-within:text-gray-600" />
+                      </div>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="Email Address"
+                        className="w-full pl-12 pr-4 py-3 border-b-2 border-gray-200 focus:border-gray-600 outline-none transition-colors bg-gray-50 rounded-lg"
+                        required
+                      />
+                    </div>
 
-          <button
-            type="submit"
-            className="w-full py-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-semibold rounded-lg shadow-md hover:from-blue-600 hover:to-blue-800 transition-transform transform hover:-translate-y-1 sm:py-2 lg:py-4"
-          >
-            Send Message
-          </button>
-        </form>
-      )}
+                    {/* Contact */}
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <Phone className="h-5 w-5 text-gray-400 group-focus-within:text-gray-600" />
+                      </div>
+                      <input
+                        type="tel"
+                        name="contact"
+                        value={formData.contact}
+                        onChange={handleChange}
+                        placeholder="Contact Number"
+                        className="w-full pl-12 pr-4 py-3 border-b-2 border-gray-200 focus:border-gray-600 outline-none transition-colors bg-gray-50 rounded-lg"
+                        required
+                      />
+                    </div>
+
+                    {/* Message */}
+                    <div className="md:col-span-2 relative group">
+                      <div className="absolute top-3 left-4 pointer-events-none">
+                        <MessageSquare className="h-5 w-5 text-gray-400 group-focus-within:text-gray-600" />
+                      </div>
+                      <textarea
+                        name="message"
+                        value={formData.message}
+                        onChange={handleChange}
+                        placeholder="Your Message"
+                        rows="4"
+                        className="w-full pl-12 pr-4 py-3 border-b-2 border-gray-200 focus:border-gray-600 outline-none transition-colors bg-gray-50 rounded-lg resize-none"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full py-4 bg-gradient-to-r from-gray-700 to-gray-900 text-white font-semibold rounded-xl shadow-lg transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl flex items-center justify-center gap-2 group"
+                  >
+                    <span>Send Message</span>
+                    <Send className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
