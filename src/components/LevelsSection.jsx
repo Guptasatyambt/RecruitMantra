@@ -5,7 +5,7 @@ import { Check } from "lucide-react";
 function LevelsSection() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  
+
   const levels = [
     {
       name: "Beginner Level",
@@ -25,9 +25,9 @@ function LevelsSection() {
       name: "Intermediate Level",
       indicator: "/assets/svg_intermediate.png",
       points: [
-        "Basic Data Structure",
-        "Simple Algorithms",
-        "Fundamental Concepts"
+        "Advanced Data Structure",
+        "Complex Algorithms",
+        "System Design Basics"
       ],
       link: "/intermediate",
       checkColor: "text-yellow-500",
@@ -39,9 +39,9 @@ function LevelsSection() {
       name: "Advanced Level",
       indicator: "/assets/svg_advanced.png",
       points: [
-        "Basic Data Structure",
-        "Simple Algorithms",
-        "Fundamental Concepts"
+        "Complex System Design",
+        "Optimization Problems",
+        "Architectural Patterns"
       ],
       link: "/advance",
       checkColor: "text-red-500",
@@ -52,7 +52,7 @@ function LevelsSection() {
   ];
 
   return (
-    <section className="py-6 md:py-12 bg-gradient-to-b from-amber-50 to-white font-roboto">
+    <section className="py-6 md:py-12 bg-gray-50 font-roboto"> {/* Updated background color */}
       <div className="container mx-auto px-4 sm:px-6">
         <h3 className="text-2xl sm:text-3xl md:text-4xl text-black font-bold text-center mb-2 font-roboto">
           Technical Levels

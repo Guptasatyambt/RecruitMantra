@@ -10,7 +10,7 @@ const Navbar = () => {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeLink, setActiveLink] = useState("/");
+  const [activeLink, setActiveLink] = useState(window.location.pathname); // Initialize with current path
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const dropdownRef = useRef(null);

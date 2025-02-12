@@ -75,7 +75,7 @@ function Footer() {
               <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-gray-400" />
                 <a href="mailto:support@interviewai.com" className="text-gray-400 hover:text-white transition-colors">
-                  support@interviewai.com
+                  support@recruitmantra.com
                 </a>
               </div>
               <div className="flex items-center space-x-3">

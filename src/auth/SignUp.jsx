@@ -31,7 +31,7 @@ const SignUp = () => {
       setError("Password must contain at least one number.");
       return;
     }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) { 
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
       setError("Password must contain at least one special character.");
       return;
     }
@@ -66,9 +66,9 @@ const SignUp = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row items-center justify-center min-h-screen bg-gray-100 px-6 md:px-20">
-      {/*Logo */}
-      <div className="hidden md:flex justify-start w-1/2">
+    <div className="flex flex-col md:flex-row items-center justify-center min-h-screen bg-gray-50 px-6 md:px-20 py-10">
+      {/* Logo */}
+      <div className="hidden md:flex justify-start mb-8 w-1/2">
         <img
           className="w-80 lg:w-90"
           src="https://internview-assets.s3.ap-south-1.amazonaws.com/batch-13---originals-8-high-resolution-logo-transparent+(1).png"
@@ -77,14 +77,14 @@ const SignUp = () => {
       </div>
 
       {/* Signup Card */}
-      <div className="relative bg-white bg-opacity-90 backdrop-blur-lg shadow-2xl rounded-2xl px-8 py-10 w-full max-w-md border border-white/20">
-        <h2 className="text-3xl font-extrabold text-black text-center">
+      <div className="relative bg-white shadow-lg rounded-2xl px-8 py-12 w-full max-w-md border border-gray-200">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
           Create an Account
         </h2>
 
         {/* Error Message */}
         {error && (
-          <div className="mt-4 bg-red-500 text-white text-center py-2 px-4 rounded-lg">
+          <div className="mt-4 bg-red-100 text-red-600 text-center py-2 px-4 rounded-lg">
             {error}
           </div>
         )}
@@ -97,13 +97,13 @@ const SignUp = () => {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="peer w-full bg-transparent border-b-2 border-gray-400 text-black placeholder-transparent focus:outline-none focus:border-amber-500 transition-all px-2 py-3"
+              className="peer w-full bg-transparent border-b-2 border-gray-300 text-gray-800 placeholder-transparent focus:outline-none focus:border-gray-500 transition-all px-2 py-3"
               placeholder="Enter your email"
               required
             />
             <label
               htmlFor="email"
-              className="absolute left-2 top-3 text-gray-600 text-sm transition-all transform -translate-y-6 scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 peer-focus:text-amber-500"
+              className="absolute left-2 top-3 text-gray-500 text-sm transition-all transform -translate-y-6 scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 peer-focus:text-gray-700"
             >
               Email
             </label>
@@ -116,13 +116,13 @@ const SignUp = () => {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="peer w-full bg-transparent border-b-2 border-gray-400 text-black placeholder-transparent focus:outline-none focus:border-amber-500 transition-all px-2 py-3"
+              className="peer w-full bg-transparent border-b-2 border-gray-300 text-gray-800 placeholder-transparent focus:outline-none focus:border-gray-500 transition-all px-2 py-3"
               placeholder="Enter your password"
               required
             />
             <label
               htmlFor="password"
-              className="absolute left-2 top-3 text-gray-600 text-sm transition-all transform -translate-y-6 scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 peer-focus:text-amber-500"
+              className="absolute left-2 top-3 text-gray-500 text-sm transition-all transform -translate-y-6 scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 peer-focus:text-gray-700"
             >
               Password
             </label>
@@ -135,20 +135,20 @@ const SignUp = () => {
               id="confirmPassword"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="peer w-full bg-transparent border-b-2 border-gray-400 text-black placeholder-transparent focus:outline-none focus:border-amber-500 transition-all px-2 py-3"
+              className="peer w-full bg-transparent border-b-2 border-gray-300 text-gray-800 placeholder-transparent focus:outline-none focus:border-gray-500 transition-all px-2 py-3"
               placeholder="Confirm your password"
               required
             />
             <label
               htmlFor="confirmPassword"
-              className="absolute left-2 top-3 text-gray-600 text-sm transition-all transform -translate-y-6 scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 peer-focus:text-amber-500"
+              className="absolute left-2 top-3 text-gray-500 text-sm transition-all transform -translate-y-6 scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 peer-focus:text-gray-700"
             >
               Confirm Password
             </label>
           </div>
 
           {/* Show Password Toggle */}
-          <div className="flex items-center text-black mt-3">
+          <div className="flex items-center text-gray-600 mt-3">
             <input
               type="checkbox"
               id="showPassword"
@@ -166,8 +166,8 @@ const SignUp = () => {
             type="submit"
             className={`w-full py-3 text-white font-bold rounded-md transition-all transform duration-300 ${
               loading
-                ? "bg-gray-500 cursor-not-allowed"
-                : "bg-amber-500 hover:bg-amber-600 hover:scale-105 shadow-lg"
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-gray-700 hover:bg-gray-800 hover:scale-105 shadow-lg"
             }`}
             disabled={loading}
           >
@@ -176,9 +176,9 @@ const SignUp = () => {
         </form>
 
         {/* Login Link */}
-        <p className="text-sm text-gray-700 mt-4 text-center">
+        <p className="text-sm text-gray-600 mt-4 text-center">
           Already have an account?{" "}
-          <a className="text-amber-500 hover:underline" href="/login">
+          <a className="text-gray-700 hover:underline" href="/login">
             Login
           </a>
         </p>
