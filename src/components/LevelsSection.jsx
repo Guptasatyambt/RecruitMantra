@@ -52,16 +52,16 @@ function LevelsSection() {
   ];
 
   return (
-    <section className="py-8 md:py-12 bg-gradient-to-b from-amber-50 to-white font-roboto">
-      <div className="container mx-auto px-4">
-        <h3 className="text-3xl md:text-4xl text-black font-bold text-center mb-2 font-roboto">
+    <section className="py-6 md:py-12 bg-gradient-to-b from-amber-50 to-white font-roboto">
+      <div className="container mx-auto px-4 sm:px-6">
+        <h3 className="text-2xl sm:text-3xl md:text-4xl text-black font-bold text-center mb-2 font-roboto">
           Technical Levels
         </h3>
-        <p className="text-center text-lg text-gray-700 mb-8 max-w-3xl mx-auto font-roboto">
+        <p className="text-center text-base sm:text-lg text-gray-700 mb-6 max-w-3xl mx-auto font-roboto px-4">
           Choose your technical interview difficulty level
         </p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-12 max-w-lg md:max-w-none mx-auto">
           {levels.map((level, index) => (
             <div 
               key={index} 
@@ -80,29 +80,29 @@ function LevelsSection() {
                 }}
               >
                 {/* Header Section */}
-                <div className="p-6 text-left border-b border-gray-200">
-                  <div className="flex items-center gap-3 mb-2">
+                <div className="p-4 sm:p-5 pb-3 sm:pb-4 text-left border-b border-gray-200">
+                  <div className="flex items-center gap-3">
                     <img
                       src={level.indicator}
                       alt={`${level.name} icon`}
-                      className="w-6 h-6 object-contain transform transition-transform duration-300 hover:rotate-12"
+                      className="w-5 sm:w-6 h-5 sm:h-6 object-contain transform transition-transform duration-300 hover:rotate-12"
                     />
-                    <h4 className="text-xl font-bold font-roboto">
+                    <h4 className="text-lg sm:text-xl font-bold font-roboto">
                       {level.name}
                     </h4>
                   </div>
                 </div>
 
                 {/* Points and Button Section */}
-                <div className="p-6 text-left flex-grow">
-                  <ul className="space-y-3 mb-6">
+                <div className="px-4 sm:px-5 pt-3 sm:pt-4 pb-4 sm:pb-5 text-left flex-grow">
+                  <ul className="space-y-2 sm:space-y-3 mb-4 sm:mb-5">
                     {level.points.map((point, idx) => (
                       <li 
                         key={idx} 
                         className="flex items-center space-x-2 transform transition-transform duration-300 hover:translate-x-2"
                       >
-                        <Check className={`h-5 w-5 ${level.checkColor} flex-shrink-0 transition-transform duration-300 hover:scale-110`} />
-                        <span className="text-gray-700 font-roboto">
+                        <Check className={`h-4 sm:h-5 w-4 sm:w-5 ${level.checkColor} flex-shrink-0 transition-transform duration-300 hover:scale-110`} />
+                        <span className="text-sm sm:text-base text-gray-700 font-roboto">
                           {point}
                         </span>
                       </li>
@@ -118,7 +118,8 @@ function LevelsSection() {
                     }}
                     className={`
                       w-full ${level.buttonColor} text-white font-bold 
-                      py-3 px-6 transition-all duration-300 
+                      py-2.5 sm:py-3 px-4 sm:px-6 text-sm sm:text-base
+                      transition-all duration-300 
                       transform hover:scale-105 hover:shadow-lg
                       rounded-md font-roboto
                     `}
