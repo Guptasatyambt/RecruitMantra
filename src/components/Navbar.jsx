@@ -79,7 +79,7 @@ const Navbar = () => {
       }`}
     >
       <div className="w-full h-1 bg-gradient-to-r from-gray-300 to-gray-400"></div>
-      <nav className="container mx-auto px-4 py-4">
+      <nav className="container mx-auto px-4 py-2">
         <div className="flex items-center justify-between">
           {/* Logo Section */}
           <div 
@@ -94,7 +94,7 @@ const Navbar = () => {
               />
               <div className="absolute -inset-2 bg-gray-100 rounded-full opacity-0 group-hover:opacity-50 transition-opacity duration-300 -z-10"></div>
             </div>
-            <span className="text-2xl font-bold text-gray-800">
+            <span className="text-1xl font-bold text-gray-800">
               RecruitMantra
             </span>
           </div>
