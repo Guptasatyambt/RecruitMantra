@@ -1,322 +1,279 @@
 import React, { useState, useRef, useEffect } from "react";
-import { BiCoinStack, BiEdit, BiLogOut, BiPhone } from "react-icons/bi";
-import { CgProfile } from "react-icons/cg";
-import { ImInfo } from "react-icons/im";
 import { useNavigate } from "react-router-dom";
+import { CgProfile } from "react-icons/cg";
+import { BiEdit, BiCoinStack, BiLogOut } from "react-icons/bi";
+import { FaUniversity } from "react-icons/fa";
+import { Menu, X, Home, Info, Phone, Briefcase, MessageSquare } from "lucide-react";
 
-function Navbar() {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+const Navbar = () => {
   const navigate = useNavigate();
-  const dropdownRef = useRef(null);
-  const buttonRef = useRef(null);
-
   const [token, setToken] = useState(localStorage.getItem("token"));
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeLink, setActiveLink] = useState("/");
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const dropdownRef = useRef(null);
+  const mobileMenuRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target) &&
-        !buttonRef.current.contains(event.target)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false);
       }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+        setMobileMenuOpen(false);
+      }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = async () => {
-    console.log("Token", localStorage.getItem("token"));
+  useEffect(() => {
+    let scrollTimeout;
+    
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY < lastScrollY || currentScrollY < 50) {
+        setIsVisible(true);
+      } else if (currentScrollY > lastScrollY) {
+        setIsVisible(false);
+      }
+      
+      setLastScrollY(currentScrollY);
+      
+      clearTimeout(scrollTimeout);
+      
+      scrollTimeout = setTimeout(() => {
+        setIsVisible(true);
+      }, 1000);
+    };
 
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearTimeout(scrollTimeout);
+    };
+  }, [lastScrollY]);
+
+  const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/");
     window.location.reload();
   };
 
+  const navLinks = [
+    { name: "Home", path: "/", icon: Home },
+    { name: "About Us", path: "/about-us", icon: Info },
+    { name: "Contact", path: "/contact-us", icon: Phone },
+    { name: "Careers", path: "/careers", icon: Briefcase },
+    ...(token ? [{ name: "Feedback", path: "/feedback", icon: MessageSquare }] : []),
+  ];
+
   return (
-    <header className="bg-white shadow-md sticky top-0 z-50">
-      <nav className="container mx-auto flex justify-between items-center px-4 py-2">
-        <div className="">
-          <img
-            className="size-10 md:size-14 cursor-pointer inline"
-            alt=""
-            src="/assets/logo_RM.png"
-            onClick={() => navigate("/")}
-          ></img>
-          <span
-            className="mx-2 font-medium text-lg md:text-xl cursor-pointer"
+    <header 
+      className={`bg-white sticky top-0 z-50 shadow-sm transition-all duration-300 transform ${
+        isVisible ? 'translate-y-0' : '-translate-y-full'
+      }`}
+    >
+      <div className="w-full h-1 bg-gradient-to-r from-gray-300 to-gray-400"></div>
+      <nav className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-between">
+          {/* Logo Section */}
+          <div 
+            className="flex items-center space-x-3 cursor-pointer group" 
             onClick={() => navigate("/")}
           >
-            RecruitMantra
-          </span>
-        </div>
-        {sidebarOpen && (
-          <div className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-10">
-            <div className="fixed top-0 right-0 w-64 h-full bg-white text-black shadow-lg z-20">
-              <button
-                className="text-gray-700 absolute top-4 right-4 text-2xl"
-                onClick={() => setSidebarOpen(false)}
-              >
-                &times;
-              </button>
-              <ul className="mt-16 space-y-6 px-6">
-                <li>
-                  <a
-                    href=""
-                    className="block text-lg"
-                    onClick={() => {
-                      if (token) {
-                        navigate("/profile");
-                      } else {
-                        navigate("/login");
-                      }
-                    }}
+            <div className="relative">
+              <img
+                className="h-12 w-12 transform transition-transform duration-300 group-hover:scale-110"
+                alt="RecruitMantra Logo"
+                src="/assets/logo_RM.png"
+              />
+              <div className="absolute -inset-2 bg-gray-100 rounded-full opacity-0 group-hover:opacity-50 transition-opacity duration-300 -z-10"></div>
+            </div>
+            <span className="text-2xl font-bold text-gray-800">
+              RecruitMantra
+            </span>
+          </div>
+
+          {/* Navigation Links - Desktop */}
+          <div className="hidden md:flex items-center space-x-1">
+            {navLinks.map((link) => (
+              <div key={link.path} className="relative px-2">
+                <button
+                  onClick={() => {
+                    navigate(link.path);
+                    setActiveLink(link.path);
+                  }}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 relative
+                    ${activeLink === link.path 
+                      ? 'text-gray-900' 
+                      : 'text-gray-600 hover:text-gray-800'}`}
+                >
+                  {link.name}
+                  {activeLink === link.path && (
+                    <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gray-800 rounded-full"></div>
+                  )}
+                  <div className="absolute inset-0 bg-gray-100 rounded-full scale-0 opacity-0 transition-all duration-300 hover:scale-100 hover:opacity-100 -z-10"></div>
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Mobile Menu and Auth Section */}
+          <div className="flex items-center space-x-2">
+            {/* Auth Section */}
+            <div className="hidden md:flex items-center">
+              {!token && (
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={() => navigate("/login")}
+                    className="px-5 py-2 text-sm font-medium text-gray-600 rounded-full transition-all duration-300 hover:text-gray-900 hover:bg-gray-100"
                   >
-                    <CgProfile className="inline mr-2" />
-                    Your Profile
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href=""
-                    className="block text-lg"
-                    onClick={() => {
-                      if (token) {
-                        navigate("/edit-profile");
-                      } else {
-                        navigate("/login");
-                      }
-                    }}
+                    Sign In
+                  </button>
+                  <button
+                    onClick={() => navigate("/signup")}
+                    className="px-5 py-2 text-sm font-medium text-white rounded-full bg-gray-800 transition-all duration-300 hover:bg-gray-900 transform hover:scale-105 hover:shadow-md"
                   >
-                    <BiEdit className="inline mr-2" />
-                    Edit Profile
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href=""
-                    className="block text-lg"
-                    onClick={() => {
-                      if (token) {
-                        navigate("/redeem-coins");
-                      } else {
-                        navigate("/login");
-                      }
-                    }}
-                  >
-                    <BiCoinStack className="inline mr-2" />
-                    Redeem Coins
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href=""
-                    className="block text-lg"
-                    onClick={() => navigate("/contact-us")}
-                  >
-                    <BiPhone className="inline mr-2" />
-                    Contact Us
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href=""
-                    className="block text-lg"
-                    onClick={() => navigate("/about-us")}
-                  >
-                    <ImInfo className="inline mr-2" />
-                    About Us
-                  </a>
-                </li>
-                {token && (
-                  <li>
-                    <a
-                      href=""
-                      className="block text-lg"
+                    Sign Up
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {token && (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="relative group"
+                >
+                  <img
+                    src="/assets/user (1).png"
+                    alt="Profile"
+                    className="h-10 w-10 rounded-full ring-2 ring-gray-200 transition-all duration-300 group-hover:ring-4"
+                  />
+                  <div className="absolute inset-0 bg-gray-200 rounded-full scale-110 opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
+                </button>
+
+                <div
+                  className={`absolute right-0 mt-4 w-64 bg-white rounded-2xl shadow-lg transform transition-all duration-300 origin-top-right overflow-hidden border border-gray-100
+                    ${dropdownOpen 
+                      ? 'opacity-100 scale-100 translate-y-0' 
+                      : 'opacity-0 scale-95 -translate-y-4 pointer-events-none'}`}
+                >
+                  <div className="p-2">
+                    {[
+                      { icon: CgProfile, label: "Your Profile", path: "/profile" },
+                      { icon: BiEdit, label: "Edit Profile", path: "/edit-profile" },
+                      { icon: FaUniversity, label: "Your College", path: "/dashboard" },
+                      { icon: BiCoinStack, label: "Redeem Coins", path: "/redeem-coins" },
+                    ].map((item, index) => (
+                      <button
+                        key={index}
+                        onClick={() => navigate(item.path)}
+                        className="w-full px-4 py-3 text-sm text-gray-700 rounded-xl flex items-center transition-all duration-200 group hover:bg-gray-50"
+                      >
+                        <item.icon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-600 transition-colors duration-200" />
+                        <span className="transform group-hover:translate-x-1 transition-transform duration-200">
+                          {item.label}
+                        </span>
+                      </button>
+                    ))}
+                    <div className="h-px bg-gray-100 my-2"></div>
+                    <button
                       onClick={handleLogout}
+                      className="w-full px-4 py-3 text-sm rounded-xl flex items-center transition-all duration-200 group hover:bg-red-50"
                     >
-                      <BiLogOut className="inline mr-2" />
-                      Log Out
-                    </a>
-                  </li>
+                      <BiLogOut className="mr-3 h-5 w-5 text-gray-400 group-hover:text-red-500 transition-colors duration-200" />
+                      <span className="text-gray-700 group-hover:text-red-600 transform group-hover:translate-x-1 transition-all duration-200">
+                        Log Out
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
+              >
+                {mobileMenuOpen ? (
+                  <X className="h-6 w-6 text-gray-600" />
+                ) : (
+                  <Menu className="h-6 w-6 text-gray-600" />
                 )}
-              </ul>
+              </button>
             </div>
           </div>
-        )}
-        {token ? (
-          <ul className="flex items-center text-lg font-medium space-x-10">
-            <li
-              className="hidden md:block rounded-lg px-3 py-1 hover:bg-gray-300"
-              onClick={() => navigate("/feedback")}
-            >
-              <a href="">Feedback</a>
-            </li>
-            <li
-              className="hidden md:block rounded-lg px-3 py-1 hover:bg-gray-300"
-              onClick={() => navigate("/contact-us")}
-            >
-              <a href="">Contact Us</a>
-            </li>
-            <li
-              className="hidden md:block rounded-lg px-3 py-1 hover:bg-gray-300"
-              onClick={() => navigate("/about-us")}
-            >
-              <a href="">About Us</a>
-            </li>
-            <div className="relative">
-              <img
-                ref={buttonRef}
-                src="/assets/user (1).png"
-                alt="Profile"
-                className="size-8 md:size-10 rounded-full cursor-pointer"
-                onClick={() => {
-                  setDropdownOpen(!dropdownOpen);
-                  setSidebarOpen(!sidebarOpen);
-                }}
-              />
+        </div>
 
-              {dropdownOpen && (
-                <div
-                  ref={dropdownRef}
-                  className="hidden md:block absolute right-0 mt-2 w-48 bg-white text-black rounded-lg shadow-lg"
-                >
-                  <ul className="py-2">
-                    <li
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => navigate("/profile")}
-                    >
-                      <CgProfile className="inline mr-2" />
-                      Your Profile
-                    </li>
-                    <li
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => navigate("/profile")}
-                    >
-                      <BiEdit className="inline mr-2" />
-                      Edit Profile
-                    </li>
-                    <li
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => navigate("/redeem-coins")}
-                    >
-                      <BiCoinStack className="inline mr-2" />
-                      Redeem Coins
-                    </li>
-                    <li
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => navigate("/contact-us")}
-                    >
-                      <BiPhone className="inline mr-2" />
-                      Contact us
-                    </li>
-                    <li
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => navigate("/about-us")}
-                    >
-                      <ImInfo className="inline mr-2" />
-                      About us
-                    </li>
-                    <li
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={handleLogout}
-                    >
-                      <BiLogOut className="inline mr-2" />
-                      Log Out
-                    </li>
-                  </ul>
-                </div>
-              )}
-            </div>
-          </ul>
-        ) : (
-          <ul className="flex items-center text-lg font-medium space-x-10">
-            <li
-              className="hidden md:block rounded-lg px-3 py-1 hover:bg-gray-300"
-              onClick={() => navigate("/signup")}
-            >
-              <a href="">Sign Up</a>
-            </li>
-            <li
-              className="hidden md:block rounded-lg px-3 py-1 hover:bg-gray-300"
-              onClick={() => navigate("/login")}
-            >
-              <a href="">Log In</a>
-            </li>
-            <div className="relative">
-              <img
-                ref={buttonRef}
-                src="/assets/user (1).png"
-                alt="Profile"
-                className="size-8 md:size-10 rounded-full cursor-pointer"
+        {/* Mobile Menu Dropdown */}
+        <div
+          ref={mobileMenuRef}
+          className={`md:hidden fixed right-4 top-[73px] w-64 bg-white rounded-2xl shadow-lg transform transition-all duration-300 origin-top-right overflow-hidden border border-gray-100
+            ${mobileMenuOpen
+              ? 'opacity-100 scale-100 translate-y-0'
+              : 'opacity-0 scale-95 -translate-y-4 pointer-events-none'
+            }`}
+        >
+          <div className="p-2">
+            {navLinks.map((link) => (
+              <button
+                key={link.path}
                 onClick={() => {
-                  setDropdownOpen(!dropdownOpen);
-                  setSidebarOpen(!sidebarOpen);
+                  navigate(link.path);
+                  setActiveLink(link.path);
+                  setMobileMenuOpen(false);
                 }}
-              />
-
-              {dropdownOpen && (
-                <div
-                  ref={dropdownRef}
-                  className="hidden md:block absolute right-0 mt-2 w-48 bg-white text-black rounded-lg shadow-lg"
+                className="w-full px-4 py-3 text-sm text-gray-700 rounded-xl flex items-center transition-all duration-200 group hover:bg-gray-50"
+              >
+                <link.icon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-600 transition-colors duration-200" />
+                <span className="transform group-hover:translate-x-1 transition-transform duration-200">
+                  {link.name}
+                </span>
+              </button>
+            ))}
+            {!token && (
+              <>
+                <div className="h-px bg-gray-100 my-2"></div>
+                <button
+                  onClick={() => {
+                    navigate("/login");
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full px-4 py-3 text-sm text-gray-700 rounded-xl flex items-center transition-all duration-200 group hover:bg-gray-50"
                 >
-                  <ul className="py-2">
-                    <li
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => navigate("/login")}
-                    >
-                      <CgProfile className="inline mr-2" />
-                      Your Profile
-                    </li>
-                    <li
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => navigate("/login")}
-                    >
-                      <BiEdit className="inline mr-2" />
-                      Edit Profile
-                    </li>
-                    <li
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => navigate("/login")}
-                    >
-                      <BiCoinStack className="inline mr-2" />
-                      Redeem Coins
-                    </li>
-                    <li
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => navigate("/contact-us")}
-                    >
-                      <BiPhone className="inline mr-2" />
-                      Contact us
-                    </li>
-                    <li
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => navigate("/about-us")}
-                    >
-                      <ImInfo className="inline mr-2" />
-                      About us
-                    </li>
-                    {/* <li
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={handleLogout}
-                    >
-                      <BiLogOut className="inline mr-2" />
-                      Log Out
-                    </li> */}
-                  </ul>
-                </div>
-              )}
-            </div>
-          </ul>
-        )}
+                  <CgProfile className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-600 transition-colors duration-200" />
+                  <span className="transform group-hover:translate-x-1 transition-transform duration-200">
+                    Sign In
+                  </span>
+                </button>
+                <button
+                  onClick={() => {
+                    navigate("/signup");
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full px-4 py-3 text-sm text-gray-700 rounded-xl flex items-center transition-all duration-200 group hover:bg-gray-50"
+                >
+                  <BiEdit className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-600 transition-colors duration-200" />
+                  <span className="transform group-hover:translate-x-1 transition-transform duration-200">
+                    Sign Up
+                  </span>
+                </button>
+              </>
+            )}
+          </div>
+        </div>
       </nav>
     </header>
   );
-}
+};
 
 export default Navbar;
