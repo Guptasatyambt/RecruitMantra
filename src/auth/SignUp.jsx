@@ -45,7 +45,7 @@ const SignUp = () => {
 
     try {
       const response = await axios.post(
-        "https://api.recruitmantra.com/user/signin", // Change to your correct endpoint
+        "https://api.recruitmantra.com/user/signin", 
         {
           email,
           password,

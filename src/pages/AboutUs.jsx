@@ -5,7 +5,7 @@ import { FiArrowUpRight } from "react-icons/fi";
 
 const teamMembers = [
   {
-    name: "Satyam Upadhyay",
+    name: "Satyam Gupta",
     role: "Founder & CEO",
     quote: "Confidence is the product of preparation, and success is its reward.",
     linkedin: "https://www.linkedin.com/in/satyam-upadhyay-ba0582228/",
@@ -13,7 +13,7 @@ const teamMembers = [
     image: "https://internview-assets.s3.ap-south-1.amazonaws.com/satyam+(2).jpg",
   },
   {
-    name: "Upendra Singh",
+    name: "Upendra Yadav",
     role: "Chief Technology Officer",
     quote: "Through technology, we turn preparation into opportunity and dreams into reality.",
     linkedin: "https://www.linkedin.com/in/upendra-singh-68b94622a/",
