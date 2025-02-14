@@ -1,6 +1,6 @@
-// import { Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import PrivateRoute from "./PrivateRoute";
 import Home from "../pages/Home";
 import AboutUs from "../pages/AboutUs";
@@ -26,7 +26,7 @@ import Students from "../components/Student";
 
 function AppRoutes() {
   return (
-    <Router>
+    
       <Routes>
       {/* Pages */}
       <Route exact path="/" element={<Home />} />
@@ -67,7 +67,7 @@ function AppRoutes() {
           <Route path="/redeem-coins" element={<RedeemCoins />} />
         </Route>
       </Routes>
-    </Router>
+    
     
   );
 }
