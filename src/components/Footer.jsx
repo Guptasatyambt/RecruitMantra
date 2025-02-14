@@ -1,7 +1,10 @@
 import React from 'react';
+import { useNavigate } from "react-router-dom";//1
 import { Github, Linkedin, Twitter, Mail, Phone } from 'lucide-react';
 
 function Footer() {
+  const navigate = useNavigate();//2
+  const token = localStorage.getItem("token");//3
   return (
     <footer className="bg-gray-900 text-white font-roboto">
       {/* Main Footer Content */}
@@ -41,7 +44,19 @@ function Footer() {
                 <a href="#" className="text-gray-400 hover:text-white transition-colors">Practice</a>
               </li>
               <li>
-                <a href="/redeem-coins" className="text-gray-400 hover:text-white transition-colors">Rewards</a>
+                <button
+                    onClick={() => {
+                      if (token) {
+                        navigate(level.link);
+                      } else {
+                        navigate("/login");
+                      }
+                    }}
+                    className=className="text-gray-400 hover:text-white transition-colors"
+                  >
+                    Rewards
+                  </button>
+{/*                 <a href="/redeem-coins" className="text-gray-400 hover:text-white transition-colors">Rewards</a> */}
               </li>
               <li>
                 <a href="about-us" className="text-gray-400 hover:text-white transition-colors">About Us</a>
