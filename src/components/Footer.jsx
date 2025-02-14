@@ -52,7 +52,7 @@ function Footer() {
                         navigate("/login");
                       }
                     }}
-                    className=className="text-gray-400 hover:text-white transition-colors"
+                    className="text-gray-400 hover:text-white transition-colors"
                   >
                     Rewards
                   </button>
