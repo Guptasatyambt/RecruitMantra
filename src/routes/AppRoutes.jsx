@@ -1,5 +1,7 @@
-import { Routes, Route } from "react-router-dom";
-import React from "react";
+// import { Routes, Route } from "react-router-dom";
+// import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import PrivateRoute from "./PrivateRoute";
 import Home from "../pages/Home";
 import AboutUs from "../pages/AboutUs";
 import Advance from "../pages/Advance";
@@ -31,7 +33,7 @@ function AppRoutes() {
       <Route exact path="/advance" element={<Advance />} />
       <Route exact path="/beginner" element={<Beginner />} />
       <Route exact path="/contact-us" element={<ContactUs />} />
-      <Route exact path="/redeem-coins" element={<RedeemCoins />} />
+{/*       <Route exact path="/redeem-coins" element={<RedeemCoins />} /> */}
       <Route exact path="/intermediate" element={<Intermediate />} />
       <Route exact path="/feedback" element={<Feedback />} />
 
@@ -59,6 +61,9 @@ function AppRoutes() {
       <Route exact path = "/dashboard" element={<Dashboard/>}/>
       <Route exact path = "/companies" element={<Companies/>}/>
       <Route exact path = "/students" element={<Students/>}/>
+      
+      <Route element={<PrivateRoute />}>
+          <Route path="/redeem-coins" element={<RedeemCoins />} />
     </Routes>
   );
 }
