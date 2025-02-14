@@ -26,7 +26,8 @@ import Students from "../components/Student";
 
 function AppRoutes() {
   return (
-    <Routes>
+    <Router>
+      <Routes>
       {/* Pages */}
       <Route exact path="/" element={<Home />} />
       <Route exact path="/about-us" element={<AboutUs />} />
@@ -65,6 +66,8 @@ function AppRoutes() {
       <Route element={<PrivateRoute />}>
           <Route path="/redeem-coins" element={<RedeemCoins />} />
     </Routes>
+    </Router>
+    
   );
 }
 
