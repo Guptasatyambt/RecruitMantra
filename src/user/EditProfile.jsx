@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Upload, Loader2, X, CheckCircle, User, Briefcase, School, Book } from 'lucide-react';
+import axios from "axios";
 
 const AnimatedProgressBar = ({ progress }) => (
   <div className="w-full bg-gray-200 rounded-full h-1.5 mb-4">
