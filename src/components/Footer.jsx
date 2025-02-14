@@ -47,7 +47,7 @@ function Footer() {
                 <button
                     onClick={() => {
                       if (token) {
-                        navigate(level.link);
+                        navigate("/redeem-coins");
                       } else {
                         navigate("/login");
                       }
