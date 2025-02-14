@@ -65,7 +65,8 @@ function AppRoutes() {
       
       <Route element={<PrivateRoute />}>
           <Route path="/redeem-coins" element={<RedeemCoins />} />
-    </Routes>
+        </Route>
+      </Routes>
     </Router>
     
   );
