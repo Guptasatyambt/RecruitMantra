@@ -209,7 +209,7 @@ const EditProfile = () => {
         
         await fetch(uploadUrl, {
           method: 'PUT',
-          headers: { 'Content-Type': formData.profileimage.type },
+          headers: { 'Content-Type': 'image/jpeg' },
           body: imageBuffer
         });
       }
