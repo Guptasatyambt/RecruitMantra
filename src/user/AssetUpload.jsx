@@ -64,8 +64,8 @@ function AssetUpload() {
         }
       );
     //   console.log(response.data);
-
-      await axios.put(response.data.url_image, photo, {
+      const imageBuffer = await photo.arrayBuffer();
+      await axios.put(response.data.url_image, imageBuffer, {
         headers: {
           'Content-Type': "image/jpeg",
         },
