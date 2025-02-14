@@ -44,7 +44,7 @@ function Footer() {
                 <a href="#" className="text-gray-400 hover:text-white transition-colors">Practice</a>
               </li>
               <li>
-                <a href={token && token !== "null" && token !== "undefined" ? "/redeem-coins" : "/login"}  className="text-gray-400 hover:text-white transition-colors">Rewards</a>
+                <a href="/redeem-coins"  className="text-gray-400 hover:text-white transition-colors">Rewards</a>
               </li>
               <li>
                 <a href="about-us" className="text-gray-400 hover:text-white transition-colors">About Us</a>
