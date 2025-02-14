@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Github, Linkedin, Twitter, Mail, Phone } from 'lucide-react';
 
 function Footer() {
-  const navigate = useNavigate();
+  
   const token = localStorage.getItem("token");
   return (
     <footer className="bg-gray-900 text-white font-roboto">
