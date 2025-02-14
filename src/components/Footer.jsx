@@ -46,7 +46,7 @@ function Footer() {
               <li>
                 <button
                     onClick={() => {
-                      if (token) {
+                     if (token && token !== "null" && token !== "undefined") {
                         navigate("/redeem-coins");
                       } else {
                         navigate("/login");
