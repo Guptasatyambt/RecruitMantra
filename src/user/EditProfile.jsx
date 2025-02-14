@@ -205,7 +205,7 @@ const EditProfile = () => {
         if (!response.ok) throw new Error('Failed to get image upload URL');
         
         // const { data: { profile: uploadUrl } } = await response.json();
-         const profileImageUploadUrl = profileImageUrlResponse.data.data.profile;
+         const profileImageUploadUrl = response.data.data.profile;
         const imageBuffer = await formData.profileimage.arrayBuffer();
          await axios.put(profileImageUploadUrl, imageBuffer, {
           headers: {
