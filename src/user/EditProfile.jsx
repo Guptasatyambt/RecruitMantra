@@ -205,19 +205,15 @@ const EditProfile = () => {
 
         if (!response.ok) throw new Error('Failed to get image upload URL');
         
-        // const { data: { profile: uploadUrl } } = await response.json();
-         const profileImageUploadUrl = response.data.data.profile;
+        const { data: { profile: uploadUrl } } = await response.json();
+        
         const imageBuffer = await formData.profileimage.arrayBuffer();
-         await axios.put(profileImageUploadUrl, imageBuffer, {
-          headers: {
-            "Content-Type": "image/jpeg",
-          },
+        
+        await fetch(uploadUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'image/jpeg' },
+          body: imageBuffer
         });
-        // await fetch(uploadUrl, {
-        //   method: 'PUT',
-        //   headers: { 'Content-Type': 'image/jpeg' },
-        //   body: imageBuffer
-        // });
       }
 
       if (formData.resume) {
