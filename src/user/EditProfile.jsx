@@ -211,7 +211,7 @@ const EditProfile = () => {
         
         await fetch(uploadUrl, {
           method: 'PUT',
-          headers: { 'Content-Type': 'image/jpeg' },
+          headers: { 'Content-Type': 'image/jpg' },
           body: imageBuffer
         });
       }
@@ -378,7 +378,7 @@ const EditProfile = () => {
                     file={formData.profileimage}
                     preview={imagePreview}
                     onRemove={() => handleRemoveFile('profileimage')}
-                    type="image/jpeg"
+                    type="image/jpg"
                   />
                 ) : (
                   <label className="flex flex-col items-center justify-center h-full border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
