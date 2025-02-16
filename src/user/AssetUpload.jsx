@@ -67,7 +67,7 @@ function AssetUpload() {
       const imageBuffer = await photo.arrayBuffer();
       await axios.put(response.data.url_image, imageBuffer, {
         headers: {
-          'Content-Type': "image/jpeg",
+          'Content-Type': "image/jpg",
         },
         onUploadProgress: (progressEvent) => {
           const progress = Math.round((progressEvent.loaded * 50) / progressEvent.total);
