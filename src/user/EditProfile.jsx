@@ -382,7 +382,7 @@ const EditProfile = () => {
                     file={formData.profileimage}
                     preview={imagePreview}
                     onRemove={() => handleRemoveFile('profileimage')}
-                    type="image"
+                    type="image/jpeg"
                   />
                 ) : (
                   <label className="flex flex-col items-center justify-center h-full border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
@@ -412,7 +412,7 @@ const EditProfile = () => {
                   <FileUploadPreview
                     file={formData.resume}
                     onRemove={() => handleRemoveFile('resume')}
-                    type="pdf"
+                    type="application/pdf"
                   />
                 ) : (
                   <label className="flex flex-col items-center justify-center h-full border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
