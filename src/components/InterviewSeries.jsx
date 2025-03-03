@@ -37,6 +37,7 @@ function InterviewSeries() {
   };
 
   return (
+    <>
     <section className="py-12 bg-white font-roboto" data-section="interview-series">
       <div className="container mx-auto px-4">
         {/* Heading Section */}
@@ -117,6 +118,10 @@ function InterviewSeries() {
         </div>
       </div>
     </section>
+    <section id="level-section">
+        {/* Your next section content goes here */}
+      </section>
+    </>
   );
 }
 
