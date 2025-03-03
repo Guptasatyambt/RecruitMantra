@@ -115,13 +115,7 @@ const handleStartPractice = () => {
                   </p>
                   <button
                     onClick={card.onClick}
-{/*                     onClick={() => {
-                      if (token) {
-                        navigate(card.link);
-                      } else {
-                        navigate("/login");
-                      }
-                    }} */}
+
                     className="
                       w-full bg-black hover:bg-gray-800 text-white font-bold 
                       py-2.5 sm:py-3 px-4 sm:px-6 text-sm sm:text-base
