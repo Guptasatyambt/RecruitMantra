@@ -4,6 +4,12 @@ import { useNavigate } from "react-router-dom";
 function InterviewTypes() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+const handleStartPractice = () => {
+    const nextSection = document.getElementById("level-section");
+    if (nextSection) {
+      nextSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   const cards = [
     {
@@ -15,7 +21,8 @@ function InterviewTypes() {
         { name: "Advanced", color: "bg-red-100", textColor: "text-red-800" },
       ],
       description: "Practice coding problems and system design questions with our AI interview",
-      link: "#",
+      // link: "#",
+      onClick: handleStartPractice,
       buttonText: "Start Technical Round",
     },
     {
@@ -23,7 +30,8 @@ function InterviewTypes() {
       indicator: "/assets/svg_hr_interview.png",
       tag: { name: "Behavioural", color: "bg-blue-100", textColor: "text-blue-800" },
       description: "Perfect your responses to common HR questions & behavioural scenarios",
-      link: "#",
+      // link: "#",
+      onClick: () => (token ? navigate("#") : navigate("/login")),
       buttonText: "Start HR Interview",
     },
     {
@@ -31,7 +39,8 @@ function InterviewTypes() {
       indicator: "/assets/svg_managerial_round.png",
       tag: { name: "Leadership", color: "bg-purple-100", textColor: "text-purple-800" },
       description: "Demonstrate your leadership potential and problem solving abilities",
-      link: "#",
+      // link: "#",
+      onClick: () => (token ? navigate("#") : navigate("/login")),
       buttonText: "Start Managerial Round",
     },
   ];
@@ -105,13 +114,14 @@ function InterviewTypes() {
                     {card.description}
                   </p>
                   <button
-                    onClick={() => {
+                    onClick={card.onClick}
+{/*                     onClick={() => {
                       if (token) {
                         navigate(card.link);
                       } else {
                         navigate("/login");
                       }
-                    }}
+                    }} */}
                     className="
                       w-full bg-black hover:bg-gray-800 text-white font-bold 
                       py-2.5 sm:py-3 px-4 sm:px-6 text-sm sm:text-base
