@@ -87,7 +87,7 @@ function Interview() {
           }
         );
         const videoKey = response.data.key;
-        console.log("Video-Key",videoKey);
+        console.log("Video-Key",videoUrl);
         const file = new File([videoBlob], `${currentQuestion}.webm`, { type: "video/webm" });
       const formData = new FormData();
       formData.append("video", file);
