@@ -31,7 +31,7 @@ const handleStartPractice = () => {
       tag: { name: "Behavioural", color: "bg-blue-100", textColor: "text-blue-800" },
       description: "Perfect your responses to common HR questions & behavioural scenarios",
       // link: "#",
-      onClick: () => (token ? navigate("/hr-behavioral") : navigate("/login")),
+      onClick: () => (token ? navigate("#") : navigate("/login")),
       buttonText: "Start HR Interview",
     },
     {
