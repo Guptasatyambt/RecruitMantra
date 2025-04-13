@@ -11,6 +11,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
+  const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
 
@@ -27,6 +28,7 @@ const Login = () => {
 
     try {
       const response = await axios.post(
+        // "http://localhost:5001/user/login",
         "https://api.recruitmantra.com/user/login",
         {
           email,
@@ -83,9 +85,11 @@ const Login = () => {
         }
       );
 
-      console.log(response.data);
-      alert("Password reset instructions have been sent to your email.");
-      setShowForgotPassword(false);
+      setTimeout(() => {
+        setShowForgotPassword(false);
+      }, 3000);
+      setMessage("Password Reset Email Send");
+      
     } catch (error) {
       console.error("Forgot Password Error:", error.response?.data || error.message);
       setError(error.response?.data?.message || "An error occurred. Please try again.");
@@ -163,6 +167,16 @@ const Login = () => {
             >
               {loading ? "Sending..." : "Reset Password"}
             </button>
+            {message && (
+          <motion.div
+            className="mt-4 bg-green-100 text-green-600 text-center py-2 px-4 rounded-lg"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {message}
+          </motion.div>
+        )}
 
             <p className="text-sm text-gray-600 mt-4 text-center">
               Remember your password?{" "}

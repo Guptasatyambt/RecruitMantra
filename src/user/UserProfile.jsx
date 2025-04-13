@@ -60,32 +60,158 @@ const ProfileHeader = ({ user, imageLink, resumeLink }) => (
   </div>
 );
 
-const InterviewResults = ({ interviews }) => (
-  <div className="mt-10">
-    <div className="flex items-center gap-3 mb-6">
-      <BarChart className="w-7 h-7 text-blue-600" />
-      <h3 className="text-2xl font-bold text-gray-900">Interview Analytics</h3>
+const InterviewResults = ({ technicalInterviews, hrInterviews, managerialInterviews }) => {
+  const [selectedType, setSelectedType] = useState("technical");
+
+  const interviewTypes = {
+    technical: { label: "Technical", data: technicalInterviews },
+    hr: { label: "HR", data: hrInterviews },
+    managerial: { label: "Managerial", data: managerialInterviews },
+  };
+  console.log(interviewTypes[selectedType].data);
+  return (
+    <div className="mt-10">
+      {/* Tab Navigation */}
+      <div className="flex justify-center gap-6 mb-6">
+        {Object.entries(interviewTypes).map(([key, { label }]) => (
+          <button
+            key={key}
+            onClick={() => setSelectedType(key)}
+            className={`px-4 py-2 font-medium rounded-lg transition-all ${
+              selectedType === key ? "bg-blue-600 text-white shadow-md" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Interview Results Section */}
+      <div className="flex justify-center">
+  <div className="grid grid-cols-1 md:grid-cols-1 gap-6 w-full max-w-4xl">
+    <InterviewSection 
+      title={`${interviewTypes[selectedType].label} Interview Analytics`} 
+      interviews={interviewTypes[selectedType].data} 
+    />
+  </div>
+</div>
+
     </div>
-    <div className="space-y-4">
-      {interviews.map((interview) => (
-        <div key={interview.interview_id} className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all">
-          <div className="flex justify-between items-center mb-3">
-            <span className="font-medium text-gray-700">Interview #{interview.interview_id}</span>
+  );
+};
+
+// Common Interview Result Section Component
+const InterviewSection = ({ title, interviews }) => (
+  <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all max-w-4xl mx-auto w-full">
+  <div className="flex items-center gap-3 mb-4">
+    <BarChart className="w-7 h-7 text-blue-600" />
+    <h3 className="text-xl font-bold text-gray-900">{title}</h3>
+  </div>
+  <div className="space-y-4">
+    {interviews?.length ? (
+      interviews.map((interview) => (
+        <div key={interview.interview_id} className="p-4 bg-gray-100 rounded-lg">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-gray-700 font-medium">Interview #{interview.interview_id}</span>
             <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
               Score: {interview.result}/10
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div
-              className="bg-gradient-to-r from-blue-400 to-purple-400 h-2 rounded-full transition-all duration-500"
+              className="bg-gradient-to-r from-blue-400 to-purple-400 h-2 rounded-full"
               style={{ width: `${(interview.result / 10) * 100}%` }}
             />
           </div>
         </div>
-      ))}
-    </div>
+      ))
+    ) : (
+      <p className="text-gray-600">No interviews available.</p>
+    )}
   </div>
+</div>
+
 );
+
+
+// const InterviewResults = ({ interviews }) => (
+//   <div className="mt-10">
+//     <div className="flex items-center gap-3 mb-6">
+//       <BarChart className="w-7 h-7 text-blue-600" />
+//       <h3 className="text-2xl font-bold text-gray-900">Technical Interview Analytics</h3>
+//     </div>
+//     <div className="space-y-4">
+//       {interviews.map((interview) => (
+//         <div key={interview.interview_id} className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all">
+//           <div className="flex justify-between items-center mb-3">
+//             <span className="font-medium text-gray-700">Interview #{interview.interview_id}</span>
+//             <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+//               Score: {interview.result}/10
+//             </span>
+//           </div>
+//           <div className="w-full bg-gray-200 rounded-full h-2">
+//             <div
+//               className="bg-gradient-to-r from-blue-400 to-purple-400 h-2 rounded-full transition-all duration-500"
+//               style={{ width: `${(interview.result / 10) * 100}%` }}
+//             />
+//           </div>
+//         </div>
+//       ))}
+//     </div>
+//   </div>
+// );
+// const HrInterviewResults = ({ interviews }) => (
+//   <div className="mt-10">
+//     <div className="flex items-center gap-3 mb-6">
+//       <BarChart className="w-7 h-7 text-blue-600" />
+//       <h3 className="text-2xl font-bold text-gray-900">HR Interview Analytics</h3>
+//     </div>
+//     <div className="space-y-4">
+//       {interviews.map((interview) => (
+//         <div key={interview.interview_id} className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all">
+//           <div className="flex justify-between items-center mb-3">
+//             <span className="font-medium text-gray-700">Interview #{interview.interview_id}</span>
+//             <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+//               Score: {interview.result}/10
+//             </span>
+//           </div>
+//           <div className="w-full bg-gray-200 rounded-full h-2">
+//             <div
+//               className="bg-gradient-to-r from-blue-400 to-purple-400 h-2 rounded-full transition-all duration-500"
+//               style={{ width: `${(interview.result / 10) * 100}%` }}
+//             />
+//           </div>
+//         </div>
+//       ))}
+//     </div>
+//   </div>
+// );
+// const ManagerialInterviewResults = ({ interviews }) => (
+//   <div className="mt-10">
+//     <div className="flex items-center gap-3 mb-6">
+//       <BarChart className="w-7 h-7 text-blue-600" />
+//       <h3 className="text-2xl font-bold text-gray-900">Managerial Interview Analytics</h3>
+//     </div>
+//     <div className="space-y-4">
+//       {interviews.map((interview) => (
+//         <div key={interview.interview_id} className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all">
+//           <div className="flex justify-between items-center mb-3">
+//             <span className="font-medium text-gray-700">Interview #{interview.interview_id}</span>
+//             <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+//               Score: {interview.result}/10
+//             </span>
+//           </div>
+//           <div className="w-full bg-gray-200 rounded-full h-2">
+//             <div
+//               className="bg-gradient-to-r from-blue-400 to-purple-400 h-2 rounded-full transition-all duration-500"
+//               style={{ width: `${(interview.result / 10) * 100}%` }}
+//             />
+//           </div>
+//         </div>
+//       ))}
+//     </div>
+//   </div>
+// );
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -108,6 +234,7 @@ const Profile = () => {
         const response = await axios.get('https://api.recruitmantra.com/user/getinfo', {
           headers: { Authorization: `Bearer ${token}` },
         });
+        // console.log(response.data.user);
         setUser(response.data.user);
         setResumeLink(response.data.resume);
         setImageLink(response.data.image);
@@ -175,8 +302,13 @@ const Profile = () => {
                 icon={BookOpen}
               />
             </div>
-            
-            <InterviewResults interviews={user.interview} />
+           
+             <InterviewResults 
+              technicalInterviews={user.interview} 
+              hrInterviews={user.HRInterview} 
+              managerialInterviews={user.ManagerialInterview} 
+            />
+      
             
             <div className="flex justify-end mt-10">
               <button
@@ -195,3 +327,13 @@ const Profile = () => {
 };
 
 export default Profile;
+
+
+
+
+
+
+
+
+
+

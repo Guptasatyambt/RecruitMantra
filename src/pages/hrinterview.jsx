@@ -6,7 +6,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 
 
-function Interview() {
+function HrInterview() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [currentQuestion, setCurrentQuestion] = useState(
     `question-${currentQuestionIndex}`
@@ -25,7 +25,7 @@ function Interview() {
 
   const interviewId = useParams().id;
   const navigate = useNavigate();
-
+  
  const params = useParams();
  console.log(params);
  
@@ -38,7 +38,7 @@ function Interview() {
     setStartRecording(false);
     audioAnalyse();
     videoAnalyse();
-    answerAccuracy();
+    // answerAccuracy();
     setCurrentQuestionIndex((prevIndex) =>
       prevIndex < questions.length - 1 ? prevIndex + 1 : 0
     );
@@ -70,15 +70,18 @@ function Interview() {
     if (videoBlob) {
       const url = URL.createObjectURL(videoBlob);
       setVideoUrl(url);
-      console.log("Downloadable URL generated:", url);
+
+      console.log("Downloadable URL generated:", videoUrl);
 
       try {
         const token = localStorage.getItem("token");
         const response = await axios.post(
-          "https://api.recruitmantra.com/interview/uploadvideo",
+            "http://localhost:5001/hrInterview/uploadvideo",
+        //   "https://api.recruitmantra.com/hrInterview/uploadvideo",
           {
-            interview_id: "6768f509f542f11b428bf216",
+            interview_id: interviewId,
             question_number: currentQuestionIndex,
+            type:"HR",
           },
           {
             headers: {
@@ -86,17 +89,19 @@ function Interview() {
             },
           }
         );
+        console.log("responce",response);
         const videoKey = response.data.key;
-        videoUrl=response.data.video_url;
-        console.log("Video-Key",videoUrl);
-        const file = new File([videoBlob], `${currentQuestion}.webm`, { type: "video/webm" });
+        videoUrl=response.data.video_url
+        console.log("responce",videoUrl);
+        console.log("blob",videoBlob);
+        const file = new File([videoBlob], `${currentQuestion}.mp4`, { type: "video/mp4" });
       const formData = new FormData();
-      formData.append("video", file);
-
+      formData.append("video/mp4", file);
+        
         try {
           const response = await axios.put(videoKey, formData, {
             headers: {
-              "Content-Type": "multipart/form-data",
+              "Content-Type": "video/mp4",
             },
           });
           console.log(response.data);
@@ -114,7 +119,9 @@ function Interview() {
       if (!token) {
         throw new Error("No token found.");
       }
-      const response = await axios.get("https://api.recruitmantra.com/user/getinfo", {
+      const response = await axios.get(
+        "http://localhost:5001/user/getinfo",{
+        // "https://api.recruitmantra.com/user/getinfo", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -138,8 +145,8 @@ function Interview() {
   const audioAnalyse = async () => {
     try {
       await axios.post("https://ml.recruitmantra.com/audio_emotion/process_video", {
-        video_url:
-          "https://commondatastorage.googleapis.com/gtvvideosbucket/sample/ForBiggerFun.mp4",
+        video_url:videoUrl,
+        //   "https://commondatastorage.googleapis.com/gtvvideosbucket/sample/ForBiggerFun.mp4",
       });
     } catch (error) {
       console.error("Failed to analyse audio:", error);
@@ -148,22 +155,11 @@ function Interview() {
   const videoAnalyse = async () => {
     try {
       await axios.post("https://ml.recruitmantra.com/video_emotion/upload", {
-        video_url:
-          "https://commondatastorage.googleapis.com/gtvvideosbucket/sample/ForBiggerFun.mp4",
+        video_url:videoUrl,
+        //   "https://commondatastorage.googleapis.com/gtvvideosbucket/sample/ForBiggerFun.mp4",
       });
     } catch (error) {
       console.error("Failed to analyse video:", error);
-    }
-  };
-  const answerAccuracy = async () => {
-    try {
-      await axios.post("https://ml.recruitmantra.com/video_text/process", {
-        question: questions[currentQuestionIndex],
-        video_url:
-          "https://commondatastorage.googleapis.com/gtvvideosbucket/sample/ForBiggerFun.mp4",
-      });
-    } catch (error) {
-      console.error("Failed to analyse accuracy:", error);
     }
   };
 
@@ -179,9 +175,11 @@ function Interview() {
         throw new Error("No token found.");
       }
       const response = await axios.post(
-        "https://api.recruitmantra.com/interview/stop",
+        "http://localhost:5001/hrInterview/stop",
+        // "https://api.recruitmantra.com/hrInterview/stop",
         {
           interview_id: interviewId,
+          type:"HR",
         },
         {
           headers: {
@@ -276,4 +274,4 @@ function Interview() {
   );
 }
 
-export default Interview;
+export default HrInterview;
