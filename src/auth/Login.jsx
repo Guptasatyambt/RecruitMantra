@@ -37,9 +37,25 @@ const Login = () => {
       console.log(response.data);
 
       const token = response.data.data.token;
+      const role = response.data.data.role;
+      
       localStorage.setItem("token", token);
-      navigate("/");
-      window.location.reload(); // Adjust the route as per your app's flow
+      
+      // Redirect based on role
+      if (role === 'super_admin') {
+        navigate("/admin-dashboard");
+      } else if (role === 'college_admin') {
+        if (!response.data.data.isApproved) {
+          setError("Your account is pending approval from super admin.");
+          setLoading(false);
+          return;
+        }
+        navigate("/dashboard");
+      } else {
+        navigate("/");
+      }
+      
+       window.location.reload(); // Adjust the route as per your app's flow
     } catch (error) {
       console.error("Login Error:", error.response?.data || error.message);
       setError(error.response?.data?.message || "An error occurred during login.");
@@ -238,14 +254,22 @@ const Login = () => {
           </form>
         )}
 
-        {/* SignUp Link */}
+        {/* SignUp Links */}
         {!showForgotPassword && (
-          <p className="text-sm text-gray-600 mt-4 text-center">
-            Don't have an account?{" "}
-            <a className="text-gray-700 hover:underline" href="/signup">
-              Sign Up
-            </a>
-          </p>
+          <div className="text-sm text-gray-600 mt-4 text-center space-y-2">
+            <p>
+              Don't have an account?{" "}
+              <a className="text-gray-700 hover:underline" href="/signup">
+                Sign Up as Student
+              </a>
+            </p>
+            <p>
+              Are you a college administrator?{" "}
+              <a className="text-gray-700 hover:underline" href="/college-admin-signup">
+                Register as College Admin
+              </a>
+            </p>
+          </div>
         )}
       </motion.div>
     </div>

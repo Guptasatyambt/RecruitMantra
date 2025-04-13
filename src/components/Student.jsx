@@ -1,214 +1,765 @@
 import React, { useState, useEffect } from 'react';
-import { GraduationCap, Briefcase, Award, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { GraduationCap, Briefcase, Award, Search, ChevronLeft, ChevronRight, Menu, Bell, ChevronDown, Settings, LogOut, BarChart, TrendingUp, Building2, Users, Loader2, Plus, X, Upload } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { studentAPI } from '../services/studentAPI';
+import { collegeadminAPI } from '../services/collegeadminAPI';
+import axios from 'axios';
 
-// Mock data for students
-const mockStudents = [
-  { id: 1, name: 'Rahul Sharma', course: 'B.Tech (CSE)', year: '4th', cgpa: 8.5, status: 'Placed', company: 'TechCorp', package: 12 },
-  { id: 2, name: 'Priya Patel', course: 'M.Tech (AI)', year: '2nd', cgpa: 9.2, status: 'Placed', company: 'DataSys Inc.', package: 15 },
-  { id: 3, name: 'Amit Kumar', course: 'B.Tech (ECE)', year: '4th', cgpa: 7.8, status: 'Not Placed', company: '-', package: 0 },
-  { id: 4, name: 'Sneha Gupta', course: 'B.Tech (IT)', year: '4th', cgpa: 8.9, status: 'Placed', company: 'InnovateX', package: 14 },
-  { id: 5, name: 'Rajesh Singh', course: 'M.Tech (CSE)', year: '2nd', cgpa: 8.7, status: 'Placed', company: 'TechGiant', package: 18 },
-  // Add more mock students as needed
-];
+// Remove mock data
 
 const Students = () => {
-  const [students, setStudents] = useState(mockStudents);
+  const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeLink, setActiveLink] = useState('students');
+  const [notifications, setNotifications] = useState(3);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [students, setStudents] = useState([]);
+  const [filteredStudents, setFilteredStudents] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
   const [studentsPerPage] = useState(5);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [placedStudents, setPlacedStudents] = useState([]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showBulkUploadModal, setShowBulkUploadModal] = useState(false);
+  const [userInfo, setUserInfo] = useState(null);
+  const [newStudent, setNewStudent] = useState({
+    name: '',
+    email: '',
+    college: '',
+    branch: '',
+    cgpa: '',
+    year: '',
+    specialization: '',
+    interest: ''
+  });
+  const [formError, setFormError] = useState('');
+  const [bulkUploadFile, setBulkUploadFile] = useState(null);
+
+  useEffect(() => {
+    fetchUserInfo();
+  }, []);
+
+  const fetchUserInfo = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      const response = await axios.get('https://api.recruitmantra.com/user/getinfo', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (response.data && response.data.user) {
+        setUserInfo(response.data.user);
+      }
+    } catch (error) {
+      console.error('Error fetching user info:', error);
+      // navigate('/login');
+    }
+  };
+
+  
+  // Fetch students data on component mount
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  // Fetch students data from API
+  const fetchStudents = async () => {
+    try {
+      setLoading(true);
+      const response = await studentAPI.getAllStudents();
+      
+      if (response.data && response.data.data) {
+        setStudents(response.data.data);
+        setFilteredStudents(response.data.data); // Initialize filtered students with all students
+        
+        // Fetch companies to determine placed students
+        const token = localStorage.getItem('token');
+        const companiesResponse = await axios.get('https://api.recruitmantra.com/dashboard/company/list', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        if (companiesResponse.data && companiesResponse.data.data) {
+          // Extract all placed student IDs from companies
+          const placedStudentIds = [];
+          companiesResponse.data.data.forEach(company => {
+            if (company.hired_students && company.hired_students.length > 0) {
+              company.hired_students.forEach(studentId => {
+                placedStudentIds.push(studentId.toString());
+              });
+            }
+          });
+          
+          setPlacedStudents(placedStudentIds);
+        }
+      }
+      
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching students:', error);
+      setError('Failed to load students data');
+      setLoading(false);
+    }
+  };
 
   // Filter students based on search term and status
   useEffect(() => {
-    const filteredStudents = mockStudents.filter(student => 
+    if (students.length === 0) return;
+    
+    const filtered = students.filter(student => 
       student.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (filterStatus === 'All' || student.status === filterStatus)
+      (filterStatus === 'All' || 
+       (filterStatus === 'Placed' && isStudentPlaced(student._id)) ||
+       (filterStatus === 'Not Placed' && !isStudentPlaced(student._id)))
     );
-    setStudents(filteredStudents);
+    
+    // Update the filtered students for display
+    setFilteredStudents(filtered);
     setCurrentPage(1);
-  }, [searchTerm, filterStatus]);
+  }, [searchTerm, filterStatus, students, placedStudents]);
+
+  // Check if student is placed
+  const isStudentPlaced = (studentId) => {
+    return placedStudents.includes(studentId.toString());
+  };
+
+  // Get student company and package
+  const getStudentCompanyInfo = (studentId) => {
+    // This would ideally come from the API, but for now we'll return placeholder values
+    return { company: '-', package: 0 };
+  };
+
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewStudent({
+      ...newStudent,
+      [name]: value
+    });
+  };
+
+  // Handle add student form submission
+  const handleAddStudent = async (e) => {
+    e.preventDefault();
+    setFormError('');
+
+    // Validate form
+    if (!newStudent.name || !newStudent.email || !newStudent.branch || !newStudent.year) {
+      setFormError('Please fill all required fields');
+      return;
+    }
+
+    try {
+      // Use collegeadminAPI instead of studentAPI
+      await collegeadminAPI.addSingleStudent(newStudent);
+      setShowAddModal(false);
+      setNewStudent({
+        name: '',
+        email: '',
+        college: '',
+        branch: '',
+        year: '',
+        specialization: '',
+        interest: ''
+      });
+      fetchStudents(); // Refresh student list
+    } catch (error) {
+      console.error('Error adding student:', error);
+      setFormError(error.response?.data?.message || 'Failed to add student');
+    }
+  };
+
+  // Handle file input change for bulk upload
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setBulkUploadFile(e.target.files[0]);
+    }
+  };
+
+  // Handle bulk upload submission
+  const handleBulkUpload = async (e) => {
+    e.preventDefault();
+    
+    if (!bulkUploadFile) {
+      setFormError('Please select a file to upload');
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      
+      // Import the utility function dynamically to parse the file
+      const { parseStudentBulkUpload, formatValidationErrors } = await import('../utils/studentBulkUpload');
+      
+      // Parse the file
+      const { data, errors } = await parseStudentBulkUpload(bulkUploadFile);
+      
+      // If there are validation errors, display them
+      if (errors && errors.length > 0) {
+        const errorMessage = formatValidationErrors(errors);
+        setFormError(`Validation errors in file:\n${errorMessage}`);
+        setLoading(false);
+        return;
+      }
+      
+      // If no data was parsed
+      if (!data || data.length === 0) {
+        setFormError('No valid student data found in the file');
+        setLoading(false);
+        return;
+      }
+      
+      // Send data to API
+      await collegeadminAPI.addStudentsBulk(data);
+      
+      // Close modal and refresh student list
+      setShowBulkUploadModal(false);
+      setBulkUploadFile(null);
+      setFormError('');
+      fetchStudents();
+      
+    } catch (error) {
+      console.error('Error processing bulk upload:', error);
+      setFormError(error.message || 'Failed to process file');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Pagination
   const indexOfLastStudent = currentPage * studentsPerPage;
   const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
-  const currentStudents = students.slice(indexOfFirstStudent, indexOfLastStudent);
+  const currentStudents = filteredStudents.slice(indexOfFirstStudent, indexOfLastStudent);
+  const totalPages = Math.ceil(filteredStudents.length / studentsPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  const NavigationLink = ({ icon: Icon, label, id }) => (
+    <button
+      onClick={() => {
+        setActiveLink(id);
+        navigate(`/${id}`);
+      }}
+      className={`flex items-center space-x-3 w-full py-3 px-4 rounded-lg transition duration-200 ${
+        activeLink === id 
+          ? 'bg-indigo-700 text-white' 
+          : 'text-indigo-100 hover:bg-indigo-700 hover:text-white'
+      }`}
+    >
+      <Icon className="w-5 h-5" />
+      <span>{label}</span>
+    </button>
+  );
+
   return (
-    <div className="container mx-auto px-6 py-8">
-      <h3 className="text-gray-700 text-3xl font-medium">Students</h3>
-
-      {/* Student Stats */}
-      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          <div className="flex items-center">
-            <GraduationCap className="h-12 w-12 text-blue-500" />
-            <div className="ml-4">
-              <h4 className="text-2xl font-semibold text-gray-700">{mockStudents.length}</h4>
-              <p className="text-gray-500">Total Students</p>
-            </div>
+    <div className="flex h-screen bg-gray-100">
+      {/* Sidebar */}
+      <div className={`bg-indigo-800 w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform 
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
+        md:relative md:translate-x-0 transition duration-200 ease-in-out z-30`}>
+        <div className="flex items-center justify-between px-4">
+          <div className="flex items-center space-x-2">
+            <Briefcase className="w-8 h-8 text-white" />
+            <span className="text-2xl font-bold text-white">RecruitMantra</span>
           </div>
         </div>
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          <div className="flex items-center">
-            <Briefcase className="h-12 w-12 text-green-500" />
-            <div className="ml-4">
-              <h4 className="text-2xl font-semibold text-gray-700">
-                {mockStudents.filter(s => s.status === 'Placed').length}
-              </h4>
-              <p className="text-gray-500">Placed Students</p>
-            </div>
+
+        <div className="px-4 py-2">
+          <div className={`relative ${searchFocused ? 'ring-2 ring-indigo-400' : ''} 
+            bg-indigo-700/50 rounded-lg transition-all duration-200`}>
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-full bg-transparent py-2 pl-8 pr-4 text-white placeholder-indigo-300 focus:outline-none"
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
+            />
+            <Search className="w-4 h-4 absolute left-2 top-2.5 text-indigo-300" />
           </div>
         </div>
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          <div className="flex items-center">
-            <Award className="h-12 w-12 text-yellow-500" />
-            <div className="ml-4">
-              <h4 className="text-2xl font-semibold text-gray-700">
-                {Math.max(...mockStudents.map(s => s.package))} LPA
-              </h4>
-              <p className="text-gray-500">Highest Package</p>
-            </div>
-          </div>
-        </div>
+
+        <nav className="space-y-2 px-2">
+          <NavigationLink icon={BarChart} label="Dashboard" id="dashboard" />
+          <NavigationLink icon={Building2} label="Companies" id="companies" />
+          <NavigationLink icon={GraduationCap} label="Students" id="students" />
+          <NavigationLink icon={TrendingUp} label="Statistics" id="statistics" />
+        </nav>
       </div>
 
-      {/* Search and Filter */}
-      <div className="mt-8 flex flex-col sm:flex-row justify-between items-center">
-        <div className="w-full sm:w-1/3 relative">
-          <input
-            type="text"
-            placeholder="Search students..."
-            className="w-full p-2 pl-8 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <Search className="absolute left-2 top-2.5 h-5 w-5 text-gray-400" />
-        </div>
-        <div className="mt-4 sm:mt-0">
-          <select
-            className="p-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-          >
-            <option value="All">All Students</option>
-            <option value="Placed">Placed</option>
-            <option value="Not Placed">Not Placed</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Student List */}
-      <div className="mt-8">
-        <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-          <table className="min-w-full leading-normal">
-            <thead>
-              <tr>
-                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Student Name
-                </th>
-                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Course
-                </th>
-                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Year
-                </th>
-                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  CGPA
-                </th>
-                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Company
-                </th>
-                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Package (LPA)
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentStudents.map((student) => (
-                <tr key={student.id}>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <p className="text-gray-900 whitespace-no-wrap">{student.name}</p>
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <p className="text-gray-900 whitespace-no-wrap">{student.course}</p>
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <p className="text-gray-900 whitespace-no-wrap">{student.year}</p>
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <p className="text-gray-900 whitespace-no-wrap">{student.cgpa}</p>
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <span className={`relative inline-block px-3 py-1 font-semibold ${
-                      student.status === 'Placed' ? 'text-green-900' : 'text-red-900'
-                    } leading-tight`}>
-                      <span aria-hidden className={`absolute inset-0 ${
-                        student.status === 'Placed' ? 'bg-green-200' : 'bg-red-200'
-                      } opacity-50 rounded-full`}></span>
-                      <span className="relative">{student.status}</span>
-                    </span>
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <p className="text-gray-900 whitespace-no-wrap">{student.company}</p>
-                  </td>
-                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <p className="text-gray-900 whitespace-no-wrap">{student.package}</p>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Pagination */}
-      <div className="mt-4 flex justify-between items-center">
-        <div>
-          <p className="text-sm text-gray-700">
-            Showing <span className="font-medium">{indexOfFirstStudent + 1}</span> to{' '}
-            <span className="font-medium">{Math.min(indexOfLastStudent, students.length)}</span> of{' '}
-            <span className="font-medium">{students.length}</span> results
-          </p>
-        </div>
-        <div>
-          <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-            <button
-              onClick={() => paginate(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-            >
-              <span className="sr-only">Previous</span>
-              <ChevronLeft className="h-5 w-5" aria-hidden="true" />
-            </button>
-            {Array.from({ length: Math.ceil(students.length / studentsPerPage) }).map((_, index) => (
-              <button
-                key={index}
-                onClick={() => paginate(index + 1)}
-                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                  currentPage === index + 1
-                    ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
-                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                }`}
-              >
-                {index + 1}
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top Navigation */}
+        <header className="bg-white shadow-sm">
+          <div className="flex items-center justify-between p-4">
+            <div className="flex items-center">
+              <button onClick={() => setSidebarOpen(!sidebarOpen)} className="md:hidden">
+                <Menu className="w-6 h-6 text-gray-600" />
               </button>
-            ))}
-            <button
-              onClick={() => paginate(currentPage + 1)}
-              disabled={currentPage === Math.ceil(students.length / studentsPerPage)}
-              className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-            >
-              <span className="sr-only">Next</span>
-              <ChevronRight className="h-5 w-5" aria-hidden="true" />
-            </button>
-          </nav>
-        </div>
+              <h2 className="text-xl font-semibold text-gray-800 ml-4">Students</h2>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <button className="relative p-2 hover:bg-gray-100 rounded-full">
+                <Bell className="w-6 h-6 text-gray-600" />
+                {notifications > 0 && (
+                  <span className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 
+                    bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center 
+                    justify-center animate-bounce">
+                    {notifications}
+                  </span>
+                )}
+              </button>
+
+              <div className="relative">
+                <button 
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center space-x-2 hover:bg-gray-100 rounded-lg p-2"
+                >
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 
+                    flex items-center justify-center text-white font-semibold">
+                    {userInfo?.name?.charAt(0) || 'A'}
+                  </div>
+                  <span className="text-gray-700">{userInfo?.name || 'Admin'}</span>
+                  <ChevronDown className="w-4 h-4 text-gray-500" />
+                </button>
+
+                {userMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
+                    <button className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 flex items-center">
+                      <Settings className="w-4 h-4 mr-2" /> Settings
+                    </button>
+                    <button className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 flex items-center">
+                      <LogOut className="w-4 h-4 mr-2" /> Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Students Content */}
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
+          <div className="container mx-auto px-6 py-8">
+            <div className="flex justify-between items-center">
+              <h3 className="text-gray-700 text-3xl font-medium">Students</h3>
+              <div className="flex space-x-2">
+                <button 
+                  onClick={() => setShowBulkUploadModal(true)}
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center"
+                >
+                  <Upload className="w-5 h-5 mr-2" /> Upload CSV/Excel
+                </button>
+                <button 
+                  onClick={() => setShowAddModal(true)}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center"
+                >
+                  <Plus className="w-5 h-5 mr-2" /> Add Student
+                </button>
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="flex justify-center items-center h-64">
+                <Loader2 className="w-12 h-12 text-indigo-600 animate-spin" />
+              </div>
+            ) : error ? (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-4">
+                <p>{error}</p>
+              </div>
+            ) : (
+              <>
+                {/* Student Stats */}
+                <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="bg-white shadow-lg rounded-lg p-6">
+                    <div className="flex items-center">
+                      <GraduationCap className="h-12 w-12 text-blue-500" />
+                      <div className="ml-4">
+                        <h4 className="text-2xl font-semibold text-gray-700">{students.length}</h4>
+                        <p className="text-gray-500">Total Students</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-white shadow-lg rounded-lg p-6">
+                    <div className="flex items-center">
+                      <Briefcase className="h-12 w-12 text-green-500" />
+                      <div className="ml-4">
+                        <h4 className="text-2xl font-semibold text-gray-700">
+                          {placedStudents.length}
+                        </h4>
+                        <p className="text-gray-500">Placed Students</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-white shadow-lg rounded-lg p-6">
+                    <div className="flex items-center">
+                      <Award className="h-12 w-12 text-yellow-500" />
+                      <div className="ml-4">
+                        <h4 className="text-2xl font-semibold text-gray-700">
+                          {/* This would ideally come from the API */}
+                          {students.length > 0 ? "15 LPA" : "0 LPA"}
+                        </h4>
+                        <p className="text-gray-500">Highest Package</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Search and Filter */}
+                <div className="mt-8 flex flex-col sm:flex-row justify-between items-center">
+                  <div className="w-full sm:w-1/3 relative">
+                    <input
+                      type="text"
+                      placeholder="Search students..."
+                      className="w-full p-2 pl-8 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <Search className="absolute left-2 top-2.5 h-5 w-5 text-gray-400" />
+                  </div>
+                  <div className="mt-4 sm:mt-0">
+                    <div className="flex space-x-2">
+                      <button
+                        className={`px-4 py-2 rounded-lg ${filterStatus === 'All' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                        onClick={() => setFilterStatus('All')}
+                      >
+                        All Students
+                      </button>
+                      <button
+                        className={`px-4 py-2 rounded-lg ${filterStatus === 'Placed' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                        onClick={() => setFilterStatus('Placed')}
+                      >
+                        Placed
+                      </button>
+                      <button
+                        className={`px-4 py-2 rounded-lg ${filterStatus === 'Not Placed' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                        onClick={() => setFilterStatus('Not Placed')}
+                      >
+                        Not Placed
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Student List */}
+                <div className="mt-8">
+                  <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+                    <table className="min-w-full leading-normal">
+                      <thead>
+                        <tr>
+                          <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Student Name
+                          </th>
+                          <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Student Email
+                          </th>
+                          <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Course
+                          </th>
+                          <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Year
+                          </th>
+                          <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            CGPA
+                          </th>
+                          <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Status
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {currentStudents.map((student, index) => {
+                          const isPlaced = isStudentPlaced(student._id);
+                          const { company, package: packageLPA } = getStudentCompanyInfo(student._id);
+                          
+                          return (
+                            <tr key={student._id}>
+                              <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                <p className="text-gray-900 whitespace-no-wrap">{student.name}</p>
+                              </td>
+                              <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                <p className="text-gray-900 whitespace-no-wrap">{student.email}</p>
+                              </td>
+                              <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                <p className="text-gray-900 whitespace-no-wrap">{student.branch || '-'}</p>
+                              </td>
+                              <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                <p className="text-gray-900 whitespace-no-wrap">{student.year || '-'}</p>
+                              </td>
+                              <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                <p className="text-gray-900 whitespace-no-wrap">{student.cgpa ? parseFloat(student.cgpa.$numberDecimal || 0).toFixed(1) : '-'}</p>
+                              </td>
+                              <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${isPlaced ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                  {isPlaced ? 'Placed' : 'Not Placed'}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+
+                    {/* Pagination */}
+                    <div className="px-5 py-5 bg-white border-t flex flex-col xs:flex-row items-center xs:justify-between">
+                      <div className="flex items-center">
+                        <button
+                          onClick={() => paginate(Math.max(1, currentPage - 1))}
+                          disabled={currentPage === 1}
+                          className="w-full p-2 border rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <ChevronLeft className="w-5 h-5" />
+                        </button>
+                        <span className="mx-2 text-gray-600">
+                          Page {currentPage} of {Math.ceil(filteredStudents.length / studentsPerPage)}
+                        </span>
+                        <button
+                          onClick={() => paginate(Math.min(Math.ceil(filteredStudents.length / studentsPerPage), currentPage + 1))}
+                          disabled={currentPage === Math.ceil(filteredStudents.length / studentsPerPage)}
+                          className="w-full p-2 border rounded text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <ChevronRight className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </main>
       </div>
+
+      {/* Add Student Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-semibold">Add New Student</h3>
+              <button onClick={() => setShowAddModal(false)} className="text-gray-500 hover:text-gray-700">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {formError && (
+              <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
+                {formError}
+              </div>
+            )}
+
+            <form onSubmit={handleAddStudent}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={newStudent.name}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={newStudent.email}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Branch *</label>
+                  <input
+                    type="text"
+                    name="branch"
+                    value={newStudent.branch}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Cgpa *</label>
+                  <input
+                    type="text"
+                    name="cgpa"
+                    value={newStudent.cgpa}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Year *</label>
+                  <select
+                    name="year"
+                    value={newStudent.year}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    required
+                  >
+                    <option value="">Select Year</option>
+                    <option value="1">1st Year</option>
+                    <option value="2">2nd Year</option>
+                    <option value="3">3rd Year</option>
+                    <option value="4">4th Year</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
+                  <input
+                    type="text"
+                    name="specialization"
+                    value={newStudent.specialization}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Interest</label>
+                  <input
+                    type="text"
+                    name="interest"
+                    value={newStudent.interest}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                >
+                  Add Student
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Upload Modal */}
+      {showBulkUploadModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-semibold">Bulk Upload Students</h3>
+              <button onClick={() => setShowBulkUploadModal(false)} className="text-gray-500 hover:text-gray-700">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {formError && (
+              <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg whitespace-pre-line">
+                {formError}
+              </div>
+            )}
+
+            <form onSubmit={handleBulkUpload}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Upload CSV/Excel File</label>
+                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                    <div className="space-y-1 text-center">
+                      <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                      <div className="flex text-sm text-gray-500">
+                        <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                          <span>Upload a file</span>
+                          <input 
+                            id="file-upload" 
+                            name="file-upload" 
+                            type="file" 
+                            className="sr-only" 
+                            accept=".csv,.xlsx,.xls"
+                            onChange={handleFileChange}
+                          />
+                        </label>
+                        <p className="pl-1">or drag and drop</p>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        CSV, Excel up to 10MB
+                      </p>
+                      {bulkUploadFile && (
+                        <p className="text-sm text-indigo-600">
+                          Selected: {bulkUploadFile.name}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-sm text-gray-500">
+                  <p>Please ensure your file has the following columns:</p>
+                  <ul className="list-disc pl-5 mt-1">
+                    <li>Name (required)</li>
+                    <li>Email (required)</li>
+                    <li>Branch (required)</li>
+                    <li>Cgpa (required)</li>
+                    <li>Year (required)</li>
+                    <li>Specialization (optional)</li>
+                    <li>Interest (optional)</li>
+                  </ul>
+                  <div className="mt-2">
+                    <a 
+                      href="/assets/student_bulk_upload_template.csv" 
+                      download
+                      className="text-indigo-600 hover:text-indigo-800 font-medium"
+                    >
+                      Download CSV Template
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setShowBulkUploadModal(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                  disabled={!bulkUploadFile}
+                >
+                  Upload
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
