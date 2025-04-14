@@ -16,7 +16,6 @@ import Interview from "../pages/Interview";
 import HrInterview from "../pages/hrinterview";
 import SignUp from "../auth/SignUp";
 import Login from "../auth/Login";
-import EmailVerification from "../auth/EmailVerification";
 import CollegeAdminSignUp from "../auth/CollegeAdminSignUp";
 import EmailVerification from "../auth/EmailVerification";
 import Answer from "../components/SpeechToText";
@@ -72,7 +71,7 @@ function AppRoutes() {
       <Route path="/edit-profile" element={<EditProfile />} />
       {/* forgot Password Routes*/}
       <Route path="/reset-password" element={<ResetPassword />} />
-      
+
       {/* Authorization Routes */}
       <Route exact path="/signup" element={<SignUp />} />
       <Route exact path="/login" element={<Login />} />
