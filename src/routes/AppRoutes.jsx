@@ -6,14 +6,17 @@ import Home from "../pages/Home";
 import AboutUs from "../pages/AboutUs";
 import Advance from "../pages/Advance";
 import Beginner from "../pages/Beginner";
+import HR from "../pages/hr";
 import ContactUs from "../pages/ContactUs";
 import Career from "../pages/career";
 import RedeemCoins from "../pages/RedeemCoins";
 import Intermediate from "../pages/Intermediate";
 import Feedback from "../pages/Feedback";
 import Interview from "../pages/Interview";
+import HrInterview from "../pages/hrinterview";
 import SignUp from "../auth/SignUp";
 import Login from "../auth/Login";
+import EmailVerification from "../auth/EmailVerification";
 import CollegeAdminSignUp from "../auth/CollegeAdminSignUp";
 import EmailVerification from "../auth/EmailVerification";
 import Answer from "../components/SpeechToText";
@@ -35,6 +38,7 @@ import Faq from "../pages/faq";
 import Tips from "../pages/tips";
 import Blog from "../pages/blog";
 import StudentPlacements from "../components/StudentPlacements";
+import ResetPassword from '../auth/ResetPassword';
 
 function AppRoutes() {
   return (
@@ -44,6 +48,7 @@ function AppRoutes() {
       <Route exact path="/about-us" element={<AboutUs />} />
       <Route exact path="/advance" element={<Advance />} />
       <Route exact path="/beginner" element={<Beginner />} />
+      <Route exact path="/hr-behavioral" element={<HR />} />
       <Route exact path="/contact-us" element={<ContactUs />} />
       {/*       <Route exact path="/redeem-coins" element={<RedeemCoins />} /> */}
       <Route exact path="/careers" element={<Career />} />
@@ -55,19 +60,19 @@ function AppRoutes() {
       <Route exact path="/interview/advanced/:id" element={<Interview />} />
       <Route exact path="/interview/intermediate/:id" element={<Interview />} />
       <Route exact path="/interview/beginner/:id" element={<Interview />} />
+      <Route exact path="/interview/hr-behavioral/:id" element={<HrInterview />} />
       <Route exact path="/feedback/:id" element={<Feedback />} />
-      <Route
-        exact
-        path="/interview-details/:id"
-        element={<InterviewDetails />}
-      />
+      <Route exact path="/interview-details/:id" element={<InterviewDetails />} />
+      
 
       {/* User Routes */}
       <Route path="/setup-profile" element={<SetupProfile />} />
       <Route path="/upload-documents" element={<AssetUpload />} />
       <Route exact path="/profile" element={<UserProfile />} />
       <Route path="/edit-profile" element={<EditProfile />} />
-
+      {/* forgot Password Routes*/}
+      <Route path="/reset-password" element={<ResetPassword />} />
+      
       {/* Authorization Routes */}
       <Route exact path="/signup" element={<SignUp />} />
       <Route exact path="/login" element={<Login />} />
