@@ -455,14 +455,14 @@ const Dashboard = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-white font-medium">
-                              {placement?.company_name?.charAt(0) || "P"}
+                              {placement?.studentName?.charAt(0)}
                             </div>
                             <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{placement.company_name}</div>
+                              <div className="text-sm font-medium text-gray-900">{placement?.studentName}</div>
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{placement.company}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{placement?.companyName}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{placement.position}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{placement.package}</td>
                         <td className="px-6 py-4 whitespace-nowrap">

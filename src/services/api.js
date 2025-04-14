@@ -26,7 +26,7 @@ API.interceptors.request.use(
 export const companyAPI = {
   // Get all companies
   getAllCompanies: (status) => {
-    return API.get(`dashboard/company/list${status ? `?status=${status}` : ''}`);
+    return API.get(`/dashboard/company/list${status ? `?status=${status}` : ''}`);
   },
 
   // Get company details
@@ -36,27 +36,27 @@ export const companyAPI = {
 
   // Get eligible companies for current user
   getEligibleCompanies: () => {
-    return API.get('/company/eligible');
+    return API.get('/dashboard/company/eligible');
   },
 
   // Add new company
   addCompany: (companyData) => {
-    return API.post('/company/add', companyData);
+    return API.post('/dashboard/company/add', companyData);
   },
 
   // Update company
   updateCompany: (companyId, companyData) => {
-    return API.post(`/company/update/${companyId}`, companyData);
+    return API.post(`/dashboard/company/update/${companyId}`, companyData);
   },
 
   // Update company hiring status
   updateHiringStatus: (companyId, statusData) => {
-    return API.post(`/company/update-status/${companyId}`, statusData);
+    return API.post(`/dashboard/company/update-status/${companyId}`, statusData);
   },
 
   // Delete company
   deleteCompany: (companyId) => {
-    return API.delete(`/delete/${companyId}`);
+    return API.delete(`/dashboard/delete/${companyId}`);
   },
 };
 
@@ -228,7 +228,7 @@ export const dashboardAPI = {
 
       const response = await API.get(endpoint);
 
-      if (response.data && response.data.data) {
+      if (response.data) {
         // Format the data from the backend to match the expected format in the frontend
         const placements = response.data.data.flatMap(placement => {
           return placement.hired_students.map(student => ({
