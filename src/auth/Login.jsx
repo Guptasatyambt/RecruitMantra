@@ -11,7 +11,6 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
-  const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
 
@@ -28,8 +27,9 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5001/user/login",
-        // "https://api.recruitmantra.com/user/login",
+
+        "https://api.recruitmantra.com/user/login",
+
         {
           email,
           password,
@@ -39,9 +39,25 @@ const Login = () => {
       console.log(response.data);
 
       const token = response.data.data.token;
+      const role = response.data.data.role;
+      
       localStorage.setItem("token", token);
-      navigate("/");
-      window.location.reload(); // Adjust the route as per your app's flow
+      
+      // Redirect based on role
+      if (role === 'super_admin') {
+        navigate("/admin-dashboard");
+      } else if (role === 'college_admin') {
+        if (!response.data.data.isApproved) {
+          setError("Your account is pending approval from super admin.");
+          setLoading(false);
+          return;
+        }
+        navigate("/dashboard");
+      } else {
+        navigate("/");
+      }
+      
+       window.location.reload(); // Adjust the route as per your app's flow
     } catch (error) {
       console.error("Login Error:", error.response?.data || error.message);
       setError(error.response?.data?.message || "An error occurred during login.");
@@ -69,11 +85,9 @@ const Login = () => {
         }
       );
 
-      setTimeout(() => {
-        setShowForgotPassword(false);
-      }, 3000);
-      setMessage("Password Reset Email Send");
-      
+      console.log(response.data);
+      alert("Password reset instructions have been sent to your email.");
+      setShowForgotPassword(false);
     } catch (error) {
       console.error("Forgot Password Error:", error.response?.data || error.message);
       setError(error.response?.data?.message || "An error occurred. Please try again.");
@@ -151,16 +165,6 @@ const Login = () => {
             >
               {loading ? "Sending..." : "Reset Password"}
             </button>
-            {message && (
-          <motion.div
-            className="mt-4 bg-green-100 text-green-600 text-center py-2 px-4 rounded-lg"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {message}
-          </motion.div>
-        )}
 
             <p className="text-sm text-gray-600 mt-4 text-center">
               Remember your password?{" "}
@@ -252,14 +256,22 @@ const Login = () => {
           </form>
         )}
 
-        {/* SignUp Link */}
+        {/* SignUp Links */}
         {!showForgotPassword && (
-          <p className="text-sm text-gray-600 mt-4 text-center">
-            Don't have an account?{" "}
-            <a className="text-gray-700 hover:underline" href="/signup">
-              Sign Up
-            </a>
-          </p>
+          <div className="text-sm text-gray-600 mt-4 text-center space-y-2">
+            <p>
+              Don't have an account?{" "}
+              <a className="text-gray-700 hover:underline" href="/signup">
+                Sign Up as Student
+              </a>
+            </p>
+            <p>
+              Are you a college administrator?{" "}
+              <a className="text-gray-700 hover:underline" href="/college-admin-signup">
+                Register as College Admin
+              </a>
+            </p>
+          </div>
         )}
       </motion.div>
     </div>

@@ -30,14 +30,12 @@ function Feedback() {
     console.log("Feedback Submitted:", formData);
     setSubmitted(true);
     try {
-      const token = localStorage.getItem("token");
       const response = await axios.post(
         "https://api.recruitmantra.com/feedback/uploadfeedback",
         {
           userFeedback: formData.feedback,
-          // rating: formData.rating, // Include the rating in the API call
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
+          rating: formData.rating, // Include the rating in the API call
+        }
       );
       console.log(response.data);
     } catch (error) {

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { 
   BarChart, Users, Briefcase, Menu, Bell, Search, ChevronDown, 
   Settings, LogOut, ArrowUpRight, ArrowDownRight, Loader2,
@@ -6,8 +8,10 @@ import {
   Medal, CheckCircle, Clock
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart as RechartsBarChart, Bar } from 'recharts';
+import { dashboardAPI } from '../services/api';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [activeLink, setActiveLink] = useState('dashboard');
@@ -16,6 +20,16 @@ const Dashboard = () => {
   const [searchFocused, setSearchFocused] = useState(false);
   const [selectedTimeRange, setSelectedTimeRange] = useState('6M');
   const [selectedChart, setSelectedChart] = useState('line');
+  const [userInfo, setUserInfo] = useState(null);
+  const [dashboardStats, setDashboardStats] = useState({
+    companiesVisited: 0,
+    studentsPlaced: 0,
+    placementRate: 0,
+    avgPackage: 0
+  });
+  const [trendData, setTrendData] = useState([]);
+  const [topCompanies, setTopCompanies] = useState([]);
+  const [recentPlacements, setRecentPlacements] = useState([]);
 
   const timeRanges = [
     { id: '1M', label: '1 Month' },
@@ -24,30 +38,95 @@ const Dashboard = () => {
     { id: '1Y', label: 'Year' }
   ];
 
-  const trendData = [
-    { month: 'Jan', placements: 15, offers: 18, avgPackage: 10 },
-    { month: 'Feb', placements: 25, offers: 28, avgPackage: 12 },
-    { month: 'Mar', placements: 20, offers: 24, avgPackage: 11 },
-    { month: 'Apr', placements: 35, offers: 40, avgPackage: 14 },
-    { month: 'May', placements: 28, offers: 32, avgPackage: 13 },
-    { month: 'Jun', placements: 42, offers: 45, avgPackage: 15 }
-  ];
-
-  const topCompanies = [
-    { name: 'TechCorp', hires: 25, avgPackage: 15 },
-    { name: 'DataSys', hires: 20, avgPackage: 12 },
-    { name: 'CloudTech', hires: 18, avgPackage: 14 },
-    { name: 'InnovateSoft', hires: 15, avgPackage: 13 },
-    { name: 'GlobalTech', hires: 12, avgPackage: 16 }
-  ];
-
+  // Fetch user info on component mount
   useEffect(() => {
-    setTimeout(() => setIsLoading(false), 1000);
+    fetchUserInfo();
   }, []);
+
+  const fetchUserInfo = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      const response = await axios.get('https://api.recruitmantra.com/user/getinfo', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (response.data && response.data.user) {
+        setUserInfo(response.data.user);
+        fetchDashboardData(response.data.user);
+      }
+    } catch (error) {
+      console.error('Error fetching user info:', error);
+      // navigate('/login');
+    }
+  };
+
+  const fetchDashboardData = async (user) => {
+    try {
+      setIsLoading(true);
+      
+      // Fetch dashboard statistics
+      const stats = await dashboardAPI.getDashboardStats();
+      
+      // Filter stats based on user role if needed
+      if (user && user.role === 'college_admin' && user.college) {
+        // Here you would filter the stats based on the college
+        // This depends on how your API is structured
+      }
+      
+      setDashboardStats(stats);
+      
+      // Fetch placement trends
+      const trends = await dashboardAPI.getPlacementTrends();
+      setTrendData(trends);
+      
+      // Fetch top companies
+      const companies = await dashboardAPI.getTopCompanies();
+      
+      // Filter companies based on user role
+      let filteredCompanies = companies;
+      console.log(filteredCompanies)
+      if (user && user.role === 'college_admin' && user.college) {
+        filteredCompanies = companies.filter(company => 
+          company.college?.toLowerCase() === user.college.toLowerCase() ||
+          company.colleges?.some(c => c.toLowerCase() === user.college.toLowerCase())
+        );
+      }
+      console.log(user);
+      
+      console.log(filteredCompanies)
+      
+      setTopCompanies(filteredCompanies);
+      
+      // Fetch recent placements
+      const placements = await dashboardAPI.getRecentPlacements();
+      setRecentPlacements(placements);
+      
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      setIsLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
 
   const NavigationLink = ({ icon: Icon, label, id }) => (
     <button
-      onClick={() => setActiveLink(id)}
+      onClick={() => {
+        setActiveLink(id);
+        navigate(`/${id}`);
+      }}
       className={`flex items-center space-x-3 w-full py-3 px-4 rounded-lg transition duration-200 ${
         activeLink === id 
           ? 'bg-indigo-700 text-white' 
@@ -104,7 +183,7 @@ const Dashboard = () => {
         <div className="flex items-center justify-between px-4">
           <div className="flex items-center space-x-2">
             <Briefcase className="w-8 h-8 text-white" />
-            <span className="text-2xl font-bold text-white">PlaceMe</span>
+            <span className="text-2xl font-bold text-white">RecruitMantra</span>
           </div>
         </div>
 
@@ -161,9 +240,9 @@ const Dashboard = () => {
                 >
                   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 
                     flex items-center justify-center text-white font-semibold">
-                    A
+                    {userInfo?.name?.charAt(0) || 'A'}
                   </div>
-                  <span className="text-gray-700">Admin</span>
+                  <span className="text-gray-700">{userInfo?.name || 'Admin'}</span>
                   <ChevronDown className="w-4 h-4 text-gray-500" />
                 </button>
 
@@ -172,7 +251,10 @@ const Dashboard = () => {
                     <button className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 flex items-center">
                       <Settings className="w-4 h-4 mr-2" /> Settings
                     </button>
-                    <button className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 flex items-center">
+                    <button 
+                      onClick={handleLogout}
+                      className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 flex items-center"
+                    >
                       <LogOut className="w-4 h-4 mr-2" /> Logout
                     </button>
                   </div>
@@ -209,7 +291,7 @@ const Dashboard = () => {
               <StatCard 
                 icon={Briefcase}
                 label="Companies Visited"
-                value="42"
+                value={dashboardStats.companiesVisited}
                 trend="up"
                 trendValue="12"
                 bgColor="bg-indigo-100 text-indigo-600"
@@ -217,7 +299,7 @@ const Dashboard = () => {
               <StatCard 
                 icon={Users}
                 label="Students Placed"
-                value="189"
+                value={dashboardStats.studentsPlaced}
                 trend="up"
                 trendValue="8"
                 bgColor="bg-green-100 text-green-600"
@@ -225,7 +307,7 @@ const Dashboard = () => {
               <StatCard 
                 icon={BarChart}
                 label="Placement Rate"
-                value="85%"
+                value={`${dashboardStats.placementRate}%`}
                 trend="down"
                 trendValue="2"
                 bgColor="bg-yellow-100 text-yellow-600"
@@ -233,7 +315,7 @@ const Dashboard = () => {
               <StatCard 
                 icon={DollarSign}
                 label="Avg Package (LPA)"
-                value="12.5"
+                value={dashboardStats.avgPackage.toFixed(1)}
                 trend="up"
                 trendValue="15"
                 bgColor="bg-purple-100 text-purple-600"
@@ -307,10 +389,6 @@ const Dashboard = () => {
                 </div>
               </div>
 
-  
-
-
-
               {/* Top Recruiting Companies */}
               <div className="bg-white shadow-lg rounded-xl p-6">
                 <h4 className="text-lg font-semibold text-gray-700 mb-6">Top Recruiting Companies</h4>
@@ -327,12 +405,12 @@ const Dashboard = () => {
                         </div>
                         <div>
                           <h5 className="font-semibold text-gray-900">{company.name}</h5>
-                          <p className="text-sm text-gray-500">{company.hires} students hired</p>
+                          <p className="text-sm text-gray-500">{company.hires} {company.hires>1?'students':'student'} hired</p>
                         </div>
                       </div>
                       <div className="text-right">
                         <p className="font-semibold text-gray-900">{company.avgPackage} LPA</p>
-                        <p className="text-sm text-gray-500">Avg. Package</p>
+                        {/* <p className="text-sm text-gray-500">Avg. Package</p> */}
                       </div>
                     </div>
                   ))}
@@ -372,49 +450,19 @@ const Dashboard = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {[
-                      { 
-                        name: 'Rahul Sharma', 
-                        company: 'TechCorp', 
-                        position: 'Software Engineer', 
-                        package: 12,
-                        status: 'Joined'
-                      },
-                      { 
-                        name: 'Priya Patel', 
-                        company: 'DataSys Inc.', 
-                        position: 'Data Analyst', 
-                        package: 9.5,
-                        status: 'Joining Soon'
-                      },
-                      { 
-                        name: 'Amit Kumar', 
-                        company: 'CloudTech', 
-                        position: 'DevOps Engineer', 
-                        package: 14,
-                        status: 'Joined'
-                      },
-                      { 
-                        name: 'Sara Khan', 
-                        company: 'InnovateSoft', 
-                        position: 'Product Manager', 
-                        package: 16,
-                        status: 'Joining Soon'
-                      },
-                    ].map((placement, index) => (
+                    {recentPlacements.map((placement, index) => (
                       <tr key={index} className="hover:bg-gray-50 transition-colors duration-200">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-white font-medium">
-                              {placement.name.charAt(0)}
+                              {placement?.studentName?.charAt(0)}
                             </div>
                             <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{placement.name}</div>
-                              <div className="text-sm text-gray-500">student.{placement.name.toLowerCase().replace(' ', '')}@email.com</div>
+                              <div className="text-sm font-medium text-gray-900">{placement?.studentName}</div>
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{placement.company}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{placement?.companyName}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{placement.position}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{placement.package}</td>
                         <td className="px-6 py-4 whitespace-nowrap">

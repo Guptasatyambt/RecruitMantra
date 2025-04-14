@@ -14,7 +14,7 @@ function Interview() {
   // eslint-disable-next-line
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [cameraEnabled, setCameraEnabled] = useState(false);
-  var [videoUrl, setVideoUrl] = useState();
+  const [videoUrl, setVideoUrl] = useState();
   const [isExpired, setIsExpired] = useState(false);
   const [restartAgain, setRestartAgain] = useState(true);
   const [questions, setQuestions] = useState([]);
@@ -87,8 +87,7 @@ function Interview() {
           }
         );
         const videoKey = response.data.key;
-        videoUrl=response.data.video_url;
-        console.log("Video-Key",videoUrl);
+        console.log("Video-Key",videoKey);
         const file = new File([videoBlob], `${currentQuestion}.webm`, { type: "video/webm" });
       const formData = new FormData();
       formData.append("video", file);
