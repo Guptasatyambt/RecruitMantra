@@ -58,16 +58,16 @@ function Footer() {
             <h3 className="text-lg font-semibold mb-4">Resources</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">Blog</a>
+                <a href="/blog" className="text-gray-400 hover:text-white transition-colors">Blog</a>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">Interview Tips</a>
+                <a href="interview-tips" className="text-gray-400 hover:text-white transition-colors">Interview Tips</a>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">FAQs</a>
+                <a href="/f-a-q" className="text-gray-400 hover:text-white transition-colors">FAQs</a>
               </li>
               <li>
-                <a href="/feedback" className="text-gray-400 hover:text-white transition-colors">Support</a>
+                <a href="/contact-us" className="text-gray-400 hover:text-white transition-colors">Support</a>
               </li>
             </ul>
           </div>

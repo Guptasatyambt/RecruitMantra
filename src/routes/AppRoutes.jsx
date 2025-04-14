@@ -8,6 +8,7 @@ import Advance from "../pages/Advance";
 import Beginner from "../pages/Beginner";
 import HR from "../pages/hr";
 import ContactUs from "../pages/ContactUs";
+import Career from "../pages/career";
 import RedeemCoins from "../pages/RedeemCoins";
 import Intermediate from "../pages/Intermediate";
 import Feedback from "../pages/Feedback";
@@ -26,6 +27,12 @@ import Dashboard from "../components/Dashboard";
 import Companies from "../components/Companies";
 import Students from "../components/Student";
 import ResetPassword from '../auth/ResetPassword';
+import NotFound from "../pages/notFound";
+import JobDetails from "../pages/jobDetails";
+import JobApplicationForm from "../pages/jobApplicationForm";
+import Faq from "../pages/faq";
+import Tips from "../pages/tips";
+import Blog from "../pages/blog";
 
 function AppRoutes() {
   return (
@@ -38,6 +45,7 @@ function AppRoutes() {
       <Route exact path="/beginner" element={<Beginner />} />
       <Route exact path="/hr-behavioral" element={<HR />} />
       <Route exact path="/contact-us" element={<ContactUs />} />
+      <Route exact path="/careers" element={<Career />} />
 {/*       <Route exact path="/redeem-coins" element={<RedeemCoins />} /> */}
       <Route exact path="/intermediate" element={<Intermediate />} />
       <Route exact path="/feedback" element={<Feedback />} />
@@ -70,6 +78,15 @@ function AppRoutes() {
       <Route exact path = "/companies" element={<Companies/>}/>
       <Route exact path = "/students" element={<Students/>}/>
       
+      <Route exact path = "*" element={<NotFound/>}/>
+
+      <Route exact path="/job/:id" element={<JobDetails />} />
+      <Route exact path="/apply/:id" element={<JobApplicationForm />} />
+
+      <Route exact path = "/f-a-q" element={<Faq/>}/>
+      <Route exact path = "/interview-tips" element={<Tips/>}/>
+      <Route exact path = "/blog" element={<Blog/>}/>
+
       <Route element={<PrivateRoute />}>
           <Route path="/redeem-coins" element={<RedeemCoins />} />
         </Route>

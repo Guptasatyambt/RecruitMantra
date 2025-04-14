@@ -2,6 +2,8 @@ import React from "react";
 import { BiLogoInstagram, BiLogoLinkedin } from "react-icons/bi";
 import { motion } from "framer-motion";
 import { FiArrowUpRight } from "react-icons/fi";
+import { useNavigate } from 'react-router-dom';
+
 
 const teamMembers = [
   {
@@ -21,8 +23,8 @@ const teamMembers = [
     image: "https://internview-assets.s3.ap-south-1.amazonaws.com/upendra+(1).jpg",
   },
 ];
-
 const AboutUs = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Parallax Hero Section */}
@@ -194,9 +196,11 @@ const AboutUs = () => {
               We believe true career success lies at the intersection of technical mastery 
               and human connection. Our platform is designed to nurture both.
             </p>
-            <div className="mt-12 inline-block bg-gradient-to-r from-amber-500 to-amber-600 text-white px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+            <button 
+            onClick={() => navigate('/careers')}
+            className="mt-12 inline-block bg-gradient-to-r from-amber-500 to-amber-600 text-white px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
               Join the Revolution
-            </div>
+            </button>
           </motion.div>
         </div>
       </section>

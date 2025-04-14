@@ -28,8 +28,8 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        // "http://localhost:5001/user/login",
-        "https://api.recruitmantra.com/user/login",
+        "http://localhost:5001/user/login",
+        // "https://api.recruitmantra.com/user/login",
         {
           email,
           password,
