@@ -17,8 +17,8 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters long.");
+    if (password.length < 5) {
+      setError("Password must be at least 5 characters long.");
       return;
     }
 
@@ -27,9 +27,7 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-
         "https://api.recruitmantra.com/user/login",
-
         {
           email,
           password,

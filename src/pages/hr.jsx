@@ -13,7 +13,7 @@ function HR() {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        "http://localhost:5001/hrInterview/start",
+        "https://api.recruitmantra.com/hrInterview/start",
         // "https://api.recruitmantra.com/hrInterview/start",//Replace it with starting url of hr interview
         { type: "HR" },
         { headers: { Authorization: `Bearer ${token}` } }

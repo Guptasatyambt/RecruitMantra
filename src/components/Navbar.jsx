@@ -3,7 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { CgProfile } from "react-icons/cg";
 import { BiEdit, BiCoinStack, BiLogOut } from "react-icons/bi";
 import { FaUniversity } from "react-icons/fa";
-import { Menu, X, Home, Info, Phone, Briefcase, MessageSquare } from "lucide-react";
+import axios from "axios";
+import {
+  Menu,
+  X,
+  Home,
+  Info,
+  Phone,
+  Briefcase,
+  MessageSquare,
+} from "lucide-react";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -13,15 +22,51 @@ const Navbar = () => {
   const [activeLink, setActiveLink] = useState(window.location.pathname); // Initialize with current path
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [userRole, setUserRole] = useState("");
+  const [dashboardPath, setDashboardPath] = useState("/dashboard");
   const dropdownRef = useRef(null);
   const mobileMenuRef = useRef(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const response = await axios.get("https://api.recruitmantra.com/user/getinfo", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        
+        const role = response.data.user.role;
+        setUserRole(role);
+        
+        // Set dashboard path based on user role
+        if (role === "student") {
+          setDashboardPath("/student-dashboard");
+        } else if (role === "college_admin") {
+          setDashboardPath("/dashboard");
+        } else if (role === "super_admin") {
+          setDashboardPath("/admin-dashboard");
+        }
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+      }
+    };
+
+    if (token) {
+      fetchUserData();
+    }
+  }, [token]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false);
       }
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target)
+      ) {
         setMobileMenuOpen(false);
       }
     };
@@ -31,27 +76,27 @@ const Navbar = () => {
 
   useEffect(() => {
     let scrollTimeout;
-    
+
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
+
       if (currentScrollY < lastScrollY || currentScrollY < 50) {
         setIsVisible(true);
       } else if (currentScrollY > lastScrollY) {
         setIsVisible(false);
       }
-      
+
       setLastScrollY(currentScrollY);
-      
+
       clearTimeout(scrollTimeout);
-      
+
       scrollTimeout = setTimeout(() => {
         setIsVisible(true);
       }, 1000);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
       clearTimeout(scrollTimeout);
@@ -69,21 +114,23 @@ const Navbar = () => {
     { name: "About Us", path: "/about-us", icon: Info },
     { name: "Contact", path: "/contact-us", icon: Phone },
     { name: "Careers", path: "/careers", icon: Briefcase },
-    ...(token ? [{ name: "Feedback", path: "/feedback", icon: MessageSquare }] : []),
+    ...(token
+      ? [{ name: "Feedback", path: "/feedback", icon: MessageSquare }]
+      : []),
   ];
 
   return (
-    <header 
+    <header
       className={`bg-white sticky top-0 z-50 shadow-sm transition-all duration-300 transform ${
-        isVisible ? 'translate-y-0' : '-translate-y-full'
+        isVisible ? "translate-y-0" : "-translate-y-full"
       }`}
     >
       <div className="w-full h-1 bg-gradient-to-r from-gray-300 to-gray-400"></div>
       <nav className="container mx-auto px-4 py-2">
         <div className="flex items-center justify-between">
           {/* Logo Section */}
-          <div 
-            className="flex items-center space-x-3 cursor-pointer group" 
+          <div
+            className="flex items-center space-x-3 cursor-pointer group"
             onClick={() => navigate("/")}
           >
             <div className="relative">
@@ -109,9 +156,11 @@ const Navbar = () => {
                     setActiveLink(link.path);
                   }}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 relative
-                    ${activeLink === link.path 
-                      ? 'text-gray-900' 
-                      : 'text-gray-600 hover:text-gray-800'}`}
+                    ${
+                      activeLink === link.path
+                        ? "text-gray-900"
+                        : "text-gray-600 hover:text-gray-800"
+                    }`}
                 >
                   {link.name}
                   {activeLink === link.path && (
@@ -161,16 +210,35 @@ const Navbar = () => {
 
                 <div
                   className={`absolute right-0 mt-4 w-64 bg-white rounded-2xl shadow-lg transform transition-all duration-300 origin-top-right overflow-hidden border border-gray-100
-                    ${dropdownOpen 
-                      ? 'opacity-100 scale-100 translate-y-0' 
-                      : 'opacity-0 scale-95 -translate-y-4 pointer-events-none'}`}
+                    ${
+                      dropdownOpen
+                        ? "opacity-100 scale-100 translate-y-0"
+                        : "opacity-0 scale-95 -translate-y-4 pointer-events-none"
+                    }`}
                 >
                   <div className="p-2">
                     {[
-                      { icon: CgProfile, label: "Your Profile", path: "/profile" },
-                      { icon: BiEdit, label: "Edit Profile", path: "/edit-profile" },
-                      { icon: FaUniversity, label: "Your College", path: "/dashboard" },
-                      { icon: BiCoinStack, label: "Redeem Coins", path: "/redeem-coins" },
+                      {
+                        icon: FaUniversity,
+                        label: "Dashboard",
+                        path: dashboardPath,
+                      },
+                      {
+                        icon: CgProfile,
+                        label: "Your Profile",
+                        path: "/profile",
+                      },
+                      {
+                        icon: BiEdit,
+                        label: "Edit Profile",
+                        path: "/edit-profile",
+                      },
+
+                      {
+                        icon: BiCoinStack,
+                        label: "Redeem Coins",
+                        path: "/redeem-coins",
+                      },
                     ].map((item, index) => (
                       <button
                         key={index}
@@ -218,9 +286,10 @@ const Navbar = () => {
         <div
           ref={mobileMenuRef}
           className={`md:hidden fixed right-4 top-[73px] w-64 bg-white rounded-2xl shadow-lg transform transition-all duration-300 origin-top-right overflow-hidden border border-gray-100
-            ${mobileMenuOpen
-              ? 'opacity-100 scale-100 translate-y-0'
-              : 'opacity-0 scale-95 -translate-y-4 pointer-events-none'
+            ${
+              mobileMenuOpen
+                ? "opacity-100 scale-100 translate-y-0"
+                : "opacity-0 scale-95 -translate-y-4 pointer-events-none"
             }`}
         >
           <div className="p-2">

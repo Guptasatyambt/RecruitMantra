@@ -8,24 +8,24 @@ import {
   Medal, CheckCircle, Clock, MapPin, Globe, Users2
 } from 'lucide-react';
 import { dashboardAPI } from '../services/api';
+import { companyAPI } from '../services/api';
 
 const StudentCompanies = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [activeLink, setActiveLink] = useState('companies');
   const [notifications, setNotifications] = useState(0);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
+  const [companies, setCompanies] = useState([]);
   const [userInfo, setUserInfo] = useState(null);
-  const [companiesData, setCompaniesData] = useState({
+  const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState({
+    totalCompanies: 0,
+    avgPackage: 0,
+    highestPackage: 0,
     activeCompanies: [],
-    upcomingCompanies: [],
-    stats: {
-      totalCompanies: 0,
-      averagePackage: 0,
-      highestPackage: 0
-    }
+    upcomingCompanies: []
   });
 
   useEffect(() => {
@@ -49,7 +49,7 @@ const StudentCompanies = () => {
 
       if (response.data) {
         setUserInfo(response.data.user);
-        fetchCompaniesData(response.data.user);
+        fetchCompanies(response.data.user);
       }
     } catch (error) {
       console.error('Error fetching user info:', error);
@@ -57,35 +57,57 @@ const StudentCompanies = () => {
     }
   };
 
-  const fetchCompaniesData = async (user) => {
+  const fetchCompanies = async (user) => {
     try {
-      setIsLoading(true);
+      setLoading(true);
+      // Check if we have a status filter
+      const statusFilter = user?.filterStatus || '';
+      const response = await companyAPI.getAllCompanies(statusFilter);
+      let companiesData = response.data.data;
       
-      // Fetch active companies
-      const active = await dashboardAPI.getActiveCompanies({
-        collegeId: user.college
+      // Filter companies based on user role
+      if (user && user.role === 'student' && user.college) {
+        // For college admin, only show companies that visited their college
+        companiesData = companiesData.filter(company => 
+          company.college?.toLowerCase() === user.college.toLowerCase() ||
+          company.colleges?.some(c => c.toLowerCase() === user.college.toLowerCase()) ||
+          company.college_id === user.college
+        );
+      }
+      setCompanies(companiesData);
+
+      console.log(companiesData)
+      const activeCompanies = companiesData;
+      // Calculate stats with improved categorization
+      const upcomingCompanies = companiesData.filter(company => company.status === 'upcoming');
+      const ongoingCompanies = companiesData.filter(company => company.status === 'ongoing');
+      const completedCompanies = companiesData.filter(company => company.status === 'completed');
+      
+      
+      // Calculate average package with proper handling of missing values
+      const validPackages = companiesData.filter(company => company.package_lpa && !isNaN(company.package_lpa));
+      const totalAvgPackage = validPackages.length > 0 
+        ? validPackages.reduce((total, company) => total + parseFloat(company.package_lpa), 0) / validPackages.length
+        : 0;
+      
+      var highestPackage = 0;
+      for (var company in companiesData) {
+        highestPackage = Math.max(highestPackage, (companiesData[company].students_hired ? companiesData[company].package_lpa : 0));
+      }
+      
+        
+      setStats({
+        totalCompanies: companiesData.length,
+        avgPackage: parseFloat(totalAvgPackage.toFixed(1)),
+        highestPackage: highestPackage,
+        activeCompanies: activeCompanies,
+        upcomingCompanies: upcomingCompanies
       });
       
-      // Fetch upcoming companies
-      const upcoming = await dashboardAPI.getUpcomingCompanies({
-        collegeId: user.college
-      });
-      
-      // Fetch company statistics
-      const statistics = await dashboardAPI.getCompanyStatistics({
-        collegeId: user.college
-      });
-      
-      setCompaniesData({
-        activeCompanies: active,
-        upcomingCompanies: upcoming,
-        stats: statistics
-      });
-      
-      setIsLoading(false);
+      setLoading(false);
     } catch (error) {
-      console.error('Error fetching companies data:', error);
-      setIsLoading(false);
+      console.error('Error fetching companies:', error);
+      setLoading(false);
     }
   };
 
@@ -128,9 +150,9 @@ const StudentCompanies = () => {
         </div>
 
         <nav className="space-y-1">
-          <NavigationLink icon={BarChart} label="Dashboard" id="dashboard" />
-          <NavigationLink icon={Briefcase} label="Placements" id="placements" />
-          <NavigationLink icon={Building} label="Companies" id="companies" />
+          <NavigationLink icon={BarChart} label="Dashboard" id="student-dashboard" />
+          <NavigationLink icon={Briefcase} label="My Stats" id="my-stats" />
+          <NavigationLink icon={Building} label="Companies" id="student-companies" />
         </nav>
 
         <div className="absolute bottom-0 left-0 right-0 p-4">
@@ -211,7 +233,7 @@ const StudentCompanies = () => {
 
         {/* Companies Content */}
         <main className="p-6">
-          {isLoading ? (
+          {loading ? (
             <div className="flex items-center justify-center h-64">
               <Loader2 className="h-8 w-8 text-indigo-600 animate-spin" />
             </div>
@@ -222,7 +244,7 @@ const StudentCompanies = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-gray-500">Active Companies</p>
-                      <p className="text-2xl font-bold text-gray-900">{companiesData.stats.totalCompanies}</p>
+                      <p className="text-2xl font-bold text-gray-900">{stats.totalCompanies}</p>
                     </div>
                     <div className="p-3 rounded-full bg-indigo-100 text-indigo-600">
                       <Building className="h-6 w-6" />
@@ -234,7 +256,7 @@ const StudentCompanies = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-gray-500">Average Package</p>
-                      <p className="text-2xl font-bold text-gray-900">₹{companiesData.stats.averagePackage} LPA</p>
+                      <p className="text-2xl font-bold text-gray-900">₹{stats.avgPackage} LPA</p>
                     </div>
                     <div className="p-3 rounded-full bg-green-100 text-green-600">
                       <DollarSign className="h-6 w-6" />
@@ -246,7 +268,7 @@ const StudentCompanies = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-gray-500">Highest Package</p>
-                      <p className="text-2xl font-bold text-gray-900">₹{companiesData.stats.highestPackage} LPA</p>
+                      <p className="text-2xl font-bold text-gray-900">₹{stats.highestPackage} LPA</p>
                     </div>
                     <div className="p-3 rounded-full bg-blue-100 text-blue-600">
                       <TrendingUp className="h-6 w-6" />
@@ -258,94 +280,106 @@ const StudentCompanies = () => {
               <div className="bg-white p-6 rounded-lg shadow mb-6">
                 <h2 className="text-lg font-medium text-gray-900 mb-4">Active Companies</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {companiesData.activeCompanies.map((company, index) => (
-                    <div key={index} className="bg-gray-50 p-6 rounded-lg border border-gray-200 hover:border-indigo-500 transition-colors duration-200">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center space-x-3">
-                          <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center border border-gray-200">
-                            {company.logo ? (
-                              <img src={company.logo} alt={company.name} className="h-8 w-8 object-contain" />
-                            ) : (
-                              <Building className="h-6 w-6 text-gray-400" />
-                            )}
+                  {stats.activeCompanies.length > 0 ? (
+                    stats.activeCompanies.map((company, index) => (
+                      <div key={index} className="bg-gray-50 p-6 rounded-lg border border-gray-200 hover:border-indigo-500 transition-colors duration-200">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center space-x-3">
+                            <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center border border-gray-200">
+                              {company.logo ? (
+                                <img src={company.logo} alt={company.company_name} className="h-8 w-8 object-contain" />
+                              ) : (
+                                <Building className="h-6 w-6 text-gray-400" />
+                              )}
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-medium text-gray-900">{company.company_name}</h3>
+                              <p className="text-sm text-gray-500">{company.industry}</p>
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="text-lg font-medium text-gray-900">{company.name}</h3>
-                            <p className="text-sm text-gray-500">{company.industry}</p>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="flex items-center text-sm text-gray-500">
+                            <DollarSign className="h-4 w-4 mr-2" />
+                            <span>₹{company.package_lpa} LPA</span>
                           </div>
+                          <div className="flex items-center text-sm text-gray-500">
+                            <MapPin className="h-4 w-4 mr-2" />
+                            <span>{company.location || 'On Campus'}</span>
+                          </div>
+                          <div className="flex items-center text-sm text-gray-500">
+                            <Calendar className="h-4 w-4 mr-2" />
+                            <span>Drive Date: {new Date(company.visit_date).toLocaleDateString()}</span>
+                          </div>
+                          <div className="flex items-center text-sm text-gray-500">
+                            <Users2 className="h-4 w-4 mr-2" />
+                            <span>Position: {company.position}</span>
+                          </div>
+                          <button
+                            onClick={() => navigate(`/company/${company._id}`)}
+                            className="mt-4 w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors duration-200"
+                          >
+                            View Details
+                          </button>
                         </div>
                       </div>
-                      
-                      <div className="space-y-3">
-                        <div className="flex items-center text-sm text-gray-500">
-                          <DollarSign className="h-4 w-4 mr-2" />
-                          <span>₹{company.package} LPA</span>
-                        </div>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <MapPin className="h-4 w-4 mr-2" />
-                          <span>{company.location || 'On Campus'}</span>
-                        </div>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <Calendar className="h-4 w-4 mr-2" />
-                          <span>Drive Date: {new Date(company.driveDate).toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <Users2 className="h-4 w-4 mr-2" />
-                          <span>Positions: {company.positions.join(', ')}</span>
-                        </div>
-                        <button
-                          onClick={() => navigate(`/companies/${company.id}`)}
-                          className="mt-4 w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors duration-200"
-                        >
-                          View Details
-                        </button>
-                      </div>
+                    ))
+                  ) : (
+                    <div className="col-span-3 text-center py-8 text-gray-500">
+                      No active companies found
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
 
               <div className="bg-white p-6 rounded-lg shadow">
                 <h2 className="text-lg font-medium text-gray-900 mb-4">Upcoming Companies</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {companiesData.upcomingCompanies.map((company, index) => (
-                    <div key={index} className="bg-gray-50 p-6 rounded-lg border border-gray-200 hover:border-indigo-500 transition-colors duration-200">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center space-x-3">
-                          <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center border border-gray-200">
-                            {company.logo ? (
-                              <img src={company.logo} alt={company.name} className="h-8 w-8 object-contain" />
-                            ) : (
-                              <Building className="h-6 w-6 text-gray-400" />
-                            )}
+                  {stats.upcomingCompanies.length > 0 ? (
+                    stats.upcomingCompanies.map((company, index) => (
+                      <div key={index} className="bg-gray-50 p-6 rounded-lg border border-gray-200 hover:border-indigo-500 transition-colors duration-200">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center space-x-3">
+                            <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center border border-gray-200">
+                              {company.logo ? (
+                                <img src={company.logo} alt={company.company_name} className="h-8 w-8 object-contain" />
+                              ) : (
+                                <Building className="h-6 w-6 text-gray-400" />
+                              )}
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-medium text-gray-900">{company.company_name}</h3>
+                              <p className="text-sm text-gray-500">{company.industry}</p>
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="text-lg font-medium text-gray-900">{company.name}</h3>
-                            <p className="text-sm text-gray-500">{company.industry}</p>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="flex items-center text-sm text-gray-500">
+                            <DollarSign className="h-4 w-4 mr-2" />
+                            <span>₹{company.package_lpa} LPA</span>
+                          </div>
+                          <div className="flex items-center text-sm text-gray-500">
+                            <MapPin className="h-4 w-4 mr-2" />
+                            <span>{company.location || 'On Campus'}</span>
+                          </div>
+                          <div className="flex items-center text-sm text-gray-500">
+                            <Calendar className="h-4 w-4 mr-2" />
+                            <span>Expected Drive: {new Date(company.visit_date).toLocaleDateString()}</span>
+                          </div>
+                          <div className="flex items-center text-sm text-gray-500">
+                            <Users2 className="h-4 w-4 mr-2" />
+                            <span>Position: {company.position}</span>
                           </div>
                         </div>
                       </div>
-                      
-                      <div className="space-y-3">
-                        <div className="flex items-center text-sm text-gray-500">
-                          <DollarSign className="h-4 w-4 mr-2" />
-                          <span>₹{company.package} LPA</span>
-                        </div>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <MapPin className="h-4 w-4 mr-2" />
-                          <span>{company.location || 'On Campus'}</span>
-                        </div>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <Calendar className="h-4 w-4 mr-2" />
-                          <span>Expected Drive: {new Date(company.expectedDriveDate).toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <Users2 className="h-4 w-4 mr-2" />
-                          <span>Positions: {company.positions.join(', ')}</span>
-                        </div>
-                      </div>
+                    ))
+                  ) : (
+                    <div className="col-span-3 text-center py-8 text-gray-500">
+                      No upcoming companies found
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
             </>

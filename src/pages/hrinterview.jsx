@@ -76,7 +76,7 @@ function HrInterview() {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.post(
-            "http://localhost:5001/hrInterview/uploadvideo",
+            "https://api.recruitmantra.com/hrInterview/uploadvideo",
         //   "https://api.recruitmantra.com/hrInterview/uploadvideo",
           {
             interview_id: interviewId,
@@ -120,7 +120,7 @@ function HrInterview() {
         throw new Error("No token found.");
       }
       const response = await axios.get(
-        "http://localhost:5001/user/getinfo",{
+        "https://api.recruitmantra.com/user/getinfo",{
         // "https://api.recruitmantra.com/user/getinfo", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -175,7 +175,7 @@ function HrInterview() {
         throw new Error("No token found.");
       }
       const response = await axios.post(
-        "http://localhost:5001/hrInterview/stop",
+        "https://api.recruitmantra.com/hrInterview/stop",
         // "https://api.recruitmantra.com/hrInterview/stop",
         {
           interview_id: interviewId,

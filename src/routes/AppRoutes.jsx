@@ -37,6 +37,7 @@ import Faq from "../pages/faq";
 import Tips from "../pages/tips";
 import Blog from "../pages/blog";
 import StudentPlacements from "../components/StudentPlacements";
+import StudentCompanies from "../components/StudentCompanies";
 import ResetPassword from '../auth/ResetPassword';
 
 function AppRoutes() {
@@ -117,6 +118,9 @@ function AppRoutes() {
       </Route>
       <Route path="/student-dashboard" element={<PrivateRoute />}>
         <Route index element={<StudentDashboard />} />
+      </Route>
+      <Route path="/student-companies" element={<PrivateRoute />}>
+        <Route index element={<StudentCompanies />} />
       </Route>
       <Route path="/my-stats" element={<StudentPlacements />} />
     </Routes>

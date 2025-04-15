@@ -1,5 +1,5 @@
 import axios from 'axios';
-
+import {studentAPI} from './studentAPI'
 // Create an axios instance with base URL
 const API = axios.create({
   baseURL: 'https://api.recruitmantra.com',
@@ -90,15 +90,20 @@ export const dashboardAPI = {
     try {
       // Fetch companies data for student's college
       const response = await companyAPI.getAllCompanies();
+      const allStudents = await studentAPI.getAllStudents()
+      const total_students = allStudents?.data?.data?.length || 0;
       const companies = response.data.data;
-
+      var total_placed_students = 0;
+      for (var company in companies) {
+        total_placed_students += companies[company].students_hired;
+      }
       // Calculate student-specific statistics
       const stats = {
         totalCompanies: companies.length,
         avgPackage: companies.length > 0
           ? parseFloat((companies.reduce((total, company) => total + company.package_lpa, 0) / companies.length).toFixed(1))
           : 0,
-        placementRate: 75, // Placeholder value - would need actual data from backend
+        placementRate: ((total_placed_students / total_students) * 100) || 0, // Placeholder value - would need actual data from backend
         trendData: [] // Will be populated by getPlacementTrends
       };
 
@@ -197,7 +202,6 @@ export const dashboardAPI = {
     try {
       const response = await companyAPI.getAllCompanies();
       const companies = response.data.data;
-      console.log(companies);
 
 
       // Sort by students hired and get top 5

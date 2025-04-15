@@ -26,7 +26,7 @@ API.interceptors.request.use(
 export const studentAPI = {
   // Get all students
   getAllStudents: () => {
-    return API.get('/student/all');
+    return API.get('/student/all')
   },
   
   // Get student details

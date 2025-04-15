@@ -43,6 +43,11 @@ const Students = () => {
     fetchUserInfo();
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
+
   const fetchUserInfo = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -338,7 +343,10 @@ const Students = () => {
                     <button className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 flex items-center">
                       <Settings className="w-4 h-4 mr-2" /> Settings
                     </button>
-                    <button className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 flex items-center">
+                    <button
+                      className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 flex items-center"
+                      onClick={handleLogout}
+                    >
                       <LogOut className="w-4 h-4 mr-2" /> Logout
                     </button>
                   </div>

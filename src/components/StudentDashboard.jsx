@@ -59,7 +59,6 @@ const StudentDashboard = () => {
   const fetchDashboardData = async (user) => {
     try {
       setIsLoading(true);
-      console.log("asdf")
       
       // Fetch student-specific dashboard data
       const stats = await dashboardAPI.getStudentStats();
@@ -125,7 +124,7 @@ const StudentDashboard = () => {
         <nav className="space-y-1">
           <NavigationLink icon={BarChart} label="Dashboard" id="student-dashboard" />
           <NavigationLink icon={Briefcase} label="My Stats" id="my-stats" />
-          <NavigationLink icon={Building} label="Companies" id="companies" />
+          <NavigationLink icon={Building} label="Companies" id="student-companies" />
         </nav>
 
         <div className="absolute bottom-0 left-0 right-0 p-4">
