@@ -1,10 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { BiMicrophone, BiMicrophoneOff } from "react-icons/bi";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
 
-const Answer = ({startListening}) => {
+const Answer = ({ startListening = true }) => {
+  const [isListening, setIsListening] = useState(false);
+  
   const {
     transcript,
     listening,
@@ -14,27 +16,42 @@ const Answer = ({startListening}) => {
     isMicrophoneAvailable,
   } = useSpeechRecognition();
 
+  // Handle starting the speech recognition
   useEffect(() => {
-    if (!browserSupportsSpeechRecognition) {
-      alert("Browser doesn't support speech recognition.");
+    if (!browserSupportsSpeechRecognition || !isMicrophoneAvailable) {
       return;
     }
 
-    if (!isMicrophoneAvailable) {
-      alert("Microphone permission not allowed");
-      return;
-    }
-
-    if (browserSupportsContinuousListening && startListening) {
+    // Only attempt to start listening if it should be started and isn't already active
+    if (startListening && !listening) {
       SpeechRecognition.startListening({ continuous: true });
-    } else {
-      SpeechRecognition.startListening();
+      setIsListening(true);
     }
-
+    
+    // Cleanup function
     return () => {
-      SpeechRecognition.stopListening();
+      if (listening) {
+        SpeechRecognition.stopListening();
+      }
     };
-  }, [browserSupportsSpeechRecognition, browserSupportsContinuousListening, isMicrophoneAvailable, startListening]);
+  }, [browserSupportsSpeechRecognition, isMicrophoneAvailable, startListening, listening]);
+
+  // Handle speech recognition recovery if it stops
+  useEffect(() => {
+    if (isListening && !listening && startListening) {
+      // If we should be listening but we're not, restart it
+      const restartTimeout = setTimeout(() => {
+        SpeechRecognition.startListening({ continuous: true });
+      }, 300);
+      
+      return () => clearTimeout(restartTimeout);
+    }
+  }, [listening, isListening, startListening]);
+
+  // Update state when listening changes
+  useEffect(() => {
+    setIsListening(listening);
+  }, [listening]);
 
   if (!browserSupportsSpeechRecognition) {
     return <span>Browser doesn't support speech recognition.</span>;
@@ -44,29 +61,31 @@ const Answer = ({startListening}) => {
     return <span>Microphone permission not allowed</span>;
   }
 
-
   return (
-    <div className="my-4">
-      <div className="border h-80 p-4 my-4 border-orange-950">
-        <div className="flex flex-row justify-between">
-          <h2 className="text-lg md:text-xl font-semibold">Answer</h2>
-          <p>
-            {listening ? (
-              <BiMicrophone className="size-6" />
-            ) : (
-              <BiMicrophoneOff className="size-6" />
-            )}
-          </p>
+    <div className="h-full">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold">Your Answer</h2>
+        <div className="flex items-center gap-2">
+          {listening ? (
+            <BiMicrophone className="w-6 h-6 text-green-500 animate-pulse" />
+          ) : (
+            <BiMicrophoneOff className="w-6 h-6 text-gray-400" />
+          )}
+          <span className="text-sm text-gray-300">
+            {listening ? 'Recording...' : 'Microphone off'}
+          </span>
         </div>
-
-        <p className="text-2xl">{transcript}</p>
       </div>
-      <div className="flex w-36 justify-between">
-        {/* <button className="bg-green-600 px-3 py-1 rounded-md text-base" onClick={SpeechRecognition.startListening}>Start</button> */}
-        {/* <button className="bg-red-600 px-3 py-1 rounded-md text-base" onClick={SpeechRecognition.stopListening}>Stop</button> */}
-        {/* <button className="bg-orange-600 px-3 py-1 rounded-md text-base" onClick={resetTranscript}>Reset</button> */}
+
+      <div className="bg-gray-700 rounded-lg p-4 min-h-[200px] relative">
+        {transcript ? (
+          <p className="text-lg text-gray-100 whitespace-pre-wrap">{transcript}</p>
+        ) : (
+          <p className="text-gray-400 italic">Start speaking to record your answer...</p>
+        )}
       </div>
     </div>
   );
 };
+
 export default Answer;
