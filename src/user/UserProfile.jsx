@@ -60,14 +60,14 @@ const ProfileHeader = ({ user, imageLink, resumeLink }) => (
   </div>
 );
 
-const InterviewResults = ({ interviews }) => (
+const InterviewResults = ({ interviews,onClickInterview }) => (
   <div className="mt-10">
     <div className="flex items-center gap-3 mb-6">
       <BarChart className="w-7 h-7 text-blue-600" />
       <h3 className="text-2xl font-bold text-gray-900">Interview Analytics</h3>
     </div>
-    <div className="space-y-4">
-      {interviews.map((interview) => (
+    {/* <div className="space-y-4">
+      {interviews.slice().reverse().map((interview) => (
         <div key={interview.interview_id} className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all">
           <div className="flex justify-between items-center mb-3">
             <span className="font-medium text-gray-700">Interview #{interview.interview_id}</span>
@@ -83,9 +83,33 @@ const InterviewResults = ({ interviews }) => (
           </div>
         </div>
       ))}
+    </div> */}
+    <div className="space-y-4">
+  {interviews.slice().reverse().map((interview) => (
+    <div
+      key={interview.interview_id}
+      className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer"
+      onClick={() => onClickInterview(interview.interview_id)} // Add your handler here
+    >
+      <div className="flex justify-between items-center mb-3">
+        <span className="font-medium text-gray-700">Interview #{interview.interview_id}</span>
+        <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+          Score: {interview.result}/10
+        </span>
+      </div>
+      <div className="w-full bg-gray-200 rounded-full h-2">
+        <div
+          className="bg-gradient-to-r from-blue-400 to-purple-400 h-2 rounded-full transition-all duration-500"
+          style={{ width: `${(interview.result / 10) * 100}%` }}
+        />
+      </div>
     </div>
+  ))}
+</div>
+
   </div>
 );
+
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -121,7 +145,12 @@ const Profile = () => {
 
     fetchUserData();
   }, [navigate]);
-
+  const handleInterviewClick = (key) => {
+  
+  navigate(`/interview-details/${key || "123"}`, { replace: true });
+  // console.log('Clicked interview:', key);
+  // You can add navigation, open modal, fetch details, etc.
+};
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -176,7 +205,9 @@ const Profile = () => {
               />
             </div>
             
-            <InterviewResults interviews={user.interview} />
+            <InterviewResults interviews={user.interview} 
+              onClickInterview={handleInterviewClick}
+              />
             
             <div className="flex justify-end mt-10">
               <button

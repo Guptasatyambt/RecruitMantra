@@ -12,6 +12,7 @@ import Career from "../pages/career";
 import RedeemCoins from "../pages/RedeemCoins";
 import Intermediate from "../pages/Intermediate";
 import Feedback from "../pages/Feedback";
+import OverlayFeedback from "../pages/FeedbackOvverlay"
 import Interview from "../pages/Interview";
 import HrInterview from "../pages/hrinterview";
 import SignUp from "../auth/SignUp";
@@ -55,6 +56,8 @@ function AppRoutes() {
 {/*       <Route exact path="/redeem-coins" element={<RedeemCoins />} /> */}
       <Route exact path="/intermediate" element={<Intermediate />} />
       <Route exact path="/feedback" element={<Feedback />} />
+      <Route exact path="/overlay-feedback" element={<OverlayFeedback />} />
+
 
       {/* Interview Routes */}
       <Route exact path="/interview/advanced/:id" element={<Interview />} />

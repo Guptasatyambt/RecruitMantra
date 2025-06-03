@@ -37,6 +37,7 @@ function Interview() {
     setStartRecording(false);
     
     // Check if videoUrl is available before proceeding with analysis
+    console.log(videoUrl)
     if (videoUrl) {
       try {
         // Run analysis functions in parallel
@@ -171,14 +172,14 @@ function Interview() {
     
     if (videoBlob) {
       // Create local object URL for preview if needed
-      const localUrl = URL.createObjectURL(videoBlob);
-      console.log("Local preview URL generated:", localUrl);
-      console.log("Video duration:", duration, "seconds");
+      // const localUrl = URL.createObjectURL(videoBlob);
+      // console.log("Local preview URL generated:", localUrl);
+      // console.log("Video duration:", duration, "seconds");
 
       try {
         const token = localStorage.getItem("token");
         if (!token) {
-          console.error("No token found for video upload");
+          // console.error("No token found for video upload");
           return;
         }
         
@@ -193,7 +194,7 @@ function Interview() {
         } else if (questionName.toLowerCase().endsWith('.webm')) {
           contentType = "video/webm";
         }
-        console.log("Using content type:", contentType);
+        // console.log("Using content type:", contentType);
         
         const response = await axios.post(
           "https://api.recruitmantra.com/interview/uploadvideo",
@@ -207,12 +208,11 @@ function Interview() {
             },
           }
         );
-        console.log("Video upload initiated:", response.data);
+        // console.log("Video upload initiated:", response.data);
         
        
         // This is the URL that should be used for analysis
         const videoAnalysisUrl = response.data.video_url;
-        console.log("Video Analysis URL:", videoAnalysisUrl);
         
         // Upload the video blob directly to S3 using the key URL (for PUT operation)
         const uploadUrl = response.data.key;
@@ -285,6 +285,7 @@ function Interview() {
   
   const audioAnalyse = async () => {
     try {
+      console.log("Audio analysis called.");
       if (!videoUrl) {
         throw new Error("No video URL available for audio analysis");
       }
@@ -295,6 +296,14 @@ function Interview() {
       });
       
       console.log("Audio analysis complete:", response.data);
+      const responsedb = await axios.post(
+        "https://api.recruitmantra.com/interview/insertconfidence",
+        {
+          interview_id:interviewId,
+          question_number:currentQuestionIndex+1,
+          confidence:response.data.confidence_level
+        }
+      );
       return response.data;
     } catch (error) {
       console.error("Failed to analyse audio:", error);
@@ -349,7 +358,26 @@ function Interview() {
   const handleEndInterview = async () => {
     // Stop recording first
     setStartRecording(false);
-    
+    console.log(videoUrl)
+    if (videoUrl) {
+      try {
+        // Run analysis functions in parallel
+        console.log("analyse apis called")
+        await Promise.all([
+          audioAnalyse(),
+          videoAnalyse(),
+          answerAccuracy()
+        ]);
+        
+        console.log("All analysis completed successfully");
+      } catch (error) {
+        console.error("Failed to complete analysis:", error);
+        setVideoProcessingError(true);
+      }
+    } else {
+      console.error("No video URL available for analysis");
+      setVideoProcessingError(true);
+    }
     // Stop media tracks properly
     if (mediaRecorderRef) {
       try {
@@ -385,8 +413,8 @@ function Interview() {
         }
       );
       console.log("Interview ended successfully");
-
-      navigate(`/feedback/${interviewId}`, {replace: true});
+      navigate(`/interview-details/${interviewId}?source=interview`);
+      // navigate(`/feedback/${interviewId}`, {replace: true});
     } catch (err) {
       console.error("Failed to end interview:", err);
     }

@@ -1,6 +1,6 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useEffect, useState, useRef } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import LineGraph from "../components/LineChart";
 
 const InterviewDetails = () => {
@@ -9,6 +9,11 @@ const InterviewDetails = () => {
 
   const [details, setDetails] = useState();
   const [videos, setVideos] = useState();
+  const location = useLocation();
+  const hasNavigated = useRef(false);
+
+  const queryParams = new URLSearchParams(location.search);
+  const source = queryParams.get("source");
 
   const fetchDetails = async () => {
     try {
@@ -31,7 +36,16 @@ const InterviewDetails = () => {
   };
   useEffect(() => {
     fetchDetails();
-  }, []);
+  //   console.log(hasNavigated.current);
+  //   if (source === "interview"&& !hasNavigated.current) {
+  //     hasNavigated.current = !hasNavigated.current;
+  //     const timer = setTimeout(() => {
+  //     navigate("/overlay-feedback");
+  //   }, 1000); // 1 second = 1000 ms
+
+  //   return () => clearTimeout(timer); // cleanup if component unmounts
+  // }
+  }, [source, navigate]);
   if (details === undefined) {
     return <div>Loading...</div>;
   }
