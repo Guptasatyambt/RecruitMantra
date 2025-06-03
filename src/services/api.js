@@ -25,8 +25,8 @@ API.interceptors.request.use(
 // Company related API calls
 export const companyAPI = {
   // Get all companies
-  getAllCompanies: (status) => {
-    return API.get(`/dashboard/company/list${status ? `?status=${status}` : ''}`);
+  getAllCompanies: () => {
+    return API.get(`/company/list`);
   },
 
   // Get company details

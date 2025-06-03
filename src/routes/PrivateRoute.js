@@ -31,11 +31,7 @@ const PrivateRoute = ({ requiredRole }) => {
           
           setUserRole(response.data.user.role);
           setIsAuthenticated(true);
-          
-          // Set approval status for college admins
-          if (response.data.user.role === 'college_admin') {
-            setIsApproved(response.data.user.isApproved || false);
-          }
+        
         } else {
           setIsAuthenticated(false);
         }
