@@ -45,11 +45,6 @@ const Login = () => {
       if (role === 'super_admin') {
         navigate("/admin-dashboard");
       } else if (role === 'college_admin') {
-        if (!response.data.data.isApproved) {
-          setError("Your account is pending approval from super admin.");
-          setLoading(false);
-          return;
-        }
         navigate("/dashboard");
       } else {
         navigate("/");

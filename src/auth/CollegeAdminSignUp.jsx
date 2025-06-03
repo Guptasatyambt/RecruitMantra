@@ -1,22 +1,71 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const CollegeAdminSignUp = () => {
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "", 
     email: "",
     password: "",
     confirmPassword: "",
-    college: ""
+    college: "",
+    collegeName: ""
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
+  
+  // New state variables for college dropdown
+  const [colleges, setColleges] = useState([]);
+  const [filteredColleges, setFilteredColleges] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef(null);
 
   const navigate = useNavigate();
+
+  // Fetch colleges from API on component mount
+  useEffect(() => {
+    const fetchColleges = async () => {
+      try {
+        const response = await axios.get("https://api.recruitmantra.com/college");
+        setColleges(response.data);
+      } catch (error) {
+        console.error("Error fetching colleges:", error);
+      }
+    };
+
+    fetchColleges();
+  }, []);
+
+  // Filter colleges based on search term
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredColleges(colleges.slice(0, 10)); // Show first 10 colleges when no search term
+    } else {
+      const filtered = colleges.filter(college =>
+        college.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredColleges(filtered.slice(0, 10)); // Limit to 10 results
+    }
+  }, [searchTerm, colleges]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,6 +73,21 @@ const CollegeAdminSignUp = () => {
       ...formData,
       [name]: value
     });
+
+    // Handle college search
+    if (name === "college") {
+      setSearchTerm(value);
+      setShowDropdown(true);
+    }
+  };
+
+  const handleCollegeSelect = (collegeId, collegeName) => {
+    setFormData({
+      ...formData,
+      college: collegeId,
+      collegeName: collegeName
+    });
+    setShowDropdown(false);
   };
 
   const handleSignUp = async (e) => {
@@ -56,7 +120,7 @@ const CollegeAdminSignUp = () => {
     }
 
     // Validate other fields
-    if (!formData.name || !formData.email || !formData.college) {
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.college) {
       setError("All fields are required.");
       return;
     }
@@ -68,10 +132,11 @@ const CollegeAdminSignUp = () => {
       const response = await axios.post(
         "https://api.recruitmantra.com/user/register-college-admin", 
         {
-          name: formData.name,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
           email: formData.email,
           password: formData.password,
-          college: formData.college
+          collegeId: formData.college
         }
       );
 
@@ -139,24 +204,47 @@ const CollegeAdminSignUp = () => {
         )}
 
         <form onSubmit={handleSignUp} className="mt-6 space-y-6">
-          {/* Name Field */}
-          <div className="relative">
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="peer w-full bg-transparent border-b-2 border-gray-300 text-gray-800 placeholder-transparent focus:outline-none focus:border-gray-500 transition-all px-2 py-3"
-              placeholder="Enter your full name"
-              required
-            />
-            <label
-              htmlFor="name"
-              className="absolute left-2 top-3 text-gray-500 text-sm transition-all transform -translate-y-6 scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 peer-focus:text-gray-700"
-            >
-              Full Name
-            </label>
+          {/* Name Fields - Horizontal Layout */}
+          <div className="flex space-x-4">
+            {/* First Name Field */}
+            <div className="relative flex-1">
+              <input
+                type="text"
+                id="firstName"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                className="peer w-full bg-transparent border-b-2 border-gray-300 text-gray-800 placeholder-transparent focus:outline-none focus:border-gray-500 transition-all px-2 py-3"
+                placeholder="Enter your first name"
+                required
+              />
+              <label
+                htmlFor="firstName"
+                className="absolute left-2 top-3 text-gray-500 text-sm transition-all transform -translate-y-6 scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 peer-focus:text-gray-700"
+              >
+                First Name
+              </label>
+            </div>
+            
+            {/* Last Name Field */}
+            <div className="relative flex-1">
+              <input
+                type="text"
+                id="lastName"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                className="peer w-full bg-transparent border-b-2 border-gray-300 text-gray-800 placeholder-transparent focus:outline-none focus:border-gray-500 transition-all px-2 py-3"
+                placeholder="Enter your last name"
+                required
+              />
+              <label
+                htmlFor="lastName"
+                className="absolute left-2 top-3 text-gray-500 text-sm transition-all transform -translate-y-6 scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 peer-focus:text-gray-700"
+              >
+                Last Name
+              </label>
+            </div>
           </div>
 
           {/* Email Field */}
@@ -179,16 +267,18 @@ const CollegeAdminSignUp = () => {
             </label>
           </div>
 
-          {/* College Field */}
-          <div className="relative">
+          {/* College Field with Dropdown */}
+          <div className="relative" ref={dropdownRef}>
             <input
               type="text"
               id="college"
               name="college"
-              value={formData.college}
+              value={formData.collegeName}
               onChange={handleChange}
+              onFocus={() => setShowDropdown(true)}
               className="peer w-full bg-transparent border-b-2 border-gray-300 text-gray-800 placeholder-transparent focus:outline-none focus:border-gray-500 transition-all px-2 py-3"
-              placeholder="Enter your college name"
+              placeholder="Search for your college"
+              autoComplete="off"
               required
             />
             <label
@@ -197,6 +287,27 @@ const CollegeAdminSignUp = () => {
             >
               College Name
             </label>
+            
+            {/* College Dropdown */}
+            {showDropdown && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                {filteredColleges.length > 0 ? (
+                  filteredColleges.map((college, index) => (
+                    <div
+                      key={index}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700 text-sm"
+                      onClick={() => handleCollegeSelect(college._id, college.name)}
+                    >
+                      {college.name}
+                    </div>
+                  ))
+                ) : (
+                  <div className="px-4 py-2 text-gray-500 text-sm">
+                    {searchTerm.trim() !== "" ? "No colleges found" : "Start typing to search colleges"}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Password Field */}
@@ -272,14 +383,6 @@ const CollegeAdminSignUp = () => {
           Already have an account?{" "}
           <a className="text-gray-700 hover:underline" href="/login">
             Login
-          </a>
-        </p>
-
-        {/* Student Registration Link */}
-        <p className="text-sm text-gray-600 mt-2 text-center">
-          Are you a student?{" "}
-          <a className="text-gray-700 hover:underline" href="/signup">
-            Register as Student
           </a>
         </p>
       </motion.div>
