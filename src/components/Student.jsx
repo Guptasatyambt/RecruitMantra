@@ -76,7 +76,7 @@ const Students = () => {
         return;
       }
 
-      const response = await axios.get('http://localhost:5001/user/getinfo', {
+      const response = await axios.get('https://api.recruitmantra.com/user/getinfo', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -89,7 +89,7 @@ const Students = () => {
         setCollegeUserInfo(response.data.defaultOrStudent)
         // setCollegeId(response.data.defaultOrStudent.collegeId)
       }
-      const branchRes = await axios.get('http://localhost:5001/branch/', {
+      const branchRes = await axios.get('https://api.recruitmantra.com/branch/', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setBranches(branchRes.data.data);
@@ -117,7 +117,7 @@ const Students = () => {
         setFilteredStudents(response.data.data); // Initialize filtered students with all students
         // Fetch companies to determine placed students
         const token = localStorage.getItem('token');
-        const companiesResponse = await axios.get(`http://localhost:5001/company/list?collegeId=${collegeUserInfo.collegeId}`, {
+        const companiesResponse = await axios.get(`https://api.recruitmantra.com/company/list?collegeId=${collegeUserInfo.collegeId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const res = await collegeadminAPI.getRecentPlacements();

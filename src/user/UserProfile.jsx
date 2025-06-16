@@ -197,7 +197,7 @@ const Profile = () => {
 
       try {
         setIsLoading(true);
-        const response = await axios.get('http://localhost:5001/user/getinfo', {
+        const response = await axios.get('https://api.recruitmantra.com/user/getinfo', {
           headers: { Authorization: `Bearer ${token}` },
         });
         if(response.data.user.profileimage===""){

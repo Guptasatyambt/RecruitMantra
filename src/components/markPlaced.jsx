@@ -46,7 +46,7 @@ function CompanyForm({ onClose, selectedStudent }) {
             } else {
                 // Add new company
 
-                const addRes = await axios.post('http://localhost:5001/company/add', {
+                const addRes = await axios.post('https://api.recruitmantra.com/company/add', {
                     company_name: companyNameInput.trim(),
                 }, {
                     headers: { Authorization: `Bearer ${token}` }

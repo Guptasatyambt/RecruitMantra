@@ -59,7 +59,7 @@ const CompanyDetail = () => {
         return;
       }
 
-      const userInfo = await axios.get('http://localhost:5001/user/getinfo', {
+      const userInfo = await axios.get('https://api.recruitmantra.com/user/getinfo', {
         headers: {
           Authorization: `Bearer ${token}`
         }

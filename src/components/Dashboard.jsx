@@ -54,7 +54,7 @@ const Dashboard = () => {
         return;
       }
 
-      const response = await axios.get('http://localhost:5001/user/getinfo', {
+      const response = await axios.get('https://api.recruitmantra.com/user/getinfo', {
         headers: {
           Authorization: `Bearer ${token}`
         }

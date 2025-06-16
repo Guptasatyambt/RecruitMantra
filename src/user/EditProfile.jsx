@@ -194,7 +194,7 @@ const EditProfile = () => {
 
       if (formData.profileimage) {
         const response = await fetch(
-          'http://localhost:5001/user/updateimage',
+          'https://api.recruitmantra.com/user/updateimage',
           {
             method: 'POST',
             headers: {
@@ -218,7 +218,7 @@ const EditProfile = () => {
 
       if (formData.resume) {
         const response = await fetch(
-          'http://localhost:5001/user/updateresume',
+          'https://api.recruitmantra.com/user/updateresume',
           {
             method: 'POST',
             headers: {
@@ -240,7 +240,7 @@ const EditProfile = () => {
       }
 
       const putres=await fetch(
-        'http://localhost:5001/user/updateyear',
+        'https://api.recruitmantra.com/user/updateyear',
         {
           method: 'POST',
           headers: {

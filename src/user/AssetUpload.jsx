@@ -77,7 +77,7 @@ function AssetUpload() {
       // First API call to get upload URLs
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        'http://localhost:5001/user/updateimage',
+        'https://api.recruitmantra.com/user/updateimage',
         {},
         {
           headers: {
@@ -117,7 +117,7 @@ function AssetUpload() {
       // First API call to get upload URLs
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        'http://localhost:5001/user/updateresume',
+        'https://api.recruitmantra.com/user/updateresume',
         {},
         {
           headers: {

@@ -46,7 +46,7 @@ const AdminDashboard = () => {
       setLoading(true);
       const token = localStorage.getItem('token');
       
-      const response = await axios.get('http://localhost:5001/user/college-admins', {
+      const response = await axios.get('https://api.recruitmantra.com/user/college-admins', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -81,7 +81,7 @@ const AdminDashboard = () => {
       setLoading(true);
       const token = localStorage.getItem('token');
       
-      const response = await axios.get('http://localhost:5001/student/all', {
+      const response = await axios.get('https://api.recruitmantra.com/student/all', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -103,7 +103,7 @@ const AdminDashboard = () => {
       setLoading(true);
       const token = localStorage.getItem('token');
       
-      const response = await axios.get('http://localhost:5001/company/list', {
+      const response = await axios.get('https://api.recruitmantra.com/company/list', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -127,7 +127,7 @@ const AdminDashboard = () => {
       const token = localStorage.getItem('token');
       console.log(adminId,approved)
 
-      await axios.post('http://localhost:5001/admin/approve-college-admin', 
+      await axios.post('https://api.recruitmantra.com/admin/approve-college-admin', 
         { adminId, approved },
         {
           headers: {
@@ -151,7 +151,7 @@ const AdminDashboard = () => {
     const token = localStorage.getItem('token');
     try {
       await axios.post(
-        'http://localhost:5001/branch/',
+        'https://api.recruitmantra.com/branch/',
         { branchName: branchName },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -171,7 +171,7 @@ const AdminDashboard = () => {
     const token = localStorage.getItem('token');
     try {
       await axios.post(
-        'http://localhost:5001/college/',
+        'https://api.recruitmantra.com/college/',
         { name: collegeName, location: collegeLocation },
         { headers: { Authorization: `Bearer ${token}` } }
       );

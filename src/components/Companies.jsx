@@ -81,7 +81,7 @@ const [hiredFormError, setHiredFormError] = useState('');
         return;
       }
 
-      const response = await axios.get('http://localhost:5001/user/getinfo', {
+      const response = await axios.get('https://api.recruitmantra.com/user/getinfo', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -94,7 +94,7 @@ const [hiredFormError, setHiredFormError] = useState('');
         setCollegeId(response.data.defaultOrStudent.collegeId);
         fetchCompanies(response.data.user);
       }
-      const branchRes = await axios.get('http://localhost:5001/branch/', {
+      const branchRes = await axios.get('https://api.recruitmantra.com/branch/', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setBranches(branchRes.data.data);
@@ -251,7 +251,7 @@ const [hiredFormError, setHiredFormError] = useState('');
     // Validate form
     try {
       const token = localStorage.getItem('token');
-      const companyRes = await axios.post('http://localhost:5001/company/add', {
+      const companyRes = await axios.post('https://api.recruitmantra.com/company/add', {
         company_name: companyName
       }, {
         headers: { Authorization: `Bearer ${token}` }

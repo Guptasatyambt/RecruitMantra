@@ -3,7 +3,7 @@ import { studentAPI } from './studentAPI'
 import { collegeadminAPI } from './collegeadminAPI'
 // Create an axios instance with base URL
 const API = axios.create({
-  baseURL: 'http://localhost:5001',
+  baseURL: 'https://api.recruitmantra.com',
   headers: {
     'Content-Type': 'application/json',
   },

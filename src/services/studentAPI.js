@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create an axios instance with base URL
 const API = axios.create({
-  baseURL: 'http://localhost:5001', // Assuming server runs on port 5001
+  baseURL: 'https://api.recruitmantra.com', // Assuming server runs on port 5001
   headers: {
     'Content-Type': 'application/json',
   },
