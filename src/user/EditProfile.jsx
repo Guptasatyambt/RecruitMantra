@@ -194,7 +194,7 @@ const EditProfile = () => {
 
       if (formData.profileimage) {
         const response = await fetch(
-          'https://api.recruitmantra.com/user/updateimage',
+          'http://localhost:5001/user/updateimage',
           {
             method: 'POST',
             headers: {
@@ -218,7 +218,7 @@ const EditProfile = () => {
 
       if (formData.resume) {
         const response = await fetch(
-          'https://api.recruitmantra.com/user/updateresume',
+          'http://localhost:5001/user/updateresume',
           {
             method: 'POST',
             headers: {
@@ -231,7 +231,7 @@ const EditProfile = () => {
         
         const { data: { resume: uploadUrl } } = await response.json();
         const resumeBuffer = await formData.resume.arrayBuffer();
-        
+        console.log(uploadUrl);
         await fetch(uploadUrl, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/pdf' },
@@ -239,8 +239,8 @@ const EditProfile = () => {
         });
       }
 
-      await fetch(
-        'https://api.recruitmantra.com/user/updateyear',
+      const putres=await fetch(
+        'http://localhost:5001/user/updateyear',
         {
           method: 'POST',
           headers: {
@@ -250,7 +250,7 @@ const EditProfile = () => {
           body: JSON.stringify({ year: formData.year })
         }
       );
-
+      console.log(putres.status)
       clearInterval(progressInterval);
       setProgress(100);
       showToast('Profile updated successfully!');

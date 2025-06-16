@@ -7,25 +7,33 @@ import {
   Calendar, TrendingUp, Building, GraduationCap, DollarSign,
   Medal, CheckCircle, Clock, MapPin, Globe, Users2
 } from 'lucide-react';
+import NotificationDropdown from "./NotificationDropdown";
+import { collegeadminAPI } from '../services/collegeadminAPI';
 import { dashboardAPI } from '../services/api';
 import { companyAPI } from '../services/api';
+import {studentAPI} from '../services/studentAPI';
 
 const StudentCompanies = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeLink, setActiveLink] = useState('companies');
   const [notifications, setNotifications] = useState(0);
+  const [ongoingMenuOpen, setOngoingMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [companies, setCompanies] = useState([]);
   const [userInfo, setUserInfo] = useState(null);
+  const [collegeUserInfo, setCollegeUserInfo] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [placementData,setPlacementData]=useState(null);
+  const [placedStudents, setPlacedStudents] = useState([]);
   const [stats, setStats] = useState({
     totalCompanies: 0,
     avgPackage: 0,
     highestPackage: 0,
     activeCompanies: [],
-    upcomingCompanies: []
+    upcomingCompanies: [],
+    onGoing:[]
   });
 
   useEffect(() => {
@@ -41,15 +49,18 @@ const StudentCompanies = () => {
         return;
       }
 
-      const response = await axios.get('https://api.recruitmantra.com/user/getinfo', {
+      const response = await axios.get('http://localhost:5001/user/getinfo', {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-
+      if(response.data.user.profileimage==""){
+          navigate("/upload-documents");
+      }
       if (response.data) {
         setUserInfo(response.data.user);
-        fetchCompanies(response.data.user);
+        setCollegeUserInfo(response.data.defaultOrStudent)
+        fetchCompanies();
       }
     } catch (error) {
       console.error('Error fetching user info:', error);
@@ -57,51 +68,67 @@ const StudentCompanies = () => {
     }
   };
 
-  const fetchCompanies = async (user) => {
+  const fetchCompanies = async () => {
     try {
       setLoading(true);
       // Check if we have a status filter
-      const statusFilter = user?.filterStatus || '';
-      const response = await companyAPI.getAllCompanies(statusFilter);
+      // const statusFilter = user?.filterStatus || '';
+      const response = await companyAPI.getAllCompanies();
       let companiesData = response.data.data;
-      
-      // Filter companies based on user role
-      if (user && user.role === 'student' && user.college) {
-        // For college admin, only show companies that visited their college
-        companiesData = companiesData.filter(company => 
-          company.college?.toLowerCase() === user.college.toLowerCase() ||
-          company.colleges?.some(c => c.toLowerCase() === user.college.toLowerCase()) ||
-          company.college_id === user.college
-        );
-      }
+ 
       setCompanies(companiesData);
+      const responseOfApplied=await studentAPI.getAppliedCompanies();
+      const appliedCompanies=responseOfApplied.data.data;
+      console.log(appliedCompanies)
 
-      console.log(companiesData)
-      const activeCompanies = companiesData;
+      const res = await collegeadminAPI.getRecentPlacements();
+              if (res.data && res.data.data) {
+                await setPlacementData(res.data.data)
+               
+                const placedStudentIds = [];
+      
+                res.data.data.forEach(item => {
+                  if (item.student_id) {
+                    placedStudentIds.push(item.student_id._id);
+                  }
+                });
+                 console.log(placedStudentIds)
+                await setPlacedStudents(placedStudentIds);
+              }
       // Calculate stats with improved categorization
-      const upcomingCompanies = companiesData.filter(company => company.status === 'upcoming');
-      const ongoingCompanies = companiesData.filter(company => company.status === 'ongoing');
-      const completedCompanies = companiesData.filter(company => company.status === 'completed');
+      const upcomingCompanies = companiesData.filter(company => {
+        if (company.visitDate)
+          return new Date(company.visitDate) > new Date()
+        else
+          return company
+      });
       
-      
-      // Calculate average package with proper handling of missing values
-      const validPackages = companiesData.filter(company => company.package_lpa && !isNaN(company.package_lpa));
-      const totalAvgPackage = validPackages.length > 0 
-        ? validPackages.reduce((total, company) => total + parseFloat(company.package_lpa), 0) / validPackages.length
+      const ongoingCompanies = companiesData.filter(company => {
+        return new Date(company.applicationDeadline) > new Date();
+      });
+      setNotifications(ongoingCompanies.length);
+      const completedCompanies = companiesData.filter(company => company.placeId > 0);
+      const activeCompanies = companiesData.filter(company=>company.placeId.length==0);
+      console.log(activeCompanies)
+
+      const validPackages = companiesData.filter(company => company.packageLPA && !isNaN(company.packageLPA));
+      const totalAvgPackage = validPackages.length > 0
+        ? validPackages.reduce((total, company) => total + parseFloat(company.packageLPA), 0) / validPackages.length
         : 0;
       
-      var highestPackage = 0;
-      for (var company in companiesData) {
-        highestPackage = Math.max(highestPackage, (companiesData[company].students_hired ? companiesData[company].package_lpa : 0));
-      }
-      
-        
+      const highestPackage=Math.max(
+        ...res.data.data.map(item =>
+          parseFloat(item.package_lpa?.$numberDecimal || 0)
+        )
+      );
+
       setStats({
         totalCompanies: companiesData.length,
         avgPackage: parseFloat(totalAvgPackage.toFixed(1)),
         highestPackage: highestPackage,
         activeCompanies: activeCompanies,
-        upcomingCompanies: upcomingCompanies
+        upcomingCompanies: appliedCompanies,
+        onGoing:ongoingCompanies
       });
       
       setLoading(false);
@@ -177,9 +204,9 @@ const StudentCompanies = () => {
             >
               <Menu className="h-6 w-6" />
             </button>
-
+            <h2 className="text-xl font-semibold text-gray-800 ml-4">Companies</h2>
             <div className="relative flex-1 max-w-md mx-4">
-              <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-opacity duration-200 ${searchFocused ? 'opacity-0' : 'opacity-100'}`}>
+              {/* <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-opacity duration-200 ${searchFocused ? 'opacity-0' : 'opacity-100'}`}>
                 <Search className="h-5 w-5 text-gray-400" />
               </div>
               <input
@@ -188,24 +215,31 @@ const StudentCompanies = () => {
                 placeholder="Search companies"
                 onFocus={() => setSearchFocused(true)}
                 onBlur={() => setSearchFocused(false)}
-              />
+              /> */}
             </div>
 
             <div className="flex items-center space-x-4">
-              <button className="p-1 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100">
+              {/* <button className="p-1 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100 relative" onClick={() => setOngoingMenuOpen(!ongoingMenuOpen)}>
                 <Bell className="h-6 w-6" />
                 {notifications > 0 && (
-                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+                  <span className="absolute top-0 right-0 h-4 w-4 rounded-full bg-red-500 flex items-center justify-center text-white text-xs">
+                    {notifications}
+                  </span>
                 )}
-              </button>
-
+              </button> */}
+              <NotificationDropdown
+        stats={stats}
+        notifications={notifications}
+        ongoingMenuOpen={ongoingMenuOpen}
+        setOngoingMenuOpen={setOngoingMenuOpen}
+      />
               <div className="relative">
                 <button 
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center space-x-2 focus:outline-none"
                 >
                   <div className="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-medium">
-                    {userInfo?.name?.charAt(0) || 'S'}
+                    {userInfo?.firstName?.charAt(0) || 'S'}
                   </div>
                   <ChevronDown className={`h-4 w-4 text-gray-600 transition-transform duration-200 ${userMenuOpen ? 'transform rotate-180' : ''}`} />
                 </button>
@@ -278,22 +312,22 @@ const StudentCompanies = () => {
               </div>
 
               <div className="bg-white p-6 rounded-lg shadow mb-6">
-                <h2 className="text-lg font-medium text-gray-900 mb-4">Active Companies</h2>
+                <h2 className="text-lg font-medium text-gray-900 mb-4">Active Forms</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {stats.activeCompanies.length > 0 ? (
-                    stats.activeCompanies.map((company, index) => (
+                  {stats.onGoing.length > 0 ? (
+                    stats.onGoing.map((company, index) => (
                       <div key={index} className="bg-gray-50 p-6 rounded-lg border border-gray-200 hover:border-indigo-500 transition-colors duration-200">
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex items-center space-x-3">
                             <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center border border-gray-200">
                               {company.logo ? (
-                                <img src={company.logo} alt={company.company_name} className="h-8 w-8 object-contain" />
+                                <img src={company.logo} alt={company.companyName} className="h-8 w-8 object-contain" />
                               ) : (
                                 <Building className="h-6 w-6 text-gray-400" />
                               )}
                             </div>
                             <div>
-                              <h3 className="text-lg font-medium text-gray-900">{company.company_name}</h3>
+                              <h3 className="text-lg font-medium text-gray-900">{company.companyName}</h3>
                               <p className="text-sm text-gray-500">{company.industry}</p>
                             </div>
                           </div>
@@ -302,7 +336,7 @@ const StudentCompanies = () => {
                         <div className="space-y-3">
                           <div className="flex items-center text-sm text-gray-500">
                             <DollarSign className="h-4 w-4 mr-2" />
-                            <span>₹{company.package_lpa} LPA</span>
+                            <span>₹{company.packageLPA} LPA</span>
                           </div>
                           <div className="flex items-center text-sm text-gray-500">
                             <MapPin className="h-4 w-4 mr-2" />
@@ -310,17 +344,21 @@ const StudentCompanies = () => {
                           </div>
                           <div className="flex items-center text-sm text-gray-500">
                             <Calendar className="h-4 w-4 mr-2" />
-                            <span>Drive Date: {new Date(company.visit_date).toLocaleDateString()}</span>
+                            {company.visitDate ? (
+                              <span>Expected Drive: {new Date(company.visitDate).toLocaleDateString('en-IN')}</span>
+                            ) : (
+                              <span>Expected Drive: To be announced</span>
+                            )}
                           </div>
                           <div className="flex items-center text-sm text-gray-500">
                             <Users2 className="h-4 w-4 mr-2" />
-                            <span>Position: {company.position}</span>
+                            <span>Position: {company.role}</span>
                           </div>
                           <button
-                            onClick={() => navigate(`/company/${company._id}`)}
+                            onClick={() => navigate(`/company/${company.companyId}`)}
                             className="mt-4 w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors duration-200"
                           >
-                            View Details
+                            Apply
                           </button>
                         </div>
                       </div>
@@ -334,7 +372,7 @@ const StudentCompanies = () => {
               </div>
 
               <div className="bg-white p-6 rounded-lg shadow">
-                <h2 className="text-lg font-medium text-gray-900 mb-4">Upcoming Companies</h2>
+                <h2 className="text-lg font-medium text-gray-900 mb-4">Upcoming Drives</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {stats.upcomingCompanies.length > 0 ? (
                     stats.upcomingCompanies.map((company, index) => (
@@ -364,13 +402,19 @@ const StudentCompanies = () => {
                             <MapPin className="h-4 w-4 mr-2" />
                             <span>{company.location || 'On Campus'}</span>
                           </div>
+                          
                           <div className="flex items-center text-sm text-gray-500">
                             <Calendar className="h-4 w-4 mr-2" />
-                            <span>Expected Drive: {new Date(company.visit_date).toLocaleDateString()}</span>
+                            {company.visit_date ? (
+                              <span>Expected Drive: {new Date(company.visit_date).toLocaleDateString('en-IN')}</span>
+                            ) : (
+                              <span>Expected Drive: To be announced</span>
+                            )}
+                            {/* <span>Expected Drive: {new Date(company.visit_date).toLocaleDateString()}</span> */}
                           </div>
                           <div className="flex items-center text-sm text-gray-500">
                             <Users2 className="h-4 w-4 mr-2" />
-                            <span>Position: {company.position}</span>
+                            <span>Position: {company.role}</span>
                           </div>
                         </div>
                       </div>
@@ -378,6 +422,66 @@ const StudentCompanies = () => {
                   ) : (
                     <div className="col-span-3 text-center py-8 text-gray-500">
                       No upcoming companies found
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-lg shadow mb-6">
+                <h2 className="text-lg font-medium text-gray-900 mb-4">Active Companies</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {stats.activeCompanies.length > 0 ? (
+                    stats.activeCompanies.map((company, index) => (
+                      <div key={index} className="bg-gray-50 p-6 rounded-lg border border-gray-200 hover:border-indigo-500 transition-colors duration-200">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center space-x-3">
+                            <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center border border-gray-200">
+                              {company.logo ? (
+                                <img src={company.logo} alt={company.companyName} className="h-8 w-8 object-contain" />
+                              ) : (
+                                <Building className="h-6 w-6 text-gray-400" />
+                              )}
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-medium text-gray-900">{company.companyName}</h3>
+                              <p className="text-sm text-gray-500">{company.industry}</p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="flex items-center text-sm text-gray-500">
+                            <DollarSign className="h-4 w-4 mr-2" />
+                            <span>₹{company.packageLPA} LPA</span>
+                          </div>
+                          <div className="flex items-center text-sm text-gray-500">
+                            <MapPin className="h-4 w-4 mr-2" />
+                            <span>{company.location || 'On Campus'}</span>
+                          </div>
+                          <div className="flex items-center text-sm text-gray-500">
+                            <Calendar className="h-4 w-4 mr-2" />
+                            {company.visitDate ? (
+                              <span>Expected Drive: {new Date(company.visitDate).toLocaleDateString('en-IN')}</span>
+                            ) : (
+                              <span>Expected Drive: To be announced</span>
+                            )}
+                          </div>
+                          <div className="flex items-center text-sm text-gray-500">
+                            <Users2 className="h-4 w-4 mr-2" />
+                            <span>Position: {company.role}</span>
+                          </div>
+                          <button
+                            onClick={() => navigate(`/company/${company.companyId}`)}
+                            className="mt-4 w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors duration-200"
+                          >
+                            View Details
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="col-span-3 text-center py-8 text-gray-500">
+                      No active companies found
                     </div>
                   )}
                 </div>

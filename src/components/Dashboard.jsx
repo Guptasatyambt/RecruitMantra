@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { collegeadminAPI } from '../services/collegeadminAPI'
 import { 
   BarChart, Users, Briefcase, Menu, Bell, Search, ChevronDown, 
   Settings, LogOut, ArrowUpRight, ArrowDownRight, Loader2,
@@ -21,6 +22,7 @@ const Dashboard = () => {
   const [selectedTimeRange, setSelectedTimeRange] = useState('6M');
   const [selectedChart, setSelectedChart] = useState('line');
   const [userInfo, setUserInfo] = useState(null);
+  const [collegeId, setCollegeId] = useState('');
   const [dashboardStats, setDashboardStats] = useState({
     companiesVisited: 0,
     studentsPlaced: 0,
@@ -52,14 +54,17 @@ const Dashboard = () => {
         return;
       }
 
-      const response = await axios.get('https://api.recruitmantra.com/user/getinfo', {
+      const response = await axios.get('http://localhost:5001/user/getinfo', {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-
+      if(response.data.user.profileimage==""){
+          navigate("/upload-documents");
+      }
       if (response.data && response.data.user) {
         setUserInfo(response.data.user);
+        setCollegeId(response.data.defaultOrStudent.collegeId);
         fetchDashboardData(response.data.user);
       }
     } catch (error) {
@@ -73,13 +78,9 @@ const Dashboard = () => {
       setIsLoading(true);
       
       // Fetch dashboard statistics
-      const stats = await dashboardAPI.getDashboardStats();
+      const stats = await dashboardAPI.getDashboardStats(collegeId);
       
       // Filter stats based on user role if needed
-      if (user && user.role === 'college_admin' && user.college) {
-        // Here you would filter the stats based on the college
-        // This depends on how your API is structured
-      }
       
       setDashboardStats(stats);
       
@@ -106,8 +107,9 @@ const Dashboard = () => {
       setTopCompanies(filteredCompanies);
       
       // Fetch recent placements
-      const placements = await dashboardAPI.getRecentPlacements();
-      setRecentPlacements(placements);
+      // const placements = await dashboardAPI.getRecentPlacements();
+      const response=await collegeadminAPI.getRecentPlacements();
+      setRecentPlacements(response.data.data);
       
       setIsLoading(false);
     } catch (error) {
@@ -139,29 +141,19 @@ const Dashboard = () => {
   );
 
   const StatCard = ({ icon: Icon, label, value, trend, trendValue, bgColor }) => (
-    <div className="bg-white rounded-xl shadow-lg p-6 transform hover:scale-105 transition-transform duration-200">
+    <div className="bg-white rounded-xl shadow-lg p-6 w-full sm:w-50 md:w-60 lg:w-68 transform hover:scale-105 transition-transform duration-200">
       <div className="flex items-center">
         <div className={`p-3 rounded-full ${bgColor}`}>
-          <Icon className="h-8 w-8" />
+          <Icon className="h-6 w-8" />
         </div>
         <div className="ml-4 flex-1">
           <h4 className="text-3xl font-bold text-gray-700">{value}</h4>
           <p className="text-gray-500">{label}</p>
         </div>
-        {trend === 'up' ? (
-          <ArrowUpRight className="w-6 h-6 text-green-500" />
-        ) : (
-          <ArrowDownRight className="w-6 h-6 text-red-500" />
-        )}
-      </div>
-      <div className="mt-4">
-        <span className={trend === 'up' ? 'text-green-500' : 'text-red-500'}>
-          {trend === 'up' ? '+' : '-'}{trendValue}%
-        </span>
-        <span className="text-gray-400 ml-2">from last month</span>
       </div>
     </div>
   );
+  
 
   if (isLoading) {
     return (
@@ -205,7 +197,7 @@ const Dashboard = () => {
           <NavigationLink icon={BarChart} label="Dashboard" id="dashboard" />
           <NavigationLink icon={Building} label="Companies" id="companies" />
           <NavigationLink icon={GraduationCap} label="Students" id="students" />
-          <NavigationLink icon={TrendingUp} label="Statistics" id="statistics" />
+          {/* <NavigationLink icon={TrendingUp} label="Statistics" id="statistics" /> */}
         </nav>
       </div>
 
@@ -222,7 +214,7 @@ const Dashboard = () => {
             </div>
 
             <div className="flex items-center space-x-4">
-              <button className="relative p-2 hover:bg-gray-100 rounded-full">
+              {/* <button className="relative p-2 hover:bg-gray-100 rounded-full">
                 <Bell className="w-6 h-6 text-gray-600" />
                 {notifications > 0 && (
                   <span className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 
@@ -231,7 +223,7 @@ const Dashboard = () => {
                     {notifications}
                   </span>
                 )}
-              </button>
+              </button> */}
 
               <div className="relative">
                 <button 
@@ -240,17 +232,17 @@ const Dashboard = () => {
                 >
                   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 
                     flex items-center justify-center text-white font-semibold">
-                    {userInfo?.name?.charAt(0) || 'A'}
+                    {userInfo?.firstName?.charAt(0) || 'A'}
                   </div>
-                  <span className="text-gray-700">{userInfo?.name || 'Admin'}</span>
+                  <span className="text-gray-700">{userInfo?.firstName || 'Admin'}</span>
                   <ChevronDown className="w-4 h-4 text-gray-500" />
                 </button>
 
                 {userMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
-                    <button className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 flex items-center">
+                    {/* <button className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 flex items-center">
                       <Settings className="w-4 h-4 mr-2" /> Settings
-                    </button>
+                    </button> */}
                     <button 
                       onClick={handleLogout}
                       className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 flex items-center"
@@ -287,7 +279,7 @@ const Dashboard = () => {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-5">
               <StatCard 
                 icon={Briefcase}
                 label="Companies Visited"
@@ -298,12 +290,21 @@ const Dashboard = () => {
               />
               <StatCard 
                 icon={Users}
-                label="Students Placed"
+                label="Unique Students Placed"
                 value={dashboardStats.studentsPlaced}
                 trend="up"
                 trendValue="8"
                 bgColor="bg-green-100 text-green-600"
               />
+              <StatCard 
+                icon={BarChart}
+                label="Total Placements"
+                value={dashboardStats.totalPlacements}
+                trend="down"
+                trendValue="2"
+                bgColor="bg-yellow-100 text-yellow-600"
+              />
+              {/* totalPlacements */}
               <StatCard 
                 icon={BarChart}
                 label="Placement Rate"
@@ -322,9 +323,9 @@ const Dashboard = () => {
               />
             </div>
 
-            <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8"> */}
               {/* Placement Trends */}
-              <div className="bg-white shadow-lg rounded-xl p-6">
+              {/* <div className="bg-white shadow-lg rounded-xl p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h4 className="text-lg font-semibold text-gray-700">Placement Trends</h4>
                   <div className="flex space-x-2">
@@ -387,10 +388,10 @@ const Dashboard = () => {
                     )}
                   </ResponsiveContainer>
                 </div>
-              </div>
+              </div> */}
 
               {/* Top Recruiting Companies */}
-              <div className="bg-white shadow-lg rounded-xl p-6">
+              {/* <div className="bg-white shadow-lg rounded-xl p-6">
                 <h4 className="text-lg font-semibold text-gray-700 mb-6">Top Recruiting Companies</h4>
                 <div className="space-y-4">
                   {topCompanies.map((company, index) => (
@@ -411,12 +412,12 @@ const Dashboard = () => {
                       <div className="text-right">
                         <p className="font-semibold text-gray-900">{company.avgPackage} LPA</p>
                         {/* <p className="text-sm text-gray-500">Avg. Package</p> */}
-                      </div>
+                      {/* </div>
                     </div>
                   ))}
                 </div>
-              </div>
-            </div>
+              </div> */} 
+            {/* // </div> */}
 
             {/* Recent Placements Table */}
             <div className="mt-8 bg-white shadow-lg rounded-xl overflow-hidden">
@@ -439,7 +440,7 @@ const Dashboard = () => {
                         Company
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Position
+                        Placement Date
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Package (LPA)
@@ -451,20 +452,14 @@ const Dashboard = () => {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {recentPlacements.map((placement, index) => (
-                      <tr key={index} className="hover:bg-gray-50 transition-colors duration-200">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-white font-medium">
-                              {placement?.studentName?.charAt(0)}
-                            </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{placement?.studentName}</div>
-                            </div>
-                          </div>
+                      <React.Fragment key={placement.placement_id || index}>
+                      <tr  className="cursor-pointer hover:bg-gray-100 transition-all duration-200">
+                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                          <p className="text-gray-900 whitespace-no-wrap">{placement?.student_name}</p>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{placement?.companyName}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{placement.position}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{placement.package}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{placement?.company_name}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(placement.placement_date).toLocaleDateString()}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{parseFloat(placement.package_lpa?.$numberDecimal || 0).toFixed(2)}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
                             placement.status === 'Joined' 
@@ -480,6 +475,7 @@ const Dashboard = () => {
                           </span>
                         </td>
                       </tr>
+                      </React.Fragment>
                     ))}
                   </tbody>
                 </table>

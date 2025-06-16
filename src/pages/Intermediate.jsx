@@ -7,13 +7,36 @@ import { FiClock, FiWifi, FiAlertTriangle, FiMic, FiVideo } from "react-icons/fi
 function Intermediate() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-
+  const [error, setError] = useState("");
   const handleStartInterview = async () => {
     setIsLoading(true);
     try {
       const token = localStorage.getItem("token");
+      const responseUser = await axios.get("http://localhost:5001/user/getinfo", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if(responseUser.data.user.profileimage===""){
+          navigate("/upload-documents");
+      }
+      const resumeUrl = responseUser.data.resume;
+      console.log("Resume URL:", resumeUrl);
+      
+      if (!resumeUrl && responseUser.data.user.role==='college_admin') {
+        setError("This feature is only for students")
+        console.error("No resume URL found");
+        setIsLoading(false);
+        return;
+      }
+      if (!resumeUrl) {
+        setError("Upload resume first and then try again")
+        console.error("No resume URL found");
+        setIsLoading(false);
+        return;
+      }
       const response = await axios.post(
-        "https://api.recruitmantra.com/interview/start",
+        "http://localhost:5001/interview/start",
         { level: "intermediate" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -46,6 +69,18 @@ function Intermediate() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4 sm:p-8">
+      {/* Error Message */}
+                    {error ? (
+                      <motion.div
+                        className="mt-4 bg-red-100 text-red-600 text-center py-2 px-4 rounded-lg"
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        {error}
+                      </motion.div>
+                    ):(
+                    <>
       <div className="max-w-7xl w-full grid lg:grid-cols-2 gap-8">
         {/* Left Section - Image Card */}
         <motion.div
@@ -154,6 +189,8 @@ function Intermediate() {
           </motion.p>
         </motion.div>
       </div>
+      </>
+                    )}
     </div>
   );
 }

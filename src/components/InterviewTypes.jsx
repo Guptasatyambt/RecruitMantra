@@ -31,7 +31,7 @@ const handleStartPractice = () => {
       tag: { name: "Behavioural", color: "bg-blue-100", textColor: "text-blue-800" },
       description: "Perfect your responses to common HR questions & behavioural scenarios",
       // link: "#",
-      onClick: () => (token ? navigate("#") : navigate("/login")),
+      onClick: () => (token ? navigate("/hr-behavioral") : navigate("/login")),
       buttonText: "Start HR Interview",
     },
     {
@@ -40,7 +40,7 @@ const handleStartPractice = () => {
       tag: { name: "Leadership", color: "bg-purple-100", textColor: "text-purple-800" },
       description: "Demonstrate your leadership potential and problem solving abilities",
       // link: "#",
-      onClick: () => (token ? navigate("#") : navigate("/login")),
+      onClick: () => (token ? navigate("/managerial") : navigate("/login")),
       buttonText: "Start Managerial Round",
     },
   ];

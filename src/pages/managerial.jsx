@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FiClock, FiWifi, FiAlertTriangle, FiMic, FiVideo } from "react-icons/fi";
 
-function HR() {
+function Managerial() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -38,10 +38,10 @@ function HR() {
       const response = await axios.post(
         "http://localhost:5001/hrInterview/start",
         // "https://api.recruitmantra.com/hrInterview/start",//Replace it with starting url of hr interview
-        { type: "HR" },
+        { type: "Managerial" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      navigate(`/interview/hr-behavioral/${response.data.data.id || "123"}`, { replace: true });
+      navigate(`/interview/managerial/${response.data.data.id || "123"}`, { replace: true });
     } catch (error) {
       console.error(error);
       setIsLoading(false);
@@ -98,7 +98,7 @@ function HR() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              HR Interview Mode
+              Managerial Interview Mode
             </motion.h1>
             <div className="relative overflow-hidden rounded-xl border-2 border-gray-100">
               <img
@@ -196,4 +196,4 @@ function HR() {
   );
 }
 
-export default HR;
+export default Managerial;

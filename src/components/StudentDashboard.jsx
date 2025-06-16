@@ -9,10 +9,12 @@ import {
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { dashboardAPI } from '../services/api';
+import NotificationDropdown from './NotificationDropdown';
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [ongoingMenuOpen, setOngoingMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [activeLink, setActiveLink] = useState('dashboard');
   const [notifications, setNotifications] = useState(0);
@@ -40,12 +42,14 @@ const StudentDashboard = () => {
         return;
       }
 
-      const response = await axios.get('https://api.recruitmantra.com/user/getinfo', {
+      const response = await axios.get('http://localhost:5001/user/getinfo', {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-
+      if(response.data.user.profileimage==""){
+          navigate("/upload-documents");
+      }
       if (response.data) {
         setUserInfo(response.data.user);
         fetchDashboardData(response.data.user);
@@ -63,19 +67,15 @@ const StudentDashboard = () => {
       // Fetch student-specific dashboard data
       const stats = await dashboardAPI.getStudentStats();
       setPlacementStats(stats);
-      
+      setNotifications(stats.onGoing.length);
       // Fetch upcoming drives for student's college
-      const drives = await dashboardAPI.getUpcomingDrives({
-        college: user.college
-      });
+      const drives = await dashboardAPI.getUpcomingDrives();
+
       setUpcomingDrives(drives);
-      
+      console.log(drives);
       // Fetch recent placements for student's college
-      const placements = await dashboardAPI.getRecentPlacementsStudents({
-        college: user.college
-      });
+      const placements = await dashboardAPI.getRecentPlacementsStudents();
       setRecentPlacements(placements);
-      
       setIsLoading(false);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -149,9 +149,9 @@ const StudentDashboard = () => {
             >
               <Menu className="h-6 w-6" />
             </button>
-
+            <h2 className="text-xl font-semibold text-gray-800 ml-4">DashBoard</h2>
             <div className="relative flex-1 max-w-md mx-4">
-              <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-opacity duration-200 ${searchFocused ? 'opacity-0' : 'opacity-100'}`}>
+              {/* <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-opacity duration-200 ${searchFocused ? 'opacity-0' : 'opacity-100'}`}>
                 <Search className="h-5 w-5 text-gray-400" />
               </div>
               <input
@@ -160,16 +160,22 @@ const StudentDashboard = () => {
                 placeholder="Search"
                 onFocus={() => setSearchFocused(true)}
                 onBlur={() => setSearchFocused(false)}
-              />
+              /> */}
             </div>
 
             <div className="flex items-center space-x-4">
-              <button className="p-1 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100">
+              {/* <button className="p-1 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100">
                 <Bell className="h-6 w-6" />
                 {notifications > 0 && (
                   <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
                 )}
-              </button>
+              </button> */}
+               <NotificationDropdown
+        stats={placementStats}
+        notifications={notifications}
+        ongoingMenuOpen={ongoingMenuOpen}
+        setOngoingMenuOpen={setOngoingMenuOpen}
+      />
 
               <div className="relative">
                 <button 
@@ -177,7 +183,7 @@ const StudentDashboard = () => {
                   className="flex items-center space-x-2 focus:outline-none"
                 >
                   <div className="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-medium">
-                    {userInfo?.name?.charAt(0) || 'S'}
+                    {userInfo?.firstName?.charAt(0) || 'S'}
                   </div>
                   <ChevronDown className={`h-4 w-4 text-gray-600 transition-transform duration-200 ${userMenuOpen ? 'transform rotate-180' : ''}`} />
                 </button>
@@ -261,9 +267,11 @@ const StudentDashboard = () => {
                           </div>
                           <div className="flex-1">
                             <h3 className="text-sm font-medium text-gray-900">{drive.companyName}</h3>
-                            <p className="text-sm text-gray-500">{drive.date} • {drive.location}</p>
+                            <p className="text-sm text-gray-500">{drive.visitDate ?new Date(drive.date).toLocaleDateString('en-IN') : 'To be announced'} • {drive.location}</p>
                           </div>
-                          <button className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+                          <button 
+                          onClick={() => navigate(`/company/${drive.companyId}`)}
+                          className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
                             View
                           </button>
                         </div>
@@ -287,9 +295,6 @@ const StudentDashboard = () => {
                             <h3 className="text-sm font-medium text-gray-900">{placement.studentName}</h3>
                             <p className="text-sm text-gray-500">{placement.companyName} • ₹{placement.package} LPA</p>
                           </div>
-                          <button className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
-                            View
-                          </button>
                         </div>
                       ))
                     ) : (
@@ -299,7 +304,7 @@ const StudentDashboard = () => {
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-lg shadow">
+              {/* <div className="bg-white p-6 rounded-lg shadow">
                 <h2 className="text-lg font-medium text-gray-900 mb-4">Placement Trends</h2>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
@@ -312,7 +317,7 @@ const StudentDashboard = () => {
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
-              </div>
+              </div> */}
             </>
           )}
         </main>

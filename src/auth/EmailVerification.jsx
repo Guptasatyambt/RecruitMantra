@@ -9,39 +9,10 @@ const EmailVerification = () => {
   const { token } = location.state || {};  
   const [otp, setOtp] = useState('');
   const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);  
-
-  const sendOtp = async () => {
-    if (!token) {
-      setMessage("Invalid token. Please sign up again.");
-      return;
-    }
-
-    setLoading(true);
-    setMessage('');
-
-    try {
-      console.log(token);
-      
-      const response = await axios.post(
-        'https://api.recruitmantra.com/user/emailvarification',
-        {},
-        {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          },
-        }
-      );
-      setOtpSent(true);
-      setMessage(response.data.message);  
-    } catch (error) {
-      setMessage(error.response?.data?.message || 'Failed to send OTP.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  const [loading, setLoading] = useState(false); 
+  const queryParams = new URLSearchParams(location.search);
+  const source = queryParams.get("source");
+ 
   // Function to verify OTP 
   const verifyOtp = async () => {
     if (!otp) {
@@ -54,7 +25,7 @@ const EmailVerification = () => {
 
     try {
       const response = await axios.post(
-        'https://api.recruitmantra.com/user/varifyemail',
+        'http://localhost:5001/user/varifyemail',
         { otp: otp },
         {
           headers: {
@@ -64,9 +35,8 @@ const EmailVerification = () => {
       );
       if (response.data.success) {
         setMessage(response.data.message);  // "OTP verified successfully"
-        setTimeout(() => {
-          navigate("/setup-profile");
-        }, 2000);
+        window.location.reload();
+          navigate(`/upload-documents?source=${source}`);
       }
     } catch (error) {
       setMessage(error.response?.data?.message || 'Failed to verify OTP.');
@@ -85,8 +55,6 @@ const EmailVerification = () => {
             <p>{message}</p>
           </div>
         )}
-
-        {otpSent ? (
           <div>
             <div className="mb-4">
               <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
@@ -110,17 +78,6 @@ const EmailVerification = () => {
               {loading ? 'Verifying...' : 'Verify OTP'}
             </button>
           </div>
-        ) : (
-          <div>
-            <button
-              onClick={sendOtp}
-              className={`w-full bg-green-500 text-white p-2 rounded-md ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-600'}`}
-              disabled={loading}
-            >
-              {loading ? 'Sending OTP...' : 'Send OTP'}
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

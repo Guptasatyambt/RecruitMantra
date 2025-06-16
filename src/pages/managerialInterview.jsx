@@ -5,7 +5,7 @@ import RecordWebcam from "../components/RecordWebcam";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 
-function HrInterview() {
+function ManagerialInterview() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [currentQuestion, setCurrentQuestion] = useState("");
   const [permissionDenied, setPermissionDenied] = useState(false);
@@ -397,7 +397,7 @@ function HrInterview() {
         "http://localhost:5001/hrInterview/stop",
         {
           interview_id: interviewId,
-          type: "HR",
+          type: "Managerial",
         },
         {
           headers: {
@@ -406,7 +406,7 @@ function HrInterview() {
         }
       );
       console.log("Interview ended successfully");
-      navigate(`/interview-details/${interviewId}?type=HR&&source=interview`);
+      navigate(`/interview-details/${interviewId}?type=Managerial&&source=interview`);
       // navigate(`/feedback/${interviewId}`, {replace: true});
     } catch (err) {
       console.error("Failed to end interview:", err);
@@ -451,7 +451,7 @@ function HrInterview() {
       <div className="bg-white flex justify-between items-center px-6 py-3 shadow-sm">
         <div className="flex items-center gap-2">
           <img src="/assets/logo_RM.png" alt="Technical Interview" className="h-8" />
-          <span className="text-lg font-medium">HR Interview</span>
+          <span className="text-lg font-medium">Managerial Interview</span>
         </div>
         <div className="flex items-center gap-3">
           <StopTimer handleTimerExpired={handleTimerExpired}/>
@@ -620,4 +620,4 @@ function HrInterview() {
   );
 }
 
-export default HrInterview;
+export default ManagerialInterview;

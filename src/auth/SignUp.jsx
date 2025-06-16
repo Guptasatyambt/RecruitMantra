@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState,useEffect,useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import API from "../services/api";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName:"",
     email: "",
     password: "",
     confirmPassword: "",
@@ -14,9 +15,53 @@ const SignUp = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  let finalCollegeId;
+  const [colleges, setColleges] = useState([]);
+  const [selectedCollegeId, setSelectedCollegeId] = useState("");
+  const [customCollege,setCustomCollege] = useState("");
+  const [isOtherCollege,setIsOtherCollege] = useState(false);
+  const [filteredColleges, setFilteredColleges] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef(null);
 
   const navigate = useNavigate();
+  useEffect(() => {
+  const fetchColleges = async () => {
+    try {
+      const response = await API.get("/college/all"); // Replace with your actual endpoint
+      setColleges(response.data); // Adjust based on API response
+    } catch (err) {
+      console.error("Error fetching colleges", err);
+    }
+  };
 
+  fetchColleges();
+}, []);
+
+useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredColleges(colleges.slice(0, 10)); // Show first 10 colleges when no search term
+    } else {
+      const filtered = colleges.filter(college =>
+        college.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredColleges(filtered.slice(0, 10)); // Limit to 10 results
+    }
+  }, [searchTerm, colleges]);
+
+  useEffect(() => {
+      const handleClickOutside = (event) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+          setShowDropdown(false);
+        }
+      };
+  
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, []);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -24,6 +69,27 @@ const SignUp = () => {
       [name]: value
     });
   };
+const handleCollegeSelect = (collegeId, collegeName) => {
+  if (collegeId === "other") {
+    setFormData({
+      ...formData,
+      college: "",
+      collegeName: "Other"
+    });
+    setSearchTerm("Other");
+    setIsOtherCollege(true)
+  } else {
+    setFormData({
+      ...formData,
+      college: collegeId.id,
+      collegeName: collegeName
+    });
+    setSelectedCollegeId(collegeId.id);
+    setSearchTerm(collegeName); // show selected value in input
+  }
+  setShowDropdown(false);
+};
+
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -53,9 +119,30 @@ const SignUp = () => {
       setError("Passwords do not match.");
       return;
     }
-
+    setLoading(true);
+    setError("");
+    try{
+      finalCollegeId = selectedCollegeId;
+      console.log(finalCollegeId, formData.otherCollegeName, isOtherCollege)
+      if (isOtherCollege) {
+      const collegeRes = await API.post("/college/", {
+        name: formData.otherCollegeName
+      });
+      finalCollegeId = collegeRes.data._id; // Adjust based on your API
+      // console.log(collegeRes)
+      // setSelectedCollegeId(collegeRes.data._id);
+      console.log(finalCollegeId)
+    }
+    }catch(e){
+      console.error("Signup Error:", error.response?.data || error.message);
+      setError(
+        error.response?.data?.message || "An error occurred during sign-up."
+      );
+    }finally{
+      setLoading(false);
+    }
     // Validate other fields
-    if (!formData.name || !formData.email || !formData.college) {
+    if (!formData.firstName||!formData.lastName || !formData.email || (!finalCollegeId && !formData.otherCollegeName)) {
       setError("All fields are required.");
       return;
     }
@@ -67,16 +154,17 @@ const SignUp = () => {
       const response = await API.post(
         "/user/register-default",
         {
-          name: formData.name,
+          firstName: formData.firstName,
+          lastName:formData.lastName,
           email: formData.email,
           password: formData.password,
-          college: formData.college
+          collegeId: finalCollegeId
         }
       );
-
+      
       const token = response.data.data.token;
       localStorage.setItem("token", token);
-      navigate("/email-verification", { state: { token: token } });
+      navigate("/email-verification?source=default", { state: { token: token } });
     } catch (error) {
       console.error("Signup Error:", error.response?.data || error.message);
       setError(
@@ -125,26 +213,45 @@ const SignUp = () => {
         )}
 
         <form onSubmit={handleSignUp} className="mt-6 space-y-6">
-          {/* Name Field */}
+          {/* firstName Field */}
           <div className="relative">
             <input
               type="text"
-              id="name"
-              name="name"
-              value={formData.name}
+              id="firstName"
+              name="firstName"
+              value={formData.firstName}
               onChange={handleChange}
               className="peer w-full bg-transparent border-b-2 border-gray-300 text-gray-800 placeholder-transparent focus:outline-none focus:border-gray-500 transition-all px-2 py-3"
               placeholder="Enter your full name"
               required
             />
             <label
-              htmlFor="name"
+              htmlFor="firstName"
               className="absolute left-2 top-3 text-gray-500 text-sm transition-all transform -translate-y-6 scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 peer-focus:text-gray-700"
             >
-              Full Name
+              First Name
+            </label>
+        </div>
+
+          {/* Last Name */}
+          <div className="relative">
+            <input
+              type="text"
+              id="lastName"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              className="peer w-full bg-transparent border-b-2 border-gray-300 text-gray-800 placeholder-transparent focus:outline-none focus:border-gray-500 transition-all px-2 py-3"
+              placeholder="Enter your full name"
+              required
+            />
+            <label
+              htmlFor="lastName"
+              className="absolute left-2 top-3 text-gray-500 text-sm transition-all transform -translate-y-6 scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 peer-focus:text-gray-700"
+            >
+              Last Name
             </label>
           </div>
-
           {/* Email Field */}
           <div className="relative">
             <input
@@ -165,16 +272,21 @@ const SignUp = () => {
             </label>
           </div>
 
-          {/* College Field */}
-          <div className="relative">
+{/* College Field with Dropdown */}
+          <div className="relative" ref={dropdownRef}>
             <input
               type="text"
               id="college"
               name="college"
-              value={formData.college}
-              onChange={handleChange}
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setShowDropdown(true);
+              }}
+              onFocus={() => setShowDropdown(true)}
               className="peer w-full bg-transparent border-b-2 border-gray-300 text-gray-800 placeholder-transparent focus:outline-none focus:border-gray-500 transition-all px-2 py-3"
-              placeholder="Enter your college name"
+              placeholder="Search for your college"
+              autoComplete="off"
               required
             />
             <label
@@ -183,8 +295,71 @@ const SignUp = () => {
             >
               College Name
             </label>
+
+            {showDropdown && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                {filteredColleges.length > 0 ? (
+                  <>
+                    {filteredColleges.map((college, index) => (
+                      <div
+                        key={index}
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700 text-sm"
+                        onClick={() =>
+                          handleCollegeSelect({ id: college._id }, college.name)
+                        }
+                      >
+                        {college.name}
+                      </div>
+                    ))}
+                    <div
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700 text-sm font-medium border-t"
+                      onClick={() => handleCollegeSelect("other", "Other")}
+                    >
+                      My college is not listed
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="px-4 py-2 text-gray-600 text-sm">
+                      {searchTerm.trim() !== ""
+                        ? "No colleges found"
+                        : "Start typing to search colleges"}
+                    </div>
+                    <div
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700 text-sm font-medium border-t"
+                      onClick={() => handleCollegeSelect("other", "Other")}
+                    >
+                      My college is not listed
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
 
+
+          {formData.collegeName === "Other" && (
+            <div className="relative mt-4">
+              <input
+                type="text"
+                name="otherCollegeName"
+                value={formData.otherCollegeName || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, otherCollegeName: e.target.value })
+                }
+                className="peer w-full bg-transparent border-b-2 border-gray-300 text-gray-800 placeholder-transparent focus:outline-none focus:border-gray-500 transition-all px-2 py-3"
+                placeholder="Enter your college name"
+                required
+              />
+              <label
+                htmlFor="otherCollegeName"
+                className="absolute left-2 top-3 text-gray-500 text-sm transition-all transform -translate-y-6 scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 peer-focus:text-gray-700"
+              >
+                Enter College Name
+              </label>
+            </div>
+          )}
+          
           {/* Password Field */}
           <div className="relative">
             <input

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import API from "../services/api";
 
 const CollegeAdminSignUp = () => {
   const [formData, setFormData] = useState({
@@ -11,7 +12,7 @@ const CollegeAdminSignUp = () => {
     password: "",
     confirmPassword: "",
     college: "",
-    collegeName: ""
+    mobile:""
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -20,10 +21,15 @@ const CollegeAdminSignUp = () => {
   
   // New state variables for college dropdown
   const [colleges, setColleges] = useState([]);
+  const [selectedCollegeId, setSelectedCollegeId] = useState("");
+  const [customCollege, setCustomCollege] = useState("");
+  const [isOtherCollege, setIsOtherCollege] = useState(false);
   const [filteredColleges, setFilteredColleges] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const dropdownRef = useRef(null);
+  let finalCollegeId;
+  
 
   const navigate = useNavigate();
 
@@ -31,7 +37,7 @@ const CollegeAdminSignUp = () => {
   useEffect(() => {
     const fetchColleges = async () => {
       try {
-        const response = await axios.get("https://api.recruitmantra.com/college");
+        const response = await axios.get("http://localhost:5001/college/all");
         setColleges(response.data);
       } catch (error) {
         console.error("Error fetching colleges:", error);
@@ -73,22 +79,28 @@ const CollegeAdminSignUp = () => {
       ...formData,
       [name]: value
     });
-
-    // Handle college search
-    if (name === "college") {
-      setSearchTerm(value);
-      setShowDropdown(true);
-    }
   };
 
-  const handleCollegeSelect = (collegeId, collegeName) => {
+const handleCollegeSelect = (collegeId, collegeName) => {
+  if (collegeId === "other") {
     setFormData({
       ...formData,
-      college: collegeId,
+      college: "",
+      collegeName: "Other"
+    });
+    setSearchTerm("Other");
+    setIsOtherCollege(true)
+  } else {
+    setFormData({
+      ...formData,
+      college: collegeId.id,
       collegeName: collegeName
     });
-    setShowDropdown(false);
-  };
+    setSelectedCollegeId(collegeId.id);
+    setSearchTerm(collegeName); // show selected value in input
+  }
+  setShowDropdown(false);
+};
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -118,9 +130,31 @@ const CollegeAdminSignUp = () => {
       setError("Passwords do not match.");
       return;
     }
-
+    setLoading(true);
+        setError("");
+        try{
+          finalCollegeId = selectedCollegeId;
+          console.log(finalCollegeId, formData.otherCollegeName, isOtherCollege)
+          if (isOtherCollege) {
+          const collegeRes = await API.post("/college/", {
+            name: formData.otherCollegeName
+          });
+          finalCollegeId = collegeRes.data._id; // Adjust based on your API
+          // console.log(collegeRes)
+          // setSelectedCollegeId(collegeRes.data._id);
+          console.log(finalCollegeId)
+        }
+        }catch(e){
+          console.error("Signup Error:", error.response?.data || error.message);
+          setError(
+            error.response?.data?.message || "An error occurred during sign-up."
+          );
+        }finally{
+          setLoading(false);
+        }
     // Validate other fields
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.college) {
+    console.log(finalCollegeId)
+    if (!formData.firstName || !formData.lastName || !formData.email || (!finalCollegeId && !formData.otherCollegeName)||!formData.mobile) {
       setError("All fields are required.");
       return;
     }
@@ -129,20 +163,29 @@ const CollegeAdminSignUp = () => {
     setError("");
 
     try {
+      // finalCollegeId = selectedCollegeId;
+      // if (isOtherCollege) {
+      // const collegeRes = await API.post("/college/", {
+      //   name: customCollege
+      // });
+      // finalCollegeId = collegeRes.data._id; // Adjust based on your API
+      // }
       const response = await axios.post(
-        "https://api.recruitmantra.com/user/register-college-admin", 
+        "http://localhost:5001/user/register-college-admin", 
         {
           firstName: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,
           password: formData.password,
-          collegeId: formData.college
+          mobile:formData.mobile,
+          collegeId: finalCollegeId
         }
       );
-
+      const token = response.data.data.token;
+      localStorage.setItem("token", token);
       setSuccess(true);
       setTimeout(() => {
-        navigate("/login");
+        navigate("/email-verification?source=college_admin", { state: { token: token } });
       }, 3000);
     } catch (error) {
       console.error("Signup Error:", error.response?.data || error.message);
@@ -273,8 +316,11 @@ const CollegeAdminSignUp = () => {
               type="text"
               id="college"
               name="college"
-              value={formData.collegeName}
-              onChange={handleChange}
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setShowDropdown(true);
+              }}
               onFocus={() => setShowDropdown(true)}
               className="peer w-full bg-transparent border-b-2 border-gray-300 text-gray-800 placeholder-transparent focus:outline-none focus:border-gray-500 transition-all px-2 py-3"
               placeholder="Search for your college"
@@ -287,28 +333,70 @@ const CollegeAdminSignUp = () => {
             >
               College Name
             </label>
-            
-            {/* College Dropdown */}
+
             {showDropdown && (
               <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
                 {filteredColleges.length > 0 ? (
-                  filteredColleges.map((college, index) => (
+                  <>
+                    {filteredColleges.map((college, index) => (
+                      <div
+                        key={index}
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700 text-sm"
+                        onClick={() =>
+                          handleCollegeSelect({ id: college._id }, college.name)
+                        }
+                      >
+                        {college.name}
+                      </div>
+                    ))}
                     <div
-                      key={index}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700 text-sm"
-                      onClick={() => handleCollegeSelect(college._id, college.name)}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700 text-sm font-medium border-t"
+                      onClick={() => handleCollegeSelect("other", "Other")}
                     >
-                      {college.name}
+                      My college is not listed
                     </div>
-                  ))
+                  </>
                 ) : (
-                  <div className="px-4 py-2 text-gray-500 text-sm">
-                    {searchTerm.trim() !== "" ? "No colleges found" : "Start typing to search colleges"}
-                  </div>
+                  <>
+                    <div className="px-4 py-2 text-gray-600 text-sm">
+                      {searchTerm.trim() !== ""
+                        ? "No colleges found"
+                        : "Start typing to search colleges"}
+                    </div>
+                    <div
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-gray-700 text-sm font-medium border-t"
+                      onClick={() => handleCollegeSelect("other", "Other")}
+                    >
+                      My college is not listed
+                    </div>
+                  </>
                 )}
               </div>
             )}
           </div>
+
+
+          {formData.collegeName === "Other" && (
+            <div className="relative mt-4">
+              <input
+                type="text"
+                name="otherCollegeName"
+                value={formData.otherCollegeName || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, otherCollegeName: e.target.value })
+                }
+                className="peer w-full bg-transparent border-b-2 border-gray-300 text-gray-800 placeholder-transparent focus:outline-none focus:border-gray-500 transition-all px-2 py-3"
+                placeholder="Enter your college name"
+                required
+              />
+              <label
+                htmlFor="otherCollegeName"
+                className="absolute left-2 top-3 text-gray-500 text-sm transition-all transform -translate-y-6 scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 peer-focus:text-gray-700"
+              >
+                Enter College Name
+              </label>
+            </div>
+          )}
 
           {/* Password Field */}
           <div className="relative">
@@ -349,7 +437,25 @@ const CollegeAdminSignUp = () => {
               Confirm Password
             </label>
           </div>
-
+          {/* Mobile Field */}
+          <div className="relative">
+            <input
+              type="phone"
+              id="mobile"
+              name="mobile"
+              value={formData.mobile}
+              onChange={handleChange}
+              className="peer w-full bg-transparent border-b-2 border-gray-300 text-gray-800 placeholder-transparent focus:outline-none focus:border-gray-500 transition-all px-2 py-3"
+              placeholder="Enter your email"
+              required
+            />
+            <label
+              htmlFor="email"
+              className="absolute left-2 top-3 text-gray-500 text-sm transition-all transform -translate-y-6 scale-75 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 peer-focus:text-gray-700"
+            >
+              Mobile Number
+            </label>
+          </div>  
           {/* Show Password Toggle */}
           <div className="flex items-center text-gray-600 mt-3">
             <input

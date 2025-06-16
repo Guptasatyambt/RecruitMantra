@@ -4,6 +4,7 @@ import { Building2, Users, BarChart, Menu, Bell, Search, ChevronDown, Settings, 
 import { useNavigate } from 'react-router-dom';
 import { companyAPI } from '../services/api';
 import axios from 'axios';
+import { collegeadminAPI } from '../services/collegeadminAPI';
 
 const Companies = () => {
   const navigate = useNavigate();
@@ -12,31 +13,59 @@ const Companies = () => {
   const [notifications, setNotifications] = useState(3);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
+  const [companyName, setCompanyName] = useState('');
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [userInfo, setUserInfo] = useState(null);
+  const [expandedCompanyId, setExpandedCompanyId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isHiredModalOpen, setIsHiredModalOpen]=useState(false);
+  const [placementData,setPlacementData]=useState(null);
+  const [placedStudents, setPlacedStudents] = useState([]);
   const [stats, setStats] = useState({
     totalCompanies: 0,
     activelyRecruiting: 0,
-    avgPackage: 0
+    avgPackage: 0,
+    totalStudentsHired: 0,
   });
+  const [collegeId, setCollegeId] = useState('');
+  const [branches, setBranches] = useState([]);
+  const [filterStatus, setFilterStatus] = useState([]);
   // Add state for company form modal
   const [showAddModal, setShowAddModal] = useState(false);
   const [formError, setFormError] = useState('');
-  const [newCompany, setNewCompany] = useState({
-    company_name: '',
-    industry: '',
-    position: '',
-    package_lpa: '',
-    job_description: '',
-    visit_date: '',
-    application_deadline: '',
-    eligibility_criteria: {
-      min_cgpa: '',
-      allowed_branches: [],
-      allowed_batch_year: ''
-    }
+  const [formData, setFormData] = useState({
+    companyId: '',
+    location: '',
+    package: '',
+    stipendDetails: '',
+    role: '',
+    jobDescription: '',
+    visitDate: '',
+    applicationDeadline: '',
+    minCgpa: '',
+    allowedBranches: [],
+    allowedYear: [],
   });
+  const [editCompanyFormData, setEditCompanyFormData] = useState({
+    location: '',
+    package_lpa: '',
+    stipendDetails: '',
+    role: '',
+    jobDescription: '',
+    visitDate: '',
+    applicationDeadline: '',
+    minCgpa: '',
+    allowedBranches: [], // branch names
+    allowedYear: [],
+  });
+  const [originalData, setOriginalData] = useState({});
+  const [branchChanged, setBranchChanged] = useState(false);
+
+  const [emailInput, setEmailInput] = useState('');
+const [hiredFormError, setHiredFormError] = useState('');
 
   // Fetch user info on component mount
   useEffect(() => {
@@ -46,22 +75,29 @@ const Companies = () => {
   const fetchUserInfo = async () => {
     try {
       const token = localStorage.getItem('token');
-      
+
       if (!token) {
         navigate('/login');
         return;
       }
 
-      const response = await axios.get('https://api.recruitmantra.com/user/getinfo', {
+      const response = await axios.get('http://localhost:5001/user/getinfo', {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-
+      if (response.data.user.profileimage == "") {
+        navigate("/upload-documents");
+      }
       if (response.data && response.data.user) {
         setUserInfo(response.data.user);
+        setCollegeId(response.data.defaultOrStudent.collegeId);
         fetchCompanies(response.data.user);
       }
+      const branchRes = await axios.get('http://localhost:5001/branch/', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setBranches(branchRes.data.data);
     } catch (error) {
       console.error('Error fetching user info:', error);
       navigate('/login');
@@ -71,50 +107,61 @@ const Companies = () => {
   const fetchCompanies = async (user) => {
     try {
       setLoading(true);
-      
+
       // Check if we have a status filter
-      const statusFilter = user?.filterStatus || '';
-      const response = await companyAPI.getAllCompanies(statusFilter);
+      // const collegeId = user?.defaultOrStudent?.collegeId || '';
+      const response = await companyAPI.getAllCompanies({
+        collegeId: collegeId
+      });
+      // const response = await companyAPI.getAllCompanies(collegeId);/
       let companiesData = response.data.data;
-      
+
       // Filter companies based on user role
-      if (user && user.role === 'college_admin' && user.college) {
-        // For college admin, only show companies that visited their college
-        companiesData = companiesData.filter(company => 
-          company.college?.toLowerCase() === user.college.toLowerCase() ||
-          company.colleges?.some(c => c.toLowerCase() === user.college.toLowerCase()) ||
-          company.college_id === user.college
-        );
-      }
-      
+      // if (user && user.role === 'college_admin') {
+      //   // For college admin, only show companies that visited their college
+      //   companiesData = companiesData.filter(company => 
+      //     company.college?.toLowerCase() === user.college.toLowerCase() ||
+      //     company.colleges?.some(c => c.toLowerCase() === user.college.toLowerCase()) ||
+      //     company.college_id === user.college
+      //   );
+      // }
       setCompanies(companiesData);
+      const res = await collegeadminAPI.getRecentPlacements();
+              if (res.data && res.data.data) {
+                setPlacementData(res.data.data)
+               
+                const placedStudentIds = [];
       
+                res.data.data.forEach(item => {
+                  if (item.student_id) {
+                    placedStudentIds.push(item.student_id._id);
+                  }
+                });
+                 setPlacedStudents(placedStudentIds);
+              }
       // Calculate stats with improved categorization
-      const upcomingCompanies = companiesData.filter(company => company.status === 'upcoming');
-      const ongoingCompanies = companiesData.filter(company => company.status === 'ongoing');
-      const completedCompanies = companiesData.filter(company => company.status === 'completed');
-      
+      const completedCompanies = companiesData.filter(company => company.placeId > 0);
+
       // Calculate actively recruiting (upcoming + ongoing)
-      const activelyRecruiting = upcomingCompanies.length + ongoingCompanies.length;
-      
+      const activelyRecruiting = companiesData.length - completedCompanies;
+
       // Calculate average package with proper handling of missing values
-      const validPackages = companiesData.filter(company => company.package_lpa && !isNaN(company.package_lpa));
-      const totalAvgPackage = validPackages.length > 0 
-        ? validPackages.reduce((total, company) => total + parseFloat(company.package_lpa), 0) / validPackages.length
+      const validPackages = companiesData.filter(company => company.packageLPA && !isNaN(company.packageLPA));
+      const totalAvgPackage = validPackages.length > 0
+        ? validPackages.reduce((total, company) => total + parseFloat(company.packageLPA), 0) / validPackages.length
         : 0;
-      
+
       // Calculate total students hired
-      const totalStudentsHired = companiesData.reduce((total, company) => {
-        return total + (company.students_hired ? parseInt(company.students_hired) : 0);
-      }, 0);
-        
+      
+      const totalStudentsHired = res.data.data.length
+
       setStats({
         totalCompanies: companiesData.length,
         activelyRecruiting: activelyRecruiting,
         avgPackage: parseFloat(totalAvgPackage.toFixed(1)),
         totalStudentsHired: totalStudentsHired
       });
-      
+
       setLoading(false);
     } catch (error) {
       console.error('Error fetching companies:', error);
@@ -123,22 +170,22 @@ const Companies = () => {
   };
 
   // Handle form input changes
-  const handleInputChange = (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     if (name.includes('.')) {
       // Handle nested properties (eligibility_criteria)
       const [parent, child] = name.split('.');
-      setNewCompany({
-        ...newCompany,
+      setFormData({
+        ...formData,
         [parent]: {
-          ...newCompany[parent],
+          ...formData[parent],
           [child]: value
         }
       });
     } else {
-      setNewCompany({
-        ...newCompany,
+      setFormData({
+        ...formData,
         [name]: value
       });
     }
@@ -148,64 +195,161 @@ const Companies = () => {
   const handleBranchesChange = (e) => {
     const options = e.target.options;
     const selectedBranches = [];
-    
+
     for (let i = 0; i < options.length; i++) {
       if (options[i].selected) {
         selectedBranches.push(options[i].value);
       }
     }
-    
-    setNewCompany({
-      ...newCompany,
+
+    setFormData({
+      ...formData,
       eligibility_criteria: {
-        ...newCompany.eligibility_criteria,
+        ...formData.eligibility_criteria,
         allowed_branches: selectedBranches
       }
     });
   };
+  const handleMultiChange = (e, field) => {
+    const selectedOptions = Array.from(e.target.selectedOptions).map(opt => opt.value);
+    setEditCompanyFormData(prev => ({
+      ...prev,
+      [field]: field === 'allowedYear' ? selectedOptions.map(Number) : selectedOptions,
+    }));
+
+    if (field === 'allowedBranches') {
+      const changed = JSON.stringify(selectedOptions.sort()) !== JSON.stringify(originalData.allowedBranches.sort());
+      setBranchChanged(changed);
+    }
+  };
+
+  const getChangedFields = () => {
+    const changedFields = {};
+    Object.entries(editCompanyFormData).forEach(([key, value]) => {
+      if (JSON.stringify(value) !== JSON.stringify(originalData[key])) {
+        changedFields[key] = value;
+      }
+    });
+
+    // If branch names changed, map to IDs and override key
+    if (branchChanged) {
+      const branchIds = editCompanyFormData.allowedBranches.map(name =>
+        branches.find(b => b.branchName === name)?._id
+      ).filter(Boolean);
+      changedFields.allowedBranches = branchIds;
+    }
+
+    return changedFields;
+  };
+
+
 
   // Handle add company form submission
   const handleAddCompany = async (e) => {
     e.preventDefault();
     setFormError('');
-
     // Validate form
-    if (!newCompany.company_name || !newCompany.industry || !newCompany.position || 
-        !newCompany.package_lpa || !newCompany.job_description || !newCompany.visit_date || 
-        !newCompany.application_deadline || !newCompany.eligibility_criteria.min_cgpa || 
-        newCompany.eligibility_criteria.allowed_branches.length === 0 || 
-        !newCompany.eligibility_criteria.allowed_batch_year) {
-      setFormError('Please fill all required fields');
-      return;
-    }
-
     try {
+      const token = localStorage.getItem('token');
+      const companyRes = await axios.post('http://localhost:5001/company/add', {
+        company_name: companyName
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const companyId = companyRes.data.data._id;
       // Convert package_lpa to number
+      console.log(companyId, formData.location, formData.package, formData.stipendDetails, formData.role, formData.jobDescription, formData.applicationDeadline, formData.minCgpa,
+        formData.allowedBranches.length, formData.allowedYear.length)
+      if (!companyId || !formData.location || !formData.package ||
+        !formData.stipendDetails || !formData.role || !formData.jobDescription ||
+        !formData.applicationDeadline || !formData.minCgpa ||
+        formData.allowedBranches.length === 0 ||
+        !formData.allowedYear.length === 0) {
+        setFormError('Please fill all required fields');
+        return;
+      }
       const companyData = {
-        ...newCompany,
-        package_lpa: parseFloat(newCompany.package_lpa)
+        ...formData,
+        package: parseFloat(formData.package),
+        collegeId: collegeId,
+        companyId: companyId
       };
-      
+      if (!formData.visitDate) delete companyData.visitDate;
       await companyAPI.addCompany(companyData);
       setShowAddModal(false);
-      setNewCompany({
-        company_name: '',
-        industry: '',
-        position: '',
-        package_lpa: '',
-        job_description: '',
-        visit_date: '',
-        application_deadline: '',
-        eligibility_criteria: {
-          min_cgpa: '',
-          allowed_branches: [],
-          allowed_batch_year: ''
-        }
+      setFormData({
+        companyId: '',
+        location: '',
+        package: '',
+        stipendDetails: '',
+        role: '',
+        jobDescription: '',
+        visitDate: '',
+        applicationDeadline: '',
+        minCgpa: '',
+        allowedBranches: [],
+        allowedYear: [],
       });
       fetchCompanies(userInfo); // Refresh company list
     } catch (error) {
       console.error('Error adding company:', error);
       setFormError(error.response?.data?.message || 'Failed to add company');
+    }
+  };
+
+  const filteredCompanies = companies.filter(company => {
+    if (filterStatus === '') return company
+    if (filterStatus === 'completed') return company.placeId.length > 0;
+    if (filterStatus === 'ongoing') return new Date(company.applicationDeadline) > new Date();
+    if (filterStatus === 'upcoming') {
+      if (company.visitDate)
+        return new Date(company.visitDate) > new Date()
+      else
+        return company
+    }
+    return true;
+  }).filter(company => {
+    if (!searchTerm) return true;
+    return (
+      company.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      company.role.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
+
+  const handleMarkHired = async (e) => {
+    e.preventDefault();
+    setHiredFormError('');
+  
+    const emails = emailInput
+      .split(',')
+      .map(email => email.trim())
+      .filter(email => email.length > 0);
+  
+    if (emails.length === 0 || !selectedCompany?.companyId) {
+      setHiredFormError('Please enter valid student emails.');
+      return;
+    }
+  
+    try {
+      const data = {
+        emails,
+        company_id: selectedCompany.companyId,
+        ctc:selectedCompany.packageLPA
+      }
+      const response = await collegeadminAPI.markStudentsHired(data)
+  
+      const result = await response.status;
+  
+      if (result!=200) {
+        throw new Error(result.message || 'Failed to mark students hired');
+      }
+  
+      alert('Students marked as hired successfully!');
+      setIsHiredModalOpen(false);
+      setEmailInput('');
+    } catch (error) {
+      console.error(error);
+      setHiredFormError(error.message);
     }
   };
 
@@ -220,16 +364,71 @@ const Companies = () => {
         setActiveLink(id);
         navigate(`/${id}`);
       }}
-      className={`flex items-center space-x-3 w-full py-3 px-4 rounded-lg transition duration-200 ${
-        activeLink === id
-          ? 'bg-indigo-700 text-white' 
-          : 'text-indigo-100 hover:bg-indigo-700 hover:text-white'
-      }`}
+      className={`flex items-center space-x-3 w-full py-3 px-4 rounded-lg transition duration-200 ${activeLink === id
+        ? 'bg-indigo-700 text-white'
+        : 'text-indigo-100 hover:bg-indigo-700 hover:text-white'
+        }`}
     >
       <Icon className="w-5 h-5" />
       <span>{label}</span>
     </button>
   );
+
+  useEffect(() => {
+    if (selectedCompany && branches.length > 0) {
+      const formattedData = {
+        location: selectedCompany.location || '',
+        package_lpa: selectedCompany.package || '',
+        stipendDetails: selectedCompany.stipendDetails || '',
+        role: selectedCompany.role || '',
+        jobDescription: selectedCompany.jobDescription || '',
+        visitDate: formatDateForInput(selectedCompany.visitDate),
+        applicationDeadline: formatDateForInput(selectedCompany.applicationDeadline),
+        minCgpa: selectedCompany.minCgpa || '',
+        allowedBranches: selectedCompany.allowedBranches || [], // Names
+        allowedYear: selectedCompany.allowedYear || [],
+      };
+
+      setEditCompanyFormData(formattedData);
+      setOriginalData(formattedData); // Save to compare later
+      setBranchChanged(false);
+    }
+  }, [selectedCompany, branches]);
+
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditCompanyFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+
+  const handleEditCompany = async (e) => {
+    e.preventDefault();
+    setFormError('');
+    const updatePayload = getChangedFields();
+
+    if (Object.keys(updatePayload).length === 0) {
+      setFormError('No changes detected.');
+      return;
+    }
+
+    try {
+      const response = await collegeadminAPI.updateCompany(updatePayload, selectedCompany._id);
+      setIsEditModalOpen(false);
+      fetchCompanies();
+    } catch (error) {
+      console.error('Error during update:', error);
+      setFormError(error.response?.data?.message || 'Failed to update');
+    }
+  };
+
+  const formatDateForInput = (dateStr) => {
+    const date = new Date(dateStr);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  };
+
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -244,25 +443,13 @@ const Companies = () => {
           </div>
         </div>
 
-        <div className="px-4 py-2">
-          <div className={`relative ${searchFocused ? 'ring-2 ring-indigo-400' : ''} 
-            bg-indigo-700/50 rounded-lg transition-all duration-200`}>
-            <input
-              type="text"
-              placeholder="Search..."
-              className="w-full bg-transparent py-2 pl-8 pr-4 text-white placeholder-indigo-300 focus:outline-none"
-              onFocus={() => setSearchFocused(true)}
-              onBlur={() => setSearchFocused(false)}
-            />
-            <Search className="w-4 h-4 absolute left-2 top-2.5 text-indigo-300" />
-          </div>
-        </div>
+
 
         <nav className="space-y-2 px-2">
           <NavigationLink icon={BarChart} label="Dashboard" id="dashboard" />
           <NavigationLink icon={Building2} label="Companies" id="companies" />
           <NavigationLink icon={GraduationCap} label="Students" id="students" />
-          <NavigationLink icon={TrendingUp} label="Statistics" id="statistics" />
+          {/* <NavigationLink icon={TrendingUp} label="Statistics" id="statistics" /> */}
         </nav>
       </div>
 
@@ -270,6 +457,7 @@ const Companies = () => {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Navigation */}
         <header className="bg-white shadow-sm">
+
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center">
               <button onClick={() => setSidebarOpen(!sidebarOpen)} className="md:hidden">
@@ -279,7 +467,7 @@ const Companies = () => {
             </div>
 
             <div className="flex items-center space-x-4">
-              <button className="relative p-2 hover:bg-gray-100 rounded-full">
+              {/* <button className="relative p-2 hover:bg-gray-100 rounded-full">
                 <Bell className="w-6 h-6 text-gray-600" />
                 {notifications > 0 && (
                   <span className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 
@@ -288,18 +476,18 @@ const Companies = () => {
                     {notifications}
                   </span>
                 )}
-              </button>
+              </button> */}
 
               <div className="relative">
-                <button 
+                <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center space-x-2 hover:bg-gray-100 rounded-lg p-2"
                 >
                   <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 
                     flex items-center justify-center text-white font-semibold">
-                    {userInfo?.name?.charAt(0) || 'A'}
+                    {userInfo?.firstName?.charAt(0) || 'A'}
                   </div>
-                  <span className="text-gray-700">{userInfo?.name || 'Admin'}</span>
+                  <span className="text-gray-700">{userInfo?.firstName || 'Admin'}</span>
                   <ChevronDown className="w-4 h-4 text-gray-500" />
                 </button>
 
@@ -308,7 +496,7 @@ const Companies = () => {
                     <button className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 flex items-center">
                       <Settings className="w-4 h-4 mr-2" /> Settings
                     </button>
-                    <button 
+                    <button
                       onClick={handleLogout}
                       className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 flex items-center"
                     >
@@ -326,13 +514,30 @@ const Companies = () => {
           <div className="container mx-auto px-6 py-8">
             <div className="flex justify-between items-center">
               <h3 className="text-gray-700 text-3xl font-medium">Companies</h3>
+              <div className="px-4 py-2">
+                <div className={`relative ${searchFocused ? 'ring-2 black' : ''} 
+            bg-black-200 rounded-lg transition-all duration-200`}>
+                  <input
+                    type="text"
+                    placeholder="Search..."
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    onFocus={() => setSearchFocused(true)}
+                    onBlur={() => setSearchFocused(false)}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  <Search className="w-4 h-4 absolute left-2 top-2.5 text-indigo-300" />
+                </div>
+              </div>
               <div className="flex space-x-4">
                 {/* Status Filter Dropdown */}
-                <select 
+                <select
                   className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  value={filterStatus}
                   onChange={(e) => {
+                    setFilterStatus(e.target.value)
                     const status = e.target.value;
-                    fetchCompanies({...userInfo, filterStatus: status});
+                    fetchCompanies({ ...userInfo, filterStatus: status });
                   }}
                 >
                   <option value="">All Companies</option>
@@ -340,10 +545,10 @@ const Companies = () => {
                   <option value="ongoing">Ongoing</option>
                   <option value="completed">Completed</option>
                 </select>
-                
+
                 {/* Add Company Button */}
                 {userInfo?.role === 'college_admin' && (
-                  <button 
+                  <button
                     onClick={() => setShowAddModal(true)}
                     className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center"
                   >
@@ -411,13 +616,19 @@ const Companies = () => {
                               Company Name
                             </th>
                             <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                              Industry
+                              Cgpa
                             </th>
                             <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                               Positions Offered
                             </th>
                             <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                              Avg. Package (LPA)
+                              Package (LPA)
+                            </th>
+                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                              Stipend
+                            </th>
+                            <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                              Deadline
                             </th>
                             <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                               Visit Date
@@ -431,36 +642,102 @@ const Companies = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {companies.map((company, index) => (
-                            <tr key={company._id || index}>
-                              <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <p className="text-gray-900 whitespace-no-wrap">{company.company_name}</p>
-                              </td>
-                              <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <p className="text-gray-900 whitespace-no-wrap">{company.industry || 'N/A'}</p>
-                              </td>
-                              <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <p className="text-gray-900 whitespace-no-wrap">{company.position || 'N/A'}</p>
-                              </td>
-                              <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <p className="text-gray-900 whitespace-no-wrap">{company.package_lpa || 'N/A'}</p>
-                              </td>
-                              <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <p className="text-gray-900 whitespace-no-wrap">
-                                  {company.visit_date ? new Date(company.visit_date).toLocaleDateString() : 'N/A'}
-                                </p>
-                              </td>
-                              <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <p className="text-gray-900 whitespace-no-wrap">
-                                  {company.students_hired !== undefined ? company.students_hired : 'N/A'}
-                                </p>
-                              </td>
-                              <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${company.status === 'upcoming' ? 'bg-blue-100 text-blue-800' : company.status === 'ongoing' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800'}`}>
-                                  {company.status ? company.status.charAt(0).toUpperCase() + company.status.slice(1) : 'N/A'}
-                                </span>
-                              </td>
-                            </tr>
+                          {filteredCompanies.map((company, index) => (
+                            <React.Fragment key={company._id || index}>
+                              <tr
+                                onClick={() =>
+                                  setExpandedCompanyId(expandedCompanyId === company._id ? null : company._id)
+                                }
+                                className="cursor-pointer hover:bg-gray-100 transition-all duration-200">
+                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                  <p className="text-gray-900 whitespace-no-wrap">{company.companyName}</p>
+                                </td>
+                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                  <p className="text-gray-900 whitespace-no-wrap">{company.minCgpa || 'N/A'}</p>
+                                </td>
+                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                  <p className="text-gray-900 whitespace-no-wrap">{company.role || 'N/A'}</p>
+                                </td>
+                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                  <p className="text-gray-900 whitespace-no-wrap">{company.packageLPA || 'N/A'}</p>
+                                </td>
+                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                  <p className="text-gray-900 whitespace-no-wrap">{company.stipendDetails || 'N/A'}</p>
+                                </td>
+                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                  <p className="text-gray-900 whitespace-no-wrap">
+                                    {company.applicationDeadline ? new Date(company.applicationDeadline).toLocaleDateString() : 'N/A'}
+                                  </p>
+                                </td>
+                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                  <p className="text-gray-900 whitespace-no-wrap">
+                                    {company.visit_date ? new Date(company.visit_date).toLocaleDateString() : 'N/A'}
+                                  </p>
+                                </td>
+                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                  <p className="text-gray-900 whitespace-no-wrap">
+                                    {company.placeId?.length || 'N/A'}
+                                  </p>
+                                </td>
+                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm flex justify-between items-center">
+                                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${company.status === 'upcoming' ? 'bg-blue-100 text-blue-800' : company.status === 'ongoing' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800'}`}>
+                                    {company.status ? company.status.charAt(0).toUpperCase() + company.status.slice(1) : 'N/A'}
+                                  </span>
+                                </td>
+                              </tr>
+
+                              {expandedCompanyId === company._id && (
+  <>
+    <tr>
+      <td colSpan="9" className="bg-gray-50 px-5 py-6 border-b text-sm text-gray-700">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div><strong>📍 Location:</strong> {company.location || 'N/A'}</div>
+          <div><strong>🎓 Allowed Branches:</strong> {(company.allowedBranches || []).join(', ') || 'N/A'}</div>
+          <div><strong>📅 Allowed Years:</strong> {(company.allowedYear || []).join(', ') || 'N/A'}</div>
+          <div><strong>📝 Job Description:</strong> {company.jobDescription || 'N/A'}</div>
+          <div><strong>👨‍💼 Role:</strong> {company.role || 'N/A'}</div>
+          <div><strong>⏳ Application Deadline:</strong> {company.applicationDeadline ? new Date(company.applicationDeadline).toLocaleDateString() : 'N/A'}</div>
+          <div className="col-span-2">
+  <strong>✅ Placed Students:</strong>{' '}
+  {(company.placeId || []).length > 0
+    ? company.placeId
+        .map(p => `${p.studentId.firstName} ${p.studentId.lastName}`)
+        .join(', ')
+    : 'N/A'}
+</div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td colSpan="9" className="px-5 py-5 bg-white border-b text-sm">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={() => {
+              setSelectedCompany(company);
+              setIsEditModalOpen(true);
+            }}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          >
+            ✏️ Update Company Info
+          </button>
+          <button
+            onClick={() => {
+              setSelectedCompany(company);
+              setIsHiredModalOpen(true);
+            }}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+          >
+            🎯 Update Hired Students
+          </button>
+        </div>
+      </td>
+    </tr>
+  </>
+)}
+
+
+
+                            </React.Fragment>
                           ))}
                         </tbody>
                       </table>
@@ -493,170 +770,334 @@ const Companies = () => {
                 {formError}
               </div>
             )}
+            <form
+              onSubmit={handleAddCompany}
+              className="max-w-3xl h-[80vh] overflow-y-auto mx-auto bg-white rounded shadow mt-10"
+            >
+              <h2 className="text-xl font-bold mb-4">Add Company to College</h2>
 
-            <form onSubmit={handleAddCompany}>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Company Name *</label>
-                  <input
-                    type="text"
-                    name="company_name"
-                    value={newCompany.company_name}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    required
-                  />
-                </div>
+              <div>
+                <label className="block mb-1">Company Name</label>
+                <input type="text" value={companyName} onChange={(e) => setCompanyName(e.target.value)} className="w-full border border-gray-300 p-2 rounded" required />
+              </div>
+              <div>
+                <label className="block mb-1">Location</label>
+                <input
+                  name="location"
+                  placeholder="Location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  required
+                  className="w-full mb-4 p-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block mb-1">Package offering</label>
+                <input
+                  name="package"
+                  placeholder="Package (LPA)"
+                  type="number"
+                  step="0.01"
+                  value={formData.package}
+                  onChange={handleChange}
+                  required
+                  className="w-full mb-4 p-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block mb-1">Stipend</label>
+                <input
+                  name="stipendDetails"
+                  placeholder="Stipend Details"
+                  value={formData.stipendDetails}
+                  onChange={handleChange}
+                  className="w-full mb-4 p-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block mb-1">Roll</label>
+                <input
+                  name="role"
+                  placeholder="Role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  required
+                  className="w-full mb-4 p-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block mb-1">Job Description</label>
+                <textarea
+                  name="jobDescription"
+                  placeholder="Job Description"
+                  value={formData.jobDescription}
+                  onChange={handleChange}
+                  required
+                  className="w-full mb-4 p-2 border rounded"
+                ></textarea>
+              </div>
+              <div>
+                <label className="block mb-2">Visit Date</label>
+                <input
+                  name="visitDate"
+                  type="date"
+                  value={formData.visitDate}
+                  onChange={handleChange}
+                  className="w-full mb-4 p-2 border rounded"
+                />
+              </div>
+              <div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Industry *</label>
-                  <input
-                    type="text"
-                    name="industry"
-                    value={newCompany.industry}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Position *</label>
-                  <input
-                    type="text"
-                    name="position"
-                    value={newCompany.position}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Package (LPA) *</label>
-                  <input
-                    type="number"
-                    name="package_lpa"
-                    value={newCompany.package_lpa}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    required
-                    step="0.1"
-                    min="0"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Job Description *</label>
-                  <textarea
-                    name="job_description"
-                    value={newCompany.job_description}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    required
-                    rows="3"
-                  ></textarea>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Visit Date *</label>
-                  <input
-                    type="date"
-                    name="visit_date"
-                    value={newCompany.visit_date}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Application Deadline *</label>
-                  <input
-                    type="date"
-                    name="application_deadline"
-                    value={newCompany.application_deadline}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Minimum CGPA *</label>
-                  <input
-                    type="number"
-                    name="eligibility_criteria.min_cgpa"
-                    value={newCompany.eligibility_criteria.min_cgpa}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    required
-                    step="0.1"
-                    min="0"
-                    max="10"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Allowed Branches *</label>
-                  <select
-                    name="eligibility_criteria.allowed_branches"
-                    multiple
-                    value={newCompany.eligibility_criteria.allowed_branches}
-                    onChange={handleBranchesChange}
-                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    required
-                    size="4"
-                  >
-                    <option value="Computer Science">Computer Science</option>
-                    <option value="Information Technology">Information Technology</option>
-                    <option value="Electronics">Electronics</option>
-                    <option value="Electrical">Electrical</option>
-                    <option value="Mechanical">Mechanical</option>
-                    <option value="Civil">Civil</option>
-                    <option value="Chemical">Chemical</option>
-                    <option value="Biotechnology">Biotechnology</option>
-                  </select>
-                  <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple branches</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Allowed Batch Year *</label>
-                  <select
-                    name="eligibility_criteria.allowed_batch_year"
-                    value={newCompany.eligibility_criteria.allowed_batch_year}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    required
-                  >
-                    <option value="">Select Batch Year</option>
-                    <option value="1">1st Year</option>
-                    <option value="2">2nd Year</option>
-                    <option value="3">3rd Year</option>
-                    <option value="4">4th Year</option>
-                  </select>
-                </div>
+                <label className="block mb-2">Application Deadline</label>
+                <input
+                  name="applicationDeadline"
+                  type="date"
+                  value={formData.applicationDeadline}
+                  onChange={handleChange}
+                  required
+                  className="w-full mb-4 p-2 border rounded"
+                />
               </div>
 
-              <div className="mt-6 flex justify-end space-x-3">
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-                >
-                  Add Company
-                </button>
+              <div>
+                <label className="block mb-1">Cgpa</label>
+                <input
+                  name="minCgpa"
+                  placeholder="Minimum CGPA"
+                  type="number"
+                  step="0.01"
+                  value={formData.minCgpa}
+                  onChange={handleChange}
+                  required
+                  className="w-full mb-4 p-2 border rounded"
+                />
               </div>
+              <div>
+                <label className="block mb-1">Select allowed branches</label>
+                <label className="block mb-2">Allowed Branches</label>
+                <select
+                  multiple
+                  value={formData.allowedBranches}
+                  onChange={(e) => handleMultiChange(e, 'allowedBranches')}
+                  className="w-full mb-4 p-2 border rounded"
+                >
+                  {branches.map((b) => (
+                    <option key={b._id} value={b._id}>{b.branchName}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block mb-2">Allowed Years</label>
+                <select
+                  multiple
+                  value={formData.allowedYear}
+                  onChange={(e) => handleMultiChange(e, 'allowedYear')}
+                  className="w-full mb-4 p-2 border rounded"
+                >
+                  {[1, 2, 3, 4].map((year) => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
+
+              <button
+                type="submit"
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                Add Company
+              </button>
             </form>
           </div>
         </div>
       )}
+
+      {/* edit company model */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-semibold">Update Company</h3>
+              <button onClick={() => setIsEditModalOpen(false)} className="text-gray-500 hover:text-gray-700">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {formError && (
+              <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
+                {formError}
+              </div>
+            )}
+            <form
+              onSubmit={handleEditCompany}
+              className="max-w-3xl h-[80vh] overflow-y-auto mx-auto bg-white rounded shadow mt-10"
+            >
+              <h2 className="text-xl font-bold mb-4">Update {selectedCompany.companyName}</h2>
+
+              <div>
+                <label className="block mb-1">Location</label>
+                <input
+                  name="location"
+                  placeholder={selectedCompany.location}
+                  value={editCompanyFormData.location}
+                  onChange={handleEditInputChange}
+                  className="w-full mb-4 p-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block mb-1">Package offering</label>
+                <input
+                  name="package"
+                  placeholder={selectedCompany.package}
+                  type="number"
+                  step="0.01"
+                  value={editCompanyFormData.package_lpa}
+                  onChange={handleEditInputChange}
+                  className="w-full mb-4 p-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block mb-1">Stipend</label>
+                <input
+                  name="stipendDetails"
+                  placeholder={selectedCompany.stipendDetails}
+                  value={editCompanyFormData.stipendDetails}
+                  onChange={handleEditInputChange}
+                  className="w-full mb-4 p-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block mb-1">Roll</label>
+                <input
+                  name="role"
+                  placeholder={selectedCompany.role}
+                  value={editCompanyFormData.role}
+                  onChange={handleEditInputChange}
+                  className="w-full mb-4 p-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block mb-1">Job Description</label>
+                <textarea
+                  name="jobDescription"
+                  placeholder={selectedCompany.jobDescription}
+                  value={editCompanyFormData.jobDescription}
+                  onChange={handleEditInputChange}
+                  className="w-full mb-4 p-2 border rounded"
+                ></textarea>
+              </div>
+              <div>
+                <label className="block mb-2">Visit Date</label>
+                <input
+                  name="visitDate"
+                  type="date"
+                  value={editCompanyFormData.visitDate}
+                  onChange={handleEditInputChange}
+                  className="w-full mb-4 p-2 border rounded"
+                />
+              </div>
+              <div>
+
+                <label className="block mb-2">Application Deadline</label>
+                <input
+                  name="applicationDeadline"
+                  type="date"
+                  value={formatDateForInput(editCompanyFormData.applicationDeadline)}
+                  onChange={handleEditInputChange}
+                  className="w-full mb-4 p-2 border rounded"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1">Cgpa</label>
+                <input
+                  name="minCgpa"
+                  placeholder={selectedCompany.minCgpa}
+                  type="number"
+                  step="0.01"
+                  value={editCompanyFormData.minCgpa}
+                  onChange={handleEditInputChange}
+                  className="w-full mb-4 p-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block mb-1">Select allowed branches</label>
+                <select
+                  multiple
+                  value={editCompanyFormData.allowedBranches}
+                  onChange={(e) => handleMultiChange(e, 'allowedBranches')}
+                >
+                  {branches.map((b) => (
+                    <option key={b._id} value={b.branchName}>{b.branchName}</option>
+                  ))}
+                </select>
+
+              </div>
+              <div>
+                <label className="block mb-2">Allowed Years</label>
+                <select
+                  multiple
+                  value={editCompanyFormData.allowedYear}
+                  onChange={(e) => handleMultiChange(e, 'allowedYear')}
+                  className="w-full mb-4 p-2 border rounded"
+                >
+                  {[1, 2, 3, 4].map((year) => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
+
+              <button
+                type="submit"
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                Update
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+      {isHiredModalOpen && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg p-8 max-w-md w-full">
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-xl font-semibold">Mark Students as Hired</h3>
+        <button onClick={() => setIsHiredModalOpen(false)} className="text-gray-500 hover:text-gray-700">
+          <X className="w-6 h-6" />
+        </button>
+      </div>
+
+      {hiredFormError && (
+        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
+          {hiredFormError}
+        </div>
+      )}
+
+      <form
+        onSubmit={handleMarkHired}
+        className="max-w-3xl mx-auto bg-white rounded shadow"
+      >
+        <div>
+          <label className="block mb-2 font-medium">Enter Student Emails (comma separated)</label>
+          <textarea
+            value={emailInput}
+            onChange={(e) => setEmailInput(e.target.value)}
+            className="w-full mb-4 p-2 border rounded h-32"
+            placeholder="example1@gmail.com, example2@gmail.com"
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+        >
+          Mark as Hired
+        </button>
+      </form>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };

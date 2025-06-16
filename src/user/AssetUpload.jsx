@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate , useLocation} from 'react-router-dom';
 import axios from 'axios';
 import { Upload } from 'lucide-react';
 
@@ -11,6 +11,10 @@ function AssetUpload() {
   const [resume, setResume] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+
+   const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const source = queryParams.get("source");
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
@@ -41,21 +45,39 @@ function AssetUpload() {
   };
 
   const handleUpload = async (e) => {
+    console.log(source)
     e.preventDefault();
-    if (!photo || !resume) {
-      setError('Please select both a profile photo and resume');
+    if(source=='default'){
+    await handleImageUpload();
+    await handleResumeUpload();
+    navigate('/')
+    }
+    else if(source==='student'){
+    await handleImageUpload();
+    await handleResumeUpload();
+    navigate('/')
+    }
+    else {
+       console.log(" upload click")
+      await handleImageUpload();
+      navigate('/')
+    }
+  };
+  const handleImageUpload=async ()=>{
+    console.log("image upload click")
+    if(!photo){
+      setError('Please select a profile photo');
       return;
     }
 
     setLoading(true);
     setError('');
     setUploadProgress(0);
-
     try {
       // First API call to get upload URLs
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        'https://api.recruitmantra.com/user/updateassets',
+        'http://localhost:5001/user/updateimage',
         {},
         {
           headers: {
@@ -63,9 +85,9 @@ function AssetUpload() {
           }
         }
       );
-    //   console.log(response.data);
+      console.log(response.data);
       const imageBuffer = await photo.arrayBuffer();
-      await axios.put(response.data.url_image, imageBuffer, {
+      await axios.put(response.data.data.profile, imageBuffer, {
         headers: {
           'Content-Type': "image/jpg",
         },
@@ -74,8 +96,38 @@ function AssetUpload() {
           setUploadProgress(progress);
         }
       });
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to upload files. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      await axios.put(response.data.url_resume, resume, {
+  const handleResumeUpload=async ()=>{
+    console.log("image upload click")
+    if(!resume){
+      setError('Please select a resume');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    setUploadProgress(0);
+    try {
+      // First API call to get upload URLs
+      const token = localStorage.getItem('token');
+      const response = await axios.post(
+        'http://localhost:5001/user/updateresume',
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      console.log(response.data);
+      const resumeBuffer = await resume.arrayBuffer();
+      await axios.put(response.data.data.resume, resumeBuffer, {
         headers: {
           'Content-Type': "application/pdf",
         },
@@ -85,9 +137,8 @@ function AssetUpload() {
         }
       });
 
-      navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to upload files. Please try again.');
+      setError(err.response?.data?.message || 'Failed to upload resume. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -146,6 +197,7 @@ function AssetUpload() {
             </div>
 
             {/* Resume Upload */}
+            {source === 'default'||source === 'student' && (
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Resume (PDF)
@@ -173,7 +225,7 @@ function AssetUpload() {
                 </div>
               </div>
             </div>
-
+            )}
             {/* Upload Progress */}
             {loading && (
               <div className="w-full bg-gray-200 rounded-full h-2.5">
@@ -188,22 +240,13 @@ function AssetUpload() {
             <div>
               <button
                 type="submit"
-                disabled={loading || !photo || !resume}
+                // disabled={loading || !photo || !resume}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
               >
                 {loading ? 'Uploading...' : 'Upload Files'}
               </button>
             </div>
           </form>
-{/*           <div className="my-2 flex justify-center">
-            <button
-              type="button"
-              onClick={()=> navigate("/")}
-              className=" flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-800 hover:bg-amber-900"
-            >
-              Skip
-            </button>
-          </div> */}
         </div>
       </div>
     </div>

@@ -12,7 +12,6 @@ const PrivateRoute = ({ requiredRole }) => {
   useEffect(() => {
     const verifyUser = async () => {
       const token = localStorage.getItem("token");
-      
       if (!token || token === "null" || token === "undefined") {
         setIsAuthenticated(false);
         setLoading(false);
@@ -21,17 +20,14 @@ const PrivateRoute = ({ requiredRole }) => {
       
       try {
         // Get user info to check role
-        const response = await axios.get("https://api.recruitmantra.com/user/getinfo", {
+        const response = await axios.get("http://localhost:5001/user/getinfo", {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
-
         if (response.data) {
-          
           setUserRole(response.data.user.role);
           setIsAuthenticated(true);
-        
         } else {
           setIsAuthenticated(false);
         }

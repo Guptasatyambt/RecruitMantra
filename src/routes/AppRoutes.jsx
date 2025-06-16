@@ -40,6 +40,10 @@ import Blog from "../pages/blog";
 import StudentPlacements from "../components/StudentPlacements";
 import StudentCompanies from "../components/StudentCompanies";
 import ResetPassword from '../auth/ResetPassword';
+import CompanyDetail from "../components/CompanyDetail";
+import ApplicationDetail from "../components/applicationDetail";
+import Managerial from "../pages/managerial";
+import ManagerialInterview from "../pages/managerialInterview";
 
 function AppRoutes() {
   return (
@@ -50,6 +54,7 @@ function AppRoutes() {
       <Route exact path="/advance" element={<Advance />} />
       <Route exact path="/beginner" element={<Beginner />} />
       <Route exact path="/hr-behavioral" element={<HR />} />
+      <Route exact path="/managerial" element={<Managerial />} />
       <Route exact path="/contact-us" element={<ContactUs />} />
       {/*       <Route exact path="/redeem-coins" element={<RedeemCoins />} /> */}
       <Route exact path="/careers" element={<Career />} />
@@ -64,6 +69,7 @@ function AppRoutes() {
       <Route exact path="/interview/intermediate/:id" element={<Interview />} />
       <Route exact path="/interview/beginner/:id" element={<Interview />} />
       <Route exact path="/interview/hr-behavioral/:id" element={<HrInterview />} />
+      <Route exact path="/interview/managerial/:id" element={<ManagerialInterview />} />
       <Route exact path="/feedback/:id" element={<Feedback />} />
       <Route exact path="/interview-details/:id" element={<InterviewDetails />} />
       
@@ -125,8 +131,15 @@ function AppRoutes() {
       <Route path="/student-companies" element={<PrivateRoute />}>
         <Route index element={<StudentCompanies />} />
       </Route>
+      <Route path="/company/:id" element={<PrivateRoute />}>
+        <Route index element={<CompanyDetail />} />
+      </Route>
+      <Route path="/application/:id" element={<PrivateRoute />}>
+        <Route index element={<ApplicationDetail />} />
+      </Route>
       <Route path="/my-stats" element={<StudentPlacements />} />
     </Routes>
+    
   );
 }
 

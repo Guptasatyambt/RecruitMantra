@@ -33,21 +33,29 @@ const Navbar = () => {
       if (!token) return;
 
       try {
-        const response = await axios.get("https://api.recruitmantra.com/user/getinfo", {
+        const response = await axios.get("http://localhost:5001/user/getinfo", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        
+        if(response.data.user.role==='default'&&!response.data.defaultOrStudent.verified){
+          navigate("/email-verification?source=default", { state: { token: token } });
+        }
+        if(response.data.user.profileimage===""){
+          navigate(`/upload-documents?source=${response.data.user.role}`);
+        }
         const role = response.data.user.role;
         setUserRole(role);
-        
         // Set dashboard path based on user role
         if (role === "student") {
           setDashboardPath("/student-dashboard");
         } else if (role === "college_admin") {
+          if(!response.data.defaultOrStudent.verified){
+            navigate("/email-verification?source=college_admin", { state: { token: token } });
+          }
           setDashboardPath("/dashboard");
         } else if (role === "super_admin") {
           setDashboardPath("/admin-dashboard");
         }
+      
       } catch (err) {
         console.error("Error fetching user data:", err);
       }

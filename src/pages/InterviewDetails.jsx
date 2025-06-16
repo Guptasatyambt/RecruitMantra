@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import LineGraph from "../components/LineChart";
+import LineGraph from "../components/LineChart";  
 
 const InterviewDetails = () => {
   const interviewId = useParams().id;
@@ -14,19 +14,55 @@ const InterviewDetails = () => {
 
   const queryParams = new URLSearchParams(location.search);
   const source = queryParams.get("source");
-
+  const type=queryParams.get("type");
   const fetchDetails = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(
-        `https://api.recruitmantra.com/interview/getdetail?interview_id=${interviewId}`,
+      let response;
+      if(type==='Technical'){
+        response = await axios.get(
+        `http://localhost:5001/interview/getdetail?interview_id=${interviewId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
           // withCredentials: true,
         }
-      );
+        );
+      }
+      else if(type==='HR'){
+        response = await axios.get(
+        `http://localhost:5001/hrInterview/getdetail?interview_id=${interviewId}&&type=Hr`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          // withCredentials: true,
+        }
+        );
+      }
+      else if(type==='Managerial'){
+        response = await axios.get(
+        `http://localhost:5001/hrInterview/getdetail?interview_id=${interviewId}&&type=Managerial`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          // withCredentials: true,
+        }
+        );
+      }
+      else{
+        response = await axios.get(
+          `http://localhost:5001/series/getinfo?interview_id=${interviewId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            // withCredentials: true,
+          }
+        );
+      }
       setDetails(response.data.interview);
       setVideos(response.data.videos);
       console.log(response.data);
@@ -75,10 +111,12 @@ const InterviewDetails = () => {
               <p className="font-semibold">Level</p>
               <p>{details.level}</p>
             </div>
-            <div className="border-2 border-black rounded-md p-2 ">
+            {details.overallAccuracy !== undefined && details.overallAccuracy !== null && (
+            <div className="border-2 border-black rounded-md p-2">
               <p className="font-semibold">Accuracy</p>
               <p>{details.overallAccuracy}</p>
             </div>
+          )}
           </div>
         </div>
       </div>
@@ -88,17 +126,19 @@ const InterviewDetails = () => {
         <h2 className="text-xl font-bold mb-4">Stats</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Accuracy Graph */}
+          {details.accuracy !== undefined && details.accuracy !== null && (
           <div className="bg-white p-4 rounded-lg shadow-md text-center">
             <h3 className="font-semibold mb-2">Accuracy Graph</h3>
             <LineGraph data={details?.accuracy} />
           </div>
-
+          )}
           {/* Confidence Graph */}
+          {details.confidence !== undefined && details.confidence !== null && (
           <div className="bg-white p-4 rounded-lg shadow-md text-center">
             <h3 className="font-semibold mb-2">Confidence Graph</h3>
             <LineGraph data={details?.confidence} />
-
           </div>
+          )}
         </div>
       </div>
 

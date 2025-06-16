@@ -5,6 +5,7 @@ import RecordWebcam from "../components/RecordWebcam";
 import CodeEditor from "../components/interview/CodeEditor";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 function Interview() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -23,6 +24,7 @@ function Interview() {
   const [mediaRecorderRef, setMediaRecorderRef] = useState(null);
   const [videoProcessingError, setVideoProcessingError] = useState(false);
   const [showCodeEditor, setShowCodeEditor] = useState(false);
+  const [error, setError] = useState("");
 
   const interviewId = useParams().id;
   const navigate = useNavigate();
@@ -197,7 +199,7 @@ function Interview() {
         // console.log("Using content type:", contentType);
         
         const response = await axios.post(
-          "https://api.recruitmantra.com/interview/uploadvideo",
+          "http://localhost:5001/interview/uploadvideo",
           {
             interview_id: interviewId,
             question_number: currentQuestionIndex+1,
@@ -239,24 +241,33 @@ function Interview() {
       const token = localStorage.getItem("token");
       if (!token) {
         console.error("No token found.");
+        setError("Authentication Error")
         return;
       }
       
-      const response = await axios.get("https://api.recruitmantra.com/user/getinfo", {
+      const response = await axios.get("http://localhost:5001/user/getinfo", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      
+      if(response.data.user.profileimage===""){
+          navigate("/upload-documents");
+      }
       const resumeUrl = response.data.resume;
       console.log("Resume URL:", resumeUrl);
       
-      if (!resumeUrl) {
+      if (!resumeUrl && response.data.user.role==='college_admin') {
+        setError("This feature is only for students")
         console.error("No resume URL found");
         setLoading(false);
         return;
       }
-      
+      if (!resumeUrl) {
+        setError("Upload resume first and then try again")
+        console.error("No resume URL found");
+        setLoading(false);
+        return;
+      }
       const skillsResponse = await axios.post(
         "https://ml.recruitmantra.com/skills/extract_skills",
         {
@@ -297,7 +308,7 @@ function Interview() {
       
       console.log("Audio analysis complete:", response.data);
       const responsedb = await axios.post(
-        "https://api.recruitmantra.com/interview/insertconfidence",
+        "http://localhost:5001/interview/insertconfidence",
         {
           interview_id:interviewId,
           question_number:currentQuestionIndex+1,
@@ -402,7 +413,7 @@ function Interview() {
       }
       
       const response = await axios.post(
-        "https://api.recruitmantra.com/interview/stop",
+        "http://localhost:5001/interview/stop",
         {
           interview_id: interviewId,
         },
@@ -413,7 +424,7 @@ function Interview() {
         }
       );
       console.log("Interview ended successfully");
-      navigate(`/interview-details/${interviewId}?source=interview`);
+      navigate(`/interview-details/${interviewId}?type="Technical"&&source=interview`);
       // navigate(`/feedback/${interviewId}`, {replace: true});
     } catch (err) {
       console.error("Failed to end interview:", err);
@@ -453,7 +464,20 @@ function Interview() {
   const isLastQuestion = currentQuestionIndex === (questions.length - 1);
 
   return (
+    
     <div className="bg-gray-100 min-h-screen">
+       {/* Error Message */}
+        {error ? (
+          <motion.div
+            className="mt-4 bg-red-100 text-red-600 text-center py-2 px-4 rounded-lg"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {error}
+          </motion.div>
+        ):(
+        <>
       {/* Header */}
       <div className="bg-white flex justify-between items-center px-6 py-3 shadow-sm">
         <div className="flex items-center gap-2">
@@ -688,7 +712,8 @@ function Interview() {
           </div>
         </div>
       )}
-
+      </>
+    )}
     </div>
   );
 }

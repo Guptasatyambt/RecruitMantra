@@ -30,7 +30,7 @@ function SetupProfile() {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        "https://api.recruitmantra.com/user/uploadinfo",
+        "http://localhost:5001/user/uploadinfo",
         formData,
         {
           headers: {

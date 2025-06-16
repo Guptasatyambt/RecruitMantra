@@ -27,7 +27,7 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        "https://api.recruitmantra.com/user/login",
+        "http://localhost:5001/user/login",
         {
           email,
           password,
@@ -72,7 +72,7 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        "https://api.recruitmantra.com/user/forgot-password",
+        "http://localhost:5001/user/forgot-password",
         {
           email: forgotPasswordEmail,
         }

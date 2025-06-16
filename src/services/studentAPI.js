@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create an axios instance with base URL
 const API = axios.create({
-  baseURL: 'https://api.recruitmantra.com', // Assuming server runs on port 5001
+  baseURL: 'http://localhost:5001', // Assuming server runs on port 5001
   headers: {
     'Content-Type': 'application/json',
   },
@@ -48,4 +48,14 @@ export const studentAPI = {
   deleteStudent: (studentId) => {
     return API.delete(`/student/delete/${studentId}`);
   },
+
+  getAppliedCompanies: () => {
+    return API.get('/student/upcoming-drives');
+  },
+  getPlacementDetail: () => {
+    return API.get('/student/recent-placements');
+  },
+  getApplicationDetail: (id) => {
+    return API.get(`/student/application/${id}`);
+  }
 };

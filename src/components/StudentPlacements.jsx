@@ -8,12 +8,17 @@ import {
   Medal, CheckCircle, Clock, FileText
 } from 'lucide-react';
 import { dashboardAPI } from '../services/api';
+import {studentAPI} from '../services/studentAPI';
+import {companyAPI} from '../services/api';
+import NotificationDropdown from './NotificationDropdown';
+
 
 const StudentPlacements = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [activeLink, setActiveLink] = useState('placements');
+  const [ongoingMenuOpen, setOngoingMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState(0);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
@@ -22,6 +27,9 @@ const StudentPlacements = () => {
     applications: [],
     interviews: [],
     offers: []
+  });
+  const [stats, setStats] = useState({
+    onGoing:[]
   });
 
   useEffect(() => {
@@ -37,12 +45,14 @@ const StudentPlacements = () => {
         return;
       }
 
-      const response = await axios.get('https://api.recruitmantra.com/user/getinfo', {
+      const response = await axios.get('http://localhost:5001/user/getinfo', {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-
+      if(response.data.user.profileimage==""){
+          navigate("/upload-documents");
+      }
       if (response.data) {
         setUserInfo(response.data.user);
         fetchPlacementData(response.data.user);
@@ -56,26 +66,30 @@ const StudentPlacements = () => {
   const fetchPlacementData = async (user) => {
     try {
       setIsLoading(true);
-      
+      const response = await companyAPI.getAllCompanies();
+      let companiesData = response.data.data;
+      const ongoingCompanies = companiesData.filter(company => {
+        return new Date(company.applicationDeadline) > new Date();
+      });
+      setNotifications(ongoingCompanies.length);
+      setStats({
+        onGoing:ongoingCompanies
+      });
       // Fetch student's placement applications
-      const applications = await dashboardAPI.getStudentApplications({
-        studentId: user.id
-      });
-      
+      const responseOfApplied=await studentAPI.getAppliedCompanies();
+      const applications = responseOfApplied.data.data;
+      console.log(applications.length);
       // Fetch upcoming interviews
-      const interviews = await dashboardAPI.getStudentInterviews({
-        studentId: user.id
-      });
+      const interviews = responseOfApplied.data.data;
       
       // Fetch placement offers
-      const offers = await dashboardAPI.getStudentOffers({
-        studentId: user.id
-      });
+      const responseOfPlacementInfo=await studentAPI.getPlacementDetail();
+      const offers = responseOfPlacementInfo.data.data;
       
       setPlacementData({
-        applications,
-        interviews,
-        offers
+        applications:applications,
+        interviews:interviews,
+        offers:offers
       });
       
       setIsLoading(false);
@@ -107,16 +121,6 @@ const StudentPlacements = () => {
     navigate('/login');
   };
 
-  const getStatusColor = (status) => {
-    const colors = {
-      'pending': 'text-yellow-600 bg-yellow-100',
-      'approved': 'text-green-600 bg-green-100',
-      'rejected': 'text-red-600 bg-red-100',
-      'scheduled': 'text-blue-600 bg-blue-100',
-      'completed': 'text-purple-600 bg-purple-100'
-    };
-    return colors[status.toLowerCase()] || 'text-gray-600 bg-gray-100';
-  };
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -162,9 +166,9 @@ const StudentPlacements = () => {
             >
               <Menu className="h-6 w-6" />
             </button>
-
+            <h2 className="text-xl font-semibold text-gray-800 ml-4">Stats</h2>
             <div className="relative flex-1 max-w-md mx-4">
-              <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-opacity duration-200 ${searchFocused ? 'opacity-0' : 'opacity-100'}`}>
+              {/* <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-opacity duration-200 ${searchFocused ? 'opacity-0' : 'opacity-100'}`}>
                 <Search className="h-5 w-5 text-gray-400" />
               </div>
               <input
@@ -173,17 +177,22 @@ const StudentPlacements = () => {
                 placeholder="Search placements"
                 onFocus={() => setSearchFocused(true)}
                 onBlur={() => setSearchFocused(false)}
-              />
+              /> */}
             </div>
 
             <div className="flex items-center space-x-4">
-              <button className="p-1 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100">
+              {/* <button className="p-1 rounded-full text-gray-600 hover:text-gray-900 hover:bg-gray-100">
                 <Bell className="h-6 w-6" />
                 {notifications > 0 && (
                   <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
                 )}
-              </button>
-
+              </button> */}
+<NotificationDropdown
+        stats={stats}
+        notifications={notifications}
+        ongoingMenuOpen={ongoingMenuOpen}
+        setOngoingMenuOpen={setOngoingMenuOpen}
+      />
               <div className="relative">
                 <button 
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
@@ -237,7 +246,7 @@ const StudentPlacements = () => {
                   </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg shadow">
+                {/* <div className="bg-white p-6 rounded-lg shadow">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-gray-500">Upcoming Interviews</p>
@@ -247,7 +256,7 @@ const StudentPlacements = () => {
                       <Calendar className="h-6 w-6" />
                     </div>
                   </div>
-                </div>
+                </div> */}
 
                 <div className="bg-white p-6 rounded-lg shadow">
                   <div className="flex items-center justify-between">
@@ -269,14 +278,16 @@ const StudentPlacements = () => {
                     {placementData.applications.length > 0 ? (
                       placementData.applications.map((application, index) => (
                         <div key={index} className="flex items-start space-x-4">
-                          <div className={`flex-shrink-0 p-2 rounded-lg ${getStatusColor(application.status)}`}>
+                          <div className='flex-shrink-0 p-2 rounded-lg text-gray-600 bg-gray-100'>
                             <FileText className="h-5 w-5" />
                           </div>
                           <div className="flex-1">
-                            <h3 className="text-sm font-medium text-gray-900">{application.companyName}</h3>
-                            <p className="text-sm text-gray-500">{application.position} • {application.status}</p>
+                            <h3 className="text-sm font-medium text-gray-900">{application.company_name}</h3>
+                            <p className="text-sm text-gray-500">{application.role} </p>
                           </div>
-                          <button className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+                          <button 
+                          onClick={() => navigate(`/application/${application._id}`)}
+                          className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
                             View
                           </button>
                         </div>
@@ -287,7 +298,7 @@ const StudentPlacements = () => {
                   </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg shadow">
+                {/* <div className="bg-white p-6 rounded-lg shadow">
                   <h2 className="text-lg font-medium text-gray-900 mb-4">Upcoming Interviews</h2>
                   <div className="space-y-4">
                     {placementData.interviews.length > 0 ? (
@@ -309,7 +320,7 @@ const StudentPlacements = () => {
                       <p className="text-sm text-gray-500">No upcoming interviews</p>
                     )}
                   </div>
-                </div>
+                </div> */}
               </div>
 
               <div className="bg-white p-6 rounded-lg shadow">
@@ -322,17 +333,17 @@ const StudentPlacements = () => {
                           <Medal className="h-5 w-5" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-sm font-medium text-gray-900">{offer.companyName}</h3>
-                          <p className="text-sm text-gray-500">{offer.position}</p>
-                          <p className="text-sm font-medium text-green-600">₹{offer.package} LPA</p>
+                          <h3 className="text-sm font-medium text-gray-900">Company Name: {offer.company_name}</h3>
+                          <p className="text-sm text-gray-500">Placement Date: {new Date(offer.placement_date).toLocaleDateString()}</p>
+                          <p className="text-sm font-medium text-green-600">CTC: {parseFloat(offer.package_lpa?.$numberDecimal || 0).toFixed(2)} LPA</p>
                         </div>
                         <div className="flex space-x-2">
-                          <button className="px-3 py-1 text-sm font-medium text-green-600 hover:text-green-800 bg-green-100 hover:bg-green-200 rounded-md">
+                          {/* <button className="px-3 py-1 text-sm font-medium text-green-600 hover:text-green-800 bg-green-100 hover:bg-green-200 rounded-md">
                             Accept
-                          </button>
-                          <button className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-800 bg-red-100 hover:bg-red-200 rounded-md">
+                          </button> */}
+                          {/* <button className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-800 bg-red-100 hover:bg-red-200 rounded-md">
                             Decline
-                          </button>
+                          </button> */}
                         </div>
                       </div>
                     ))

@@ -29,10 +29,12 @@ const AllStudents = () => {
   });
   const [formError, setFormError] = useState('');
   const [userInfo, setUserInfo] = useState(null);
+  const [collegeUserInfo, setCollegeUserInfo] = useState(null);
 
   // Fetch user info and students on component mount
   useEffect(() => {
     fetchUserInfo();
+    fetchStudents();
   }, []);
 
   const fetchUserInfo = async () => {
@@ -44,14 +46,17 @@ const AllStudents = () => {
         return;
       }
 
-      const response = await axios.get('https://api.recruitmantra.com/user/getinfo', {
+      const response = await axios.get('http://localhost:5001/user/getinfo', {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-
+      if(response.data.user.profileimage==""){
+          navigate("/upload-documents");
+      }
       if (response.data && response.data.data) {
-        setUserInfo(response.data.data);
+        setUserInfo(response.data.user);
+        setCollegeUserInfo(response.data.defaultOrStudent)
         fetchStudents(response.data.data);
       }
     } catch (error) {
@@ -61,9 +66,9 @@ const AllStudents = () => {
   };
 
   // Fetch students on component mount
-  useEffect(() => {
-    fetchStudents();
-  }, []);
+  // useEffect(() => {
+  //   fetchStudents();
+  // }, []);
 
   const fetchStudents = async (user) => {
     try {
@@ -74,9 +79,9 @@ const AllStudents = () => {
       let filteredStudents = response.data.data;
       
       // If college admin, only show students from their college
-      if (user.role === 'college_admin' && user.college) {
+      if (user.role === 'college_admin' && collegeUserInfo.collegeId) {
         filteredStudents = filteredStudents.filter(student => 
-          student.college?.toLowerCase() === user.college.toLowerCase()
+          student.collegeId === collegeUserInfo.collegeId
         );
       }
       
@@ -90,7 +95,10 @@ const AllStudents = () => {
 
   // Filter students based on search term
   const filteredStudents = students.filter(student => 
-    student.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    student.firstName?.toLowerCase().includes(searchTerm.toLowerCase())||
+    student.lastName?.toLowerCase().includes(searchTerm.toLowerCase())||
+    student.email?.toLowerCase().includes(searchTerm.toLowerCase())||
+    student.branch?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Pagination
@@ -123,8 +131,8 @@ const AllStudents = () => {
 
     try {
       // For college admin, automatically set the college
-      if (userInfo && userInfo.role === 'college_admin' && userInfo.college) {
-        newStudent.college = userInfo.college;
+      if (userInfo && userInfo.role === 'college_admin' && collegeUserInfo.collegeId) {
+        newStudent.college = collegeUserInfo.collegeId;
       }
       
       await studentAPI.addStudent(newStudent);

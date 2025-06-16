@@ -18,6 +18,7 @@ export const parseStudentBulkUpload = (file) => {
           header: true,
           skipEmptyLines: true,
           complete: (results) => {
+            console.log(results.data)
             const { parsedData, validationErrors } = validateAndFormatStudentData(results.data);
             resolve({
               data: parsedData,
@@ -83,7 +84,7 @@ export const parseStudentBulkUpload = (file) => {
 const validateAndFormatStudentData = (data) => {
   const parsedData = [];
   const validationErrors = [];
-  
+  console.log(data) 
   // Process each row
   data.forEach((row, index) => {
     // Normalize field names (handle different case variations)
@@ -91,20 +92,23 @@ const validateAndFormatStudentData = (data) => {
     Object.keys(row).forEach(key => {
       const lowerKey = key.toLowerCase().trim();
       normalizedRow[lowerKey] = row[key];
+      console.log(normalizedRow)
     });
     
     // Extract fields with various possible column names
-    const name = normalizedRow.name || normalizedRow.fullname || normalizedRow['full name'] || normalizedRow['student name'] || '';
-    const email = normalizedRow.email || normalizedRow['email address'] || normalizedRow['student email'] || '';
-    const branch = normalizedRow.branch || normalizedRow.department || normalizedRow.stream || '';
-    const year = normalizedRow.year || normalizedRow['year of study'] || '';
-    const cgpa = normalizedRow.cgpa || normalizedRow.gpa || normalizedRow['grade point'] || '';
-    const specialization = normalizedRow.specialization || '';
-    const interest = normalizedRow.interest || normalizedRow.interests || '';
-    
+    const firstName = normalizedRow.firstname || normalizedRow.FirstName || normalizedRow['first name'] ||normalizedRow['First Name']|| normalizedRow['student first name'] || '';
+    const lastName = normalizedRow.lastname || normalizedRow.lastName || normalizedRow['last name']||normalizedRow['Last Name'] || normalizedRow['student last name'] || '';
+    const email = normalizedRow.email||normalizedRow.Email || normalizedRow['email address'] || normalizedRow['student email'] || '';
+    const branch = normalizedRow.branch||normalizedRow.Branch || normalizedRow.department || normalizedRow.stream || '';
+    const year = normalizedRow.year||normalizedRow.Year || normalizedRow['year of study'] || '';
+    const cgpa = normalizedRow.cgpa||normalizedRow.CGPA || normalizedRow.gpa || normalizedRow['grade point'] || '';
+    const rollNo = normalizedRow.rollNo ||normalizedRow.rollno|| normalizedRow.RollNo || normalizedRow['Roll No'] || normalizedRow['student roll no'] || '';
+    console.log(firstName,lastName,rollNo,email,branch,year,cgpa)
     // Validate required fields
     const rowErrors = [];
-    if (!name) rowErrors.push('Name is required');
+    if (!firstName) rowErrors.push('First Name is required');
+    if (!lastName) rowErrors.push('Last Name is required');
+    if (!rollNo) rowErrors.push('Roll No is required');
     if (!email) rowErrors.push('Email is required');
     if (!branch) rowErrors.push('Branch is required');
     if (!year) rowErrors.push('Year is required');
@@ -125,17 +129,17 @@ const validateAndFormatStudentData = (data) => {
     } else {
       // Add valid student data
       parsedData.push({
-        name,
+        firstName,
+        lastName,
+        rollNo,
         email,
         branch,
         year: String(year), // Ensure year is a string
-        cgpa,
-        specialization,
-        interest
+        cgpa
       });
     }
   });
-  
+  console.log(parsedData)
   return { parsedData, validationErrors };
 };
 

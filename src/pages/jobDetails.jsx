@@ -19,7 +19,7 @@ const JobDetails = () => {
             const token = localStorage.getItem('token');
             try {
                 setLoading(true);
-                const response = await fetch(`https://api.recruitmantra.com/job/career/${id}`, {
+                const response = await fetch(`http://localhost:5001/job/career/${id}`, {
                     method: "GET",
                     headers: {
                         "Authorization": `Bearer ${token}`, // Typical format
