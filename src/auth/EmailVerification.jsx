@@ -25,7 +25,7 @@ const EmailVerification = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:5001/user/varifyemail',
+        'https://api.recruitmantra.com:5001/user/varifyemail',
         { otp: otp },
         {
           headers: {
