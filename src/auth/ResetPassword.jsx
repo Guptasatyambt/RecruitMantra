@@ -35,7 +35,7 @@ const ResetPassword = () => {
     console.log(password,otp,email,token);
     try {
         const res = await axios.post(
-            "https://api.recruitmantra.com:5001/user/edit-password",
+            "https://api.recruitmantra.com/user/edit-password",
             {
               password: password,
               otp:otp,
