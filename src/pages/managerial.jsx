@@ -12,7 +12,7 @@ function Managerial() {
     setIsLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const responseUser = await axios.get("http://localhost:5001/user/getinfo", {
+      const responseUser = await axios.get("https://api.recruitmantra.com/user/getinfo", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -39,8 +39,8 @@ function Managerial() {
         return;
       }
       const response = await axios.post(
-        "http://localhost:5001/hrInterview/start",
-        // "http://localhost:5001/hrInterview/start",//Replace it with starting url of hr interview
+        "https://api.recruitmantra.com/hrInterview/start",
+        // "https://api.recruitmantra.com/hrInterview/start",//Replace it with starting url of hr interview
         { type: "Managerial" },
         { headers: { Authorization: `Bearer ${token}` } }
       );

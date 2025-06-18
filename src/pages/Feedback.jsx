@@ -32,7 +32,7 @@ function Feedback() {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        "http://localhost:5001/feedback/uploadfeedback",
+        "https://api.recruitmantra.com/feedback/uploadfeedback",
         {
           userFeedback: formData.feedback,
           // rating: formData.rating, // Include the rating in the API call

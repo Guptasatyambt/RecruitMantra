@@ -13,7 +13,7 @@ function Beginner() {
     setIsLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const responseUser = await axios.get("http://localhost:5001/user/getinfo", {
+      const responseUser = await axios.get("https://api.recruitmantra.com/user/getinfo", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -41,7 +41,7 @@ function Beginner() {
       }
 
       const response = await axios.post(
-        "http://localhost:5001/interview/start",
+        "https://api.recruitmantra.com/interview/start",
         { level: "beginner" },
         { headers: { Authorization: `Bearer ${token}` } }
       );

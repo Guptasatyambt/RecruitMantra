@@ -198,7 +198,7 @@ function ManagerialInterview() {
         // console.log("Using content type:", contentType);
         
         const response = await axios.post(
-          "http://localhost:5001/hrInterview/uploadvideo",
+          "https://api.recruitmantra.com/hrInterview/uploadvideo",
           {
             interview_id: interviewId,
             question_number: currentQuestionIndex+1,
@@ -244,7 +244,7 @@ function ManagerialInterview() {
         return;
       }
       
-      const response = await axios.get("http://localhost:5001/user/getinfo", {
+      const response = await axios.get("https://api.recruitmantra.com/user/getinfo", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -303,7 +303,7 @@ function ManagerialInterview() {
       
       console.log("Audio analysis complete:", response.data);
       const responsedb = await axios.post(
-        "http://localhost:5001/hrInterview/insertconfidence",
+        "https://api.recruitmantra.com/hrInterview/insertconfidence",
         {
           interview_id:interviewId,
           question_number:currentQuestionIndex+1,
@@ -334,7 +334,7 @@ function ManagerialInterview() {
       
       console.log("Video analysis complete:", response.data);
       const responsedb = await axios.post(
-        "http://localhost:5001/hrInterview/insertconfidence",
+        "https://api.recruitmantra.com/hrInterview/insertconfidence",
         {
           interview_id:interviewId,
           question_number:currentQuestionIndex+1,
@@ -420,7 +420,7 @@ function ManagerialInterview() {
       }
       
       const response = await axios.post(
-        "http://localhost:5001/hrInterview/stop",
+        "https://api.recruitmantra.com/hrInterview/stop",
         {
           interview_id: interviewId,
           type: "Managerial",

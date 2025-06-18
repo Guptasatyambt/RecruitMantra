@@ -199,7 +199,7 @@ function Interview() {
         // console.log("Using content type:", contentType);
         
         const response = await axios.post(
-          "http://localhost:5001/interview/uploadvideo",
+          "https://api.recruitmantra.com/interview/uploadvideo",
           {
             interview_id: interviewId,
             question_number: currentQuestionIndex+1,
@@ -245,7 +245,7 @@ function Interview() {
         return;
       }
       
-      const response = await axios.get("http://localhost:5001/user/getinfo", {
+      const response = await axios.get("https://api.recruitmantra.com/user/getinfo", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -311,7 +311,7 @@ function Interview() {
       
       console.log("Audio analysis complete:", response.data);
       const responsedb = await axios.post(
-        "http://localhost:5001/interview/insertconfidence",
+        "https://api.recruitmantra.com/interview/insertconfidence",
         {
           interview_id:interviewId,
           question_number:currentQuestionIndex+1,
@@ -338,7 +338,7 @@ function Interview() {
       
       console.log("Video analysis complete:", response.data);
       const responsedb = await axios.post(
-        "http://localhost:5001/interview/insertconfidence",
+        "https://api.recruitmantra.com/interview/insertconfidence",
         {
           interview_id:interviewId,
           question_number:currentQuestionIndex+1,
@@ -368,7 +368,7 @@ function Interview() {
         
         console.log("Answer accuracy analysis complete:", response.data);
         const responsedb = await axios.post(
-          "http://localhost:5001/interview/insertaccuracy",
+          "https://api.recruitmantra.com/interview/insertaccuracy",
           {
             interview_id:interviewId,
             question_number:currentQuestionIndex+1,
@@ -432,7 +432,7 @@ function Interview() {
       }
       
       const response = await axios.post(
-        "http://localhost:5001/interview/stop",
+        "https://api.recruitmantra.com/interview/stop",
         {
           interview_id: interviewId,
         },
