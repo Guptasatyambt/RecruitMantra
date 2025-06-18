@@ -14,7 +14,11 @@ const useInterviewRoute = () => {
     '/interview/intermediate',
     '/interview/beginner',
     '/interview/hr-behavioral',
-    '/interview-details'
+    '/interview-details',
+    '/login',
+    '/college-admin-signup',
+    '/signup',
+    '/email-verification'
   ];
 
   // Check if the current path starts with any of the interview routes

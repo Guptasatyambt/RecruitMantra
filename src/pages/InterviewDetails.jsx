@@ -21,7 +21,7 @@ const InterviewDetails = () => {
       let response;
       if(type==='Technical'){
         response = await axios.get(
-        `https://api.recruitmantra.com/interview/getdetail?interview_id=${interviewId}`,
+        `http://localhost:5001/interview/getdetail?interview_id=${interviewId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -32,7 +32,7 @@ const InterviewDetails = () => {
       }
       else if(type==='HR'){
         response = await axios.get(
-        `https://api.recruitmantra.com/hrInterview/getdetail?interview_id=${interviewId}&&type=Hr`,
+        `http://localhost:5001/hrInterview/getdetail?interview_id=${interviewId}&&type=Hr`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -43,7 +43,7 @@ const InterviewDetails = () => {
       }
       else if(type==='Managerial'){
         response = await axios.get(
-        `https://api.recruitmantra.com/hrInterview/getdetail?interview_id=${interviewId}&&type=Managerial`,
+        `http://localhost:5001/hrInterview/getdetail?interview_id=${interviewId}&&type=Managerial`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -54,7 +54,7 @@ const InterviewDetails = () => {
       }
       else{
         response = await axios.get(
-          `https://api.recruitmantra.com/series/getinfo?interview_id=${interviewId}`,
+          `http://localhost:5001/series/getinfo?interview_id=${interviewId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

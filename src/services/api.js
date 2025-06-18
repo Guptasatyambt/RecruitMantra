@@ -380,5 +380,50 @@ res.data.data.forEach(item => {
                 }
 };
 
+export const userAPI = {
+  // Get all companies
+  logIn: (email,password) => {
+    return API.post(`/user/login`,{email,password});
+  },
+  signUp: (email,password,collegeId,role) => {
+    return API.post(`/user/signup`,{email,password,collegeId,role});
+  },
+  registerCollegeAdmin: (firstName,lastName,email, password, mobile, collegeId) => {
+    return API.post(`/user/register-college-admin`, {firstName,lastName,email,password,mobile,collegeId});
+  },
+  verifyUser: ( otp) => {
+    return API.post(`/user/varifyemail`, {  otp });
+  },
+  sendOTP: () => {
+    return API.post(`/user/emailvarification`);
+  },
+  getUserDetails: () => {
+    return API.get(`/user/getinfo`);
+  },
+  updateProfile: (userData) => {
+    return API.post(`/user/update-profile`, userData);
+  },
+
+  updatePassword: (oldPassword, newPassword) => {
+    return API.post(`/user/update-password`, { oldPassword, newPassword });
+  },
+  forgotPassword: (email) => {
+    return API.post(`/user/forgot-password`, { email });
+  },
+  resetPassword: (urlEmail, otp, password) => {
+    return API.post(`/user/edit-password`, { password, otp,urlEmail });
+  },
+
+  allColleges: () => {
+    return API.get(`/college/all`);
+  },
+  collegeAdmins: () => {
+    return API.get(`/user/college-admins`);
+  },
+ 
+
+ 
+};
+
 export default API;
 

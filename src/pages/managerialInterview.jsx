@@ -39,11 +39,21 @@ function ManagerialInterview() {
     if (videoUrl) {
       try {
         // Run analysis functions in parallel
+        const res=answerAccuracy()
+        if(res.Accuracy>40){
         await Promise.all([
-          audioAnalyse(),
-          videoAnalyse(),
-          answerAccuracy()
+          audioAnalyse(true),
+          videoAnalyse(true),
+          // answerAccuracy()
         ]);
+      }
+      else{
+        await Promise.all([
+          audioAnalyse(false),
+          videoAnalyse(false),
+          // answerAccuracy()
+        ]);
+      }
         
         console.log("All analysis completed successfully");
       } catch (error) {
@@ -188,10 +198,11 @@ function ManagerialInterview() {
         // console.log("Using content type:", contentType);
         
         const response = await axios.post(
-          "https://api.recruitmantra.com/interview/uploadvideo",
+          "http://localhost:5001/hrInterview/uploadvideo",
           {
             interview_id: interviewId,
             question_number: currentQuestionIndex+1,
+            type:'Managerial',
           },
           {
             headers: {
@@ -233,11 +244,14 @@ function ManagerialInterview() {
         return;
       }
       
-      const response = await axios.get("https://api.recruitmantra.com/user/getinfo", {
+      const response = await axios.get("http://localhost:5001/user/getinfo", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+      // if(response.data.user.verified==false){
+      //   navigate(`/email-verification?source=${response.data.user.role}`, { state: { token: token } });
+      // }
       if(response.data.user.profileimage===""){
           navigate("/upload-documents");
       }
@@ -251,10 +265,7 @@ function ManagerialInterview() {
       }
       
       const skillsResponse = await axios.post(
-        "https://ml.recruitmantra.com/skills/extract_skills",
-        {
-          resume_url: resumeUrl,
-        }
+        "https://ml.recruitmantra.com/manage/manage-question",
       );
 
       console.log("Skills Data:", skillsResponse.data.questions);
@@ -276,25 +287,28 @@ function ManagerialInterview() {
     }
   };
   
-  const audioAnalyse = async () => {
+  const audioAnalyse = async (valid) => {
     try {
       console.log("Audio analysis called.");
       if (!videoUrl) {
         throw new Error("No video URL available for audio analysis");
       }
-      
+      let response;
       // Use the correct video_url from the API response
-      const response = await axios.post("https://ml.recruitmantra.com/audio_emotion/process_video", {
+      if(valid){
+      response = await axios.post("https://ml.recruitmantra.com/audio_emotion/process_video", {
         video_url: videoUrl
       });
+    }
       
       console.log("Audio analysis complete:", response.data);
       const responsedb = await axios.post(
-        "https://api.recruitmantra.com/interview/insertconfidence",
+        "http://localhost:5001/hrInterview/insertconfidence",
         {
           interview_id:interviewId,
           question_number:currentQuestionIndex+1,
-          confidence:response.data.confidence_level
+          confidence:response?.data.confidence_level||0,
+          type:'Managerial'
         }
       );
       return response.data;
@@ -304,18 +318,30 @@ function ManagerialInterview() {
     }
   };
   
-  const videoAnalyse = async () => {
+  const videoAnalyse = async (valid) => {
     try {
       if (!videoUrl) {
         throw new Error("No video URL available for video analysis");
       }
       
       // Use the correct video_url from the API response
-      const response = await axios.post("https://ml.recruitmantra.com/video_emotion/upload", {
+      let response
+      if(valid){
+      response = await axios.post("https://ml.recruitmantra.com/video_emotion/upload", {
         video_url: videoUrl
       });
+    }
       
       console.log("Video analysis complete:", response.data);
+      const responsedb = await axios.post(
+        "http://localhost:5001/hrInterview/insertconfidence",
+        {
+          interview_id:interviewId,
+          question_number:currentQuestionIndex+1,
+          confidence:response?.data.average_confidence||0,
+          type:'Managerial'
+        }
+      );
       return response.data;
     } catch (error) {
       console.error("Failed to analyse video:", error);
@@ -332,7 +358,7 @@ function ManagerialInterview() {
       // Only proceed if questions array has data and current index is valid
       if (questions && questions.length > currentQuestionIndex) {
         // Use the correct video_url from the API response
-        const response = await axios.post("https://ml.recruitmantra.com/video_text/process", {
+        const response = await axios.post("https://ml.recruitmantra.com/manage/process", {
           question: questions[currentQuestionIndex],
           video_url: videoUrl
         });
@@ -394,7 +420,7 @@ function ManagerialInterview() {
       }
       
       const response = await axios.post(
-        "https://api.recruitmantra.com/hrInterview/stop",
+        "http://localhost:5001/hrInterview/stop",
         {
           interview_id: interviewId,
           type: "Managerial",

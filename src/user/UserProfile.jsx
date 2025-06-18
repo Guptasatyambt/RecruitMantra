@@ -179,6 +179,7 @@ const InterviewResults = ({
 const Profile = () => {
   const [user, setUser] = useState(null);
   const [defaultOrStudent, setDefaultOrStudent] = useState(null);
+  const [collegeDetail, setCollegeDetail] = useState(null);
   const [college, setCollege] = useState(null);
   const [branch, setBranch] = useState(null);
   const [resumeLink, setResumeLink] = useState('');
@@ -200,11 +201,15 @@ const Profile = () => {
         const response = await axios.get('https://api.recruitmantra.com/user/getinfo', {
           headers: { Authorization: `Bearer ${token}` },
         });
+        // if(response.data.user.verified==false){
+        //   navigate(`/email-verification?source=${response.data.user.role}`, { state: { token: token } });
+        // }
         if(response.data.user.profileimage===""){
           navigate("/upload-documents");
         }
         setUser(response.data.user);
         setDefaultOrStudent(response.data.defaultOrStudent);
+        setCollegeDetail(response.data.collegeDetail);
         setCollege(response.data.college);
         setBranch(response.data.branch);
         setResumeLink(response.data.resume);
@@ -261,25 +266,65 @@ const Profile = () => {
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="p-8">
             <ProfileHeader user={user} defaultOrStudent={defaultOrStudent} college={college} branch={branch} imageLink={imageLink} resumeLink={resumeLink} />
-            
+            {user.role==='default' || user.role==='student' &&(
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-10">
               <StatCard 
-                value={defaultOrStudent.coins} 
+                value={defaultOrStudent.coins||0} 
                 label="Coins Earned"
                 icon={Trophy}
               />
               <StatCard 
-                value={defaultOrStudent.year} 
+                value={defaultOrStudent.year||''} 
                 label="Year"
                 icon={Briefcase}
               />
               <StatCard 
-                value={defaultOrStudent.cgpa.numberDecimal} 
+                value={defaultOrStudent.interest||''} 
+                label="Interest"
+                icon={BookOpen}
+              />
+            </div>
+            )}
+            {user.role==='student'&&(
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-10">
+              <StatCard 
+                value={defaultOrStudent.highSchool||''} 
+                label="High School Percentage"
+                icon={Trophy}
+              />
+              <StatCard 
+                value={defaultOrStudent.intermediate||''} 
+                label="Intermediate Percentage"
+                icon={Briefcase}
+              />
+              <StatCard 
+                value={defaultOrStudent.cgpa.numberDecimal||''} 
                 label="Academic Result"
                 icon={BookOpen}
               />
             </div>
-            
+            )}
+            {user.role==='college_admin' &&(
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-10">
+              <StatCard 
+                value={collegeDetail.location||''} 
+                label="Location"
+                icon={Trophy}
+              />
+              <StatCard 
+                value={defaultOrStudent.mobile||''} 
+                label="Contact No."
+                icon={Briefcase}
+              />
+              <StatCard 
+                value={collegeDetail.website||''} 
+                label="website"
+                icon={BookOpen}
+              />
+            </div>
+            )}
+            {user.role==='default' || user.role==='student' &&(
+              <>
             <InterviewResults 
               technicalInterviews={user.technicalInterview}
               hrInterviews={user.hrInterview}
@@ -287,7 +332,8 @@ const Profile = () => {
               seriesInterview={user.seriesInterview}
               onClickInterview={handleInterviewClick}
               />
-            
+              </>
+            )}
             <div className="flex justify-end mt-10">
               <button
                 onClick={() => navigate('/edit-profile')}

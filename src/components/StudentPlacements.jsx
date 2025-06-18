@@ -128,7 +128,7 @@ const StudentPlacements = () => {
       <div className={`bg-indigo-800 w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform 
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
         md:relative md:translate-x-0 transition duration-200 ease-in-out z-30`}>
-        <div className="flex items-center justify-between px-4">
+        {/* <div className="flex items-center justify-between px-4">
           <h1 className="text-white text-xl font-bold">Student Portal</h1>
           <button 
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -136,8 +136,23 @@ const StudentPlacements = () => {
           >
             <Menu className="h-6 w-6" />
           </button>
-        </div>
-
+        </div> */}
+<div
+            className="flex items-center space-x-3 cursor-pointer group"
+            onClick={() => navigate("/")}
+          >
+            <div className="relative">
+              <img
+                className="h-12 w-12 transform transition-transform duration-300 "
+                alt="RecruitMantra Logo"
+                src="/assets/logo_RM.png"
+              />
+              <div className="absolute -inset-2 bg-black-100 rounded-full opacity-0 group-hover:opacity-50 transition-opacity duration-300 -z-10"></div>
+            </div>
+            <span className="text-1xl font-bold text-white">
+              RecruitMantra
+            </span>
+          </div>
         <nav className="space-y-1">
           <NavigationLink icon={BarChart} label="Dashboard" id="student-dashboard" />
           <NavigationLink icon={Briefcase} label="My Stats" id="my-stats" />

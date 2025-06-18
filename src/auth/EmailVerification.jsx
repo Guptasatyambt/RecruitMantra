@@ -1,19 +1,49 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import API from '../services/api'; // Your custom API instance
 
 const EmailVerification = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  
-  const { token } = location.state || {};  
+
+  const { token } = location.state || {};
   const [otp, setOtp] = useState('');
   const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
+  const [resendTimer, setResendTimer] = useState(60);
+  const [resending, setResending] = useState(false);
+
   const queryParams = new URLSearchParams(location.search);
   const source = queryParams.get("source");
- 
-  // Function to verify OTP 
+
+  // Auto-send OTP on component mount
+  useEffect(() => {
+    sendOtp();
+  }, []);
+
+  // Countdown for resend timer
+  useEffect(() => {
+    let timer;
+    if (resendTimer > 0) {
+      timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [resendTimer]);
+
+  const sendOtp = async () => {
+    setMessage('');
+    setResending(true);
+    try {
+      await API.sendOTP(); // replace with your actual OTP send API
+      setMessage('OTP sent successfully.');
+      setResendTimer(60);
+    } catch (error) {
+      setMessage(error.response?.data?.message || 'Failed to send OTP.');
+    } finally {
+      setResending(false);
+    }
+  };
+
   const verifyOtp = async () => {
     if (!otp) {
       setMessage("Please enter the OTP.");
@@ -24,19 +54,10 @@ const EmailVerification = () => {
     setMessage('');
 
     try {
-      const response = await axios.post(
-        'https://api.recruitmantra.com/user/varifyemail',
-        { otp: otp },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await API.verifyUser(otp);
       if (response.data.success) {
-        setMessage(response.data.message);  // "OTP verified successfully"
-        window.location.reload();
-          navigate(`/upload-documents?source=${source}`);
+        setMessage(response.data.message);
+        navigate(`/upload-documents?source=${source}`);
       }
     } catch (error) {
       setMessage(error.response?.data?.message || 'Failed to verify OTP.');
@@ -55,29 +76,39 @@ const EmailVerification = () => {
             <p>{message}</p>
           </div>
         )}
-          <div>
-            <div className="mb-4">
-              <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
-                Enter OTP
-              </label>
-              <input
-                type="text"
-                id="otp"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter OTP"
-                required
-              />
-            </div>
-            <button
-              onClick={verifyOtp}
-              className={`w-full bg-blue-500 text-white p-2 rounded-md ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'}`}
-              disabled={loading}
-            >
-              {loading ? 'Verifying...' : 'Verify OTP'}
-            </button>
-          </div>
+
+        <div className="mb-4">
+          <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
+            Enter OTP
+          </label>
+          <input
+            type="text"
+            id="otp"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            className="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter OTP"
+            required
+          />
+        </div>
+
+        <button
+          onClick={verifyOtp}
+          className={`w-full bg-blue-500 text-white p-2 rounded-md ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'}`}
+          disabled={loading}
+        >
+          {loading ? 'Verifying...' : 'Verify OTP'}
+        </button>
+
+        <div className="mt-4 text-center">
+          <button
+            onClick={sendOtp}
+            disabled={resendTimer > 0 || resending}
+            className={`text-sm ${resendTimer > 0 ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600 hover:underline'}`}
+          >
+            {resending ? 'Sending...' : resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : 'Resend OTP'}
+          </button>
+        </div>
       </div>
     </div>
   );

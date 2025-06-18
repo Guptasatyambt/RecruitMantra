@@ -12,11 +12,14 @@ function HR() {
     setIsLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const responseUser = await axios.get("https://api.recruitmantra.com/user/getinfo", {
+      const responseUser = await axios.get("http://localhost:5001/user/getinfo", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+      // if(response.data.user.verified==false){
+      //   navigate(`/email-verification?source=${response.data.user.role}`, { state: { token: token } });
+      // }
       if(responseUser.data.user.profileimage===""){
           navigate("/upload-documents");
       }
@@ -36,8 +39,8 @@ function HR() {
         return;
       }
       const response = await axios.post(
-        "https://api.recruitmantra.com/hrInterview/start",
-        // "https://api.recruitmantra.com/hrInterview/start",//Replace it with starting url of hr interview
+        "http://localhost:5001/hrInterview/start",
+        // "http://localhost:5001/hrInterview/start",//Replace it with starting url of hr interview
         { type: "HR" },
         { headers: { Authorization: `Bearer ${token}` } }
       );

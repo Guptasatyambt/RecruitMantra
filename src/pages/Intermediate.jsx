@@ -12,11 +12,14 @@ function Intermediate() {
     setIsLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const responseUser = await axios.get("https://api.recruitmantra.com/user/getinfo", {
+      const responseUser = await axios.get("http://localhost:5001/user/getinfo", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+      // if(response.data.user.verified==false){
+      //   navigate(`/email-verification?source=${response.data.user.role}`, { state: { token: token } });
+      // }
       if(responseUser.data.user.profileimage===""){
           navigate("/upload-documents");
       }
@@ -36,7 +39,7 @@ function Intermediate() {
         return;
       }
       const response = await axios.post(
-        "https://api.recruitmantra.com/interview/start",
+        "http://localhost:5001/interview/start",
         { level: "intermediate" },
         { headers: { Authorization: `Bearer ${token}` } }
       );

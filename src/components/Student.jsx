@@ -81,6 +81,9 @@ const Students = () => {
           Authorization: `Bearer ${token}`
         }
       });
+      // if(response.data.user.verified==false){
+      //   navigate(`/email-verification?source=${response.data.user.role}`, { state: { token: token } });
+      // }
       if (response.data.user.profileimage === "") {
         navigate("/upload-documents");
       }
@@ -416,12 +419,22 @@ const Students = () => {
       <div className={`bg-indigo-800 w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform 
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
         md:relative md:translate-x-0 transition duration-200 ease-in-out z-30`}>
-        <div className="flex items-center justify-between px-4">
-          <div className="flex items-center space-x-2">
-            <Briefcase className="w-8 h-8 text-white" />
-            <span className="text-2xl font-bold text-white">RecruitMantra</span>
+        <div
+            className="flex items-center space-x-3 cursor-pointer group"
+            onClick={() => navigate("/")}
+          >
+            <div className="relative">
+              <img
+                className="h-12 w-12 transform transition-transform duration-300 "
+                alt="RecruitMantra Logo"
+                src="/assets/logo_RM.png"
+              />
+              <div className="absolute -inset-2 bg-black-100 rounded-full opacity-0 group-hover:opacity-50 transition-opacity duration-300 -z-10"></div>
+            </div>
+            <span className="text-1xl font-bold text-white">
+              RecruitMantra
+            </span>
           </div>
-        </div>
 
         <div className="px-4 py-2">
           <div className={`relative ${searchFocused ? 'ring-2 ring-indigo-400' : ''} 

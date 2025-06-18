@@ -33,7 +33,7 @@ const JobApplicationForm = () => {
         const token = localStorage.getItem('token');
         try {
             setLoading(true);
-            const response = await fetch(`https://api.recruitmantra.com/job/career/${id}`, {
+            const response = await fetch(`http://localhost:5001/job/career/${id}`, {
                 method: "GET",
                 headers: {
                     "Authorization": `Bearer ${token}`, // Typical format
@@ -76,7 +76,7 @@ const JobApplicationForm = () => {
     console.log("Form submitted:", formData);
     const token = localStorage.getItem('token');
     // POST to your backend uploadresume
-    fetch("https://api.recruitmantra.com/carrer/apply", {
+    fetch("http://localhost:5001/carrer/apply", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${token}`, // Typical format

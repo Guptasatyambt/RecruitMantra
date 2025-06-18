@@ -36,9 +36,9 @@ const Navbar = () => {
         const response = await axios.get("https://api.recruitmantra.com/user/getinfo", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if(response.data.user.role==='default'&&!response.data.defaultOrStudent.verified){
-          navigate("/email-verification?source=default", { state: { token: token } });
-        }
+        // if(response.data.user.verified==false){
+        //   navigate(`/email-verification?source=${response.data.user.role}`, { state: { token: token } });
+        // }
         if(response.data.user.profileimage===""){
           navigate(`/upload-documents?source=${response.data.user.role}`);
         }
@@ -224,6 +224,7 @@ const Navbar = () => {
                         : "opacity-0 scale-95 -translate-y-4 pointer-events-none"
                     }`}
                 >
+                  {(userRole==='student'||userRole==='default')&&(
                   <div className="p-2">
                     {[
                       {
@@ -270,6 +271,39 @@ const Navbar = () => {
                       </span>
                     </button>
                   </div>
+                  )}
+                   {(userRole==='college_admin'||userRole==='super_admin')&&(
+                  <div className="p-2">
+                    {[
+                      {
+                        icon: FaUniversity,
+                        label: "Dashboard",
+                        path: dashboardPath,
+                      }
+                    ].map((item, index) => (
+                      <button
+                        key={index}
+                        onClick={() => navigate(item.path)}
+                        className="w-full px-4 py-3 text-sm text-gray-700 rounded-xl flex items-center transition-all duration-200 group hover:bg-gray-50"
+                      >
+                        <item.icon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-600 transition-colors duration-200" />
+                        <span className="transform group-hover:translate-x-1 transition-transform duration-200">
+                          {item.label}
+                        </span>
+                      </button>
+                    ))}
+                    <div className="h-px bg-gray-100 my-2"></div>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full px-4 py-3 text-sm rounded-xl flex items-center transition-all duration-200 group hover:bg-red-50"
+                    >
+                      <BiLogOut className="mr-3 h-5 w-5 text-gray-400 group-hover:text-red-500 transition-colors duration-200" />
+                      <span className="text-gray-700 group-hover:text-red-600 transform group-hover:translate-x-1 transition-all duration-200">
+                        Log Out
+                      </span>
+                    </button>
+                  </div>
+                  )}
                 </div>
               </div>
             )}

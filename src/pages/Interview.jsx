@@ -199,7 +199,7 @@ function Interview() {
         // console.log("Using content type:", contentType);
         
         const response = await axios.post(
-          "https://api.recruitmantra.com/interview/uploadvideo",
+          "http://localhost:5001/interview/uploadvideo",
           {
             interview_id: interviewId,
             question_number: currentQuestionIndex+1,
@@ -245,11 +245,14 @@ function Interview() {
         return;
       }
       
-      const response = await axios.get("https://api.recruitmantra.com/user/getinfo", {
+      const response = await axios.get("http://localhost:5001/user/getinfo", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+      // if(response.data.user.verified==false){
+      //   navigate(`/email-verification?source=${response.data.user.role}`, { state: { token: token } });
+      // }
       if(response.data.user.profileimage===""){
           navigate("/upload-documents");
       }
@@ -308,7 +311,7 @@ function Interview() {
       
       console.log("Audio analysis complete:", response.data);
       const responsedb = await axios.post(
-        "https://api.recruitmantra.com/interview/insertconfidence",
+        "http://localhost:5001/interview/insertconfidence",
         {
           interview_id:interviewId,
           question_number:currentQuestionIndex+1,
@@ -334,6 +337,14 @@ function Interview() {
       });
       
       console.log("Video analysis complete:", response.data);
+      const responsedb = await axios.post(
+        "http://localhost:5001/interview/insertconfidence",
+        {
+          interview_id:interviewId,
+          question_number:currentQuestionIndex+1,
+          confidence:response.data.average_confidence
+        }
+      );
       return response.data;
     } catch (error) {
       console.error("Failed to analyse video:", error);
@@ -356,6 +367,14 @@ function Interview() {
         });
         
         console.log("Answer accuracy analysis complete:", response.data);
+        const responsedb = await axios.post(
+          "http://localhost:5001/interview/insertaccuracy",
+          {
+            interview_id:interviewId,
+            question_number:currentQuestionIndex+1,
+            accuracy:response.data.Accuracy
+          }
+        );
         return response.data;
       } else {
         throw new Error("Invalid question index for answer accuracy analysis");
@@ -413,7 +432,7 @@ function Interview() {
       }
       
       const response = await axios.post(
-        "https://api.recruitmantra.com/interview/stop",
+        "http://localhost:5001/interview/stop",
         {
           interview_id: interviewId,
         },

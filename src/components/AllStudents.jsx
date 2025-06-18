@@ -51,6 +51,9 @@ const AllStudents = () => {
           Authorization: `Bearer ${token}`
         }
       });
+      // if(response.data.user.verified==false){
+      //   navigate(`/email-verification?source=${response.data.user.role}`, { state: { token: token } });
+      // }
       if(response.data.user.profileimage==""){
           navigate("/upload-documents");
       }

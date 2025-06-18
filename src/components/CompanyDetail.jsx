@@ -64,6 +64,9 @@ const CompanyDetail = () => {
           Authorization: `Bearer ${token}`
         }
       });
+      // if(userInfo.data.user.verified==false){
+      //   navigate(`/email-verification?source=${userInfo.data.user.role}`, { state: { token: token } });
+      // }
       if(userInfo.data.user.profileimage==""){
           navigate("/upload-documents");
           return;

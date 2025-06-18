@@ -15,7 +15,7 @@ function App() {
       {/* Conditionally render Navbar based on current route */}
       {(!isDashboardRoute &&!isInterviewRoute) && <Navbar />}
       <AppRoutes />
-      {(!isInterviewRoute)&&<Footer />}
+      {(!isDashboardRoute&&!isInterviewRoute)&&<Footer />}
     </div>
   );
 }

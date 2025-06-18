@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import API from "../services/api";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -71,13 +72,13 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await axios.post(
-        "https://api.recruitmantra.com/user/forgot-password",
-        {
-          email: forgotPasswordEmail,
-        }
-      );
-
+      // const response = await axios.post(
+      //   "https://api.recruitmantra.com/user/forgot-password",
+      //   {
+      //     email: forgotPasswordEmail,
+      //   }
+      // );
+      const response=await API.forgotPassword(forgotPasswordEmail);
       console.log(response.data);
       alert("Password reset instructions have been sent to your email.");
       setShowForgotPassword(false);

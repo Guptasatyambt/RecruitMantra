@@ -7,7 +7,8 @@ import {
   Building, GraduationCap, PieChart, Shield, Database, Activity
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { dashboardAPI } from '../services/api';
+import API, { dashboardAPI } from '../services/api';
+import { studentAPI } from '../services/studentAPI';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -46,11 +47,12 @@ const AdminDashboard = () => {
       setLoading(true);
       const token = localStorage.getItem('token');
       
-      const response = await axios.get('https://api.recruitmantra.com/user/college-admins', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      // const response = await axios.get('https://api.recruitmantra.com/user/college-admins', {
+      //   headers: {
+      //     Authorization: `Bearer ${token}`
+      //   }
+      // });
+      const response=await API.collegeAdmins();
       console.log(response.data.data)
 
       if (response.data && response.data.data) {
@@ -81,12 +83,12 @@ const AdminDashboard = () => {
       setLoading(true);
       const token = localStorage.getItem('token');
       
-      const response = await axios.get('https://api.recruitmantra.com/student/all', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-
+      // const response = await axios.get('https://api.recruitmantra.com/student/all', {
+      //   headers: {
+      //     Authorization: `Bearer ${token}`
+      //   }
+      // });
+      const response=await studentAPI.getAllStudents();
       if (response.data && response.data.data) {
         setStudents(response.data.data);
       }
