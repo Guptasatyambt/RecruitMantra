@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import API from "../services/api";
+import API,{userAPI} from "../services/api";
 
 const CollegeAdminSignUp = () => {
   const [formData, setFormData] = useState({
