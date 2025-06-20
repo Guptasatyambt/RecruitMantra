@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import API from "../services/api";
+import  API,{userAPI} from "../services/api";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -78,7 +78,8 @@ const Login = () => {
       //     email: forgotPasswordEmail,
       //   }
       // );
-      const response=await API.forgotPassword(forgotPasswordEmail);
+      const response=await userAPI.forgotPassword(forgotPasswordEmail);
+      // const response=await 
       console.log(response.data);
       alert("Password reset instructions have been sent to your email.");
       setShowForgotPassword(false);

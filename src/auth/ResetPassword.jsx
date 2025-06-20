@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import API from "../services/api";
+import API, { userAPI } from "../services/api";
 
 const ResetPassword = () => {
   const location = useLocation();
@@ -48,7 +48,7 @@ const ResetPassword = () => {
         //         },
         //       }
         //   );
-      const res=await API.resetPassword(email,otp,password);
+      const res=await userAPI.resetPassword(email,otp,password);
 
     //   const data = await res.json();
     console.log(res);

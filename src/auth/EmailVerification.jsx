@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import API from '../services/api'; // Your custom API instance
+import API ,{userAPI} from '../services/api'; // Your custom API instance
 
 const EmailVerification = () => {
   const location = useLocation();
@@ -34,7 +34,7 @@ const EmailVerification = () => {
     setMessage('');
     setResending(true);
     try {
-      await API.sendOTP(); // replace with your actual OTP send API
+      await userAPI.sendOTP(); // replace with your actual OTP send API
       setMessage('OTP sent successfully.');
       setResendTimer(60);
     } catch (error) {
@@ -54,7 +54,7 @@ const EmailVerification = () => {
     setMessage('');
 
     try {
-      const response = await API.verifyUser(otp);
+      const response = await userAPI.verifyUser(otp);
       if (response.data.success) {
         setMessage(response.data.message);
         navigate(`/upload-documents?source=${source}`);

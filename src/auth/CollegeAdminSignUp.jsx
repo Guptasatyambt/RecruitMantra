@@ -38,7 +38,7 @@ const CollegeAdminSignUp = () => {
     const fetchColleges = async () => {
       try {
         // const response = await axios.get("https://api.recruitmantra.com/college/all");
-        const response=await API.allColleges();
+        const response=await userAPI.allColleges();
         setColleges(response.data);
       } catch (error) {
         console.error("Error fetching colleges:", error);
@@ -182,7 +182,7 @@ const handleCollegeSelect = (collegeId, collegeName) => {
       //     collegeId: finalCollegeId
       //   }
       // );
-      const response=await API.registerCollegeAdmin(formData.firstName,formData.lastName,formData.email, formData.password,formData.mobile,finalCollegeId)
+      const response=await userAPI.registerCollegeAdmin(formData.firstName,formData.lastName,formData.email, formData.password,formData.mobile,finalCollegeId)
       const token = response.data.data.token;
       localStorage.setItem("token", token);
       setSuccess(true);
