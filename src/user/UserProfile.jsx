@@ -266,7 +266,7 @@ const Profile = () => {
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="p-8">
             <ProfileHeader user={user} defaultOrStudent={defaultOrStudent} college={college} branch={branch} imageLink={imageLink} resumeLink={resumeLink} />
-            {user.role==='default' || user.role==='student' &&(
+            {(user.role==='default' || user.role==='student') &&(
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-10">
               <StatCard 
                 value={defaultOrStudent.coins||0} 

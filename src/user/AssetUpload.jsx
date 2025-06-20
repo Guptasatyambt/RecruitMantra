@@ -15,7 +15,7 @@ function AssetUpload() {
    const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const source = queryParams.get("source");
-
+console.log(source)
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -47,16 +47,16 @@ function AssetUpload() {
   const handleUpload = async (e) => {
     console.log(source)
     e.preventDefault();
-    if(source=='default'){
+    if(source==='default'||source==='student'){
     await handleImageUpload();
     await handleResumeUpload();
     navigate('/')
     }
-    else if(source==='student'){
-    await handleImageUpload();
-    await handleResumeUpload();
-    navigate('/')
-    }
+    // else if(source==='student'){
+    // await handleImageUpload();
+    // await handleResumeUpload();
+    // navigate('/')
+    // }
     else {
        console.log(" upload click")
       await handleImageUpload();
@@ -197,7 +197,7 @@ function AssetUpload() {
             </div>
 
             {/* Resume Upload */}
-            {source === 'default'||source === 'student' && (
+            {(source === 'default'||source === 'student') && (
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Resume (PDF)
