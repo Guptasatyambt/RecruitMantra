@@ -288,12 +288,12 @@ const Profile = () => {
             {user.role==='student'&&(
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-10">
               <StatCard 
-                value={defaultOrStudent.highSchool||''} 
+                value={defaultOrStudent.highSchool.numberDecimal||''} 
                 label="High School Percentage"
                 icon={Trophy}
               />
               <StatCard 
-                value={defaultOrStudent.intermediate||''} 
+                value={defaultOrStudent.intermediate.numberDecimal||''} 
                 label="Intermediate Percentage"
                 icon={Briefcase}
               />
