@@ -14,6 +14,8 @@ const InterviewDetails = () => {
 
   const queryParams = new URLSearchParams(location.search);
   const source = queryParams.get("source");
+  console.log(source)
+
   const type=queryParams.get("type");
   const fetchDetails = async () => {
     try {
@@ -101,11 +103,11 @@ const InterviewDetails = () => {
           <div className="grid grid-cols-2 text-center gap-4 mt-4 text-gray-700">
             <div className="border-2 border-black rounded-md p-2 ">
               <p className="font-semibold">Result</p>
-              <p>{details.Result}</p>
+              <p>{details.Result.toFixed(2)}</p>
             </div>
             <div className="border-2 border-black rounded-md p-2 ">
               <p className="font-semibold">Confidence</p>
-              <p>{details.overallConfidence}</p>
+              <p>{details.overallConfidence.toFixed(2)}</p>
             </div>
             <div className="border-2 border-black rounded-md p-2 ">
               <p className="font-semibold">Level</p>
@@ -114,7 +116,7 @@ const InterviewDetails = () => {
             {details.overallAccuracy !== undefined && details.overallAccuracy !== null && (
             <div className="border-2 border-black rounded-md p-2">
               <p className="font-semibold">Accuracy</p>
-              <p>{details.overallAccuracy}</p>
+              <p>{details.overallAccuracy.toFixed(2)}</p>
             </div>
           )}
           </div>
@@ -146,7 +148,7 @@ const InterviewDetails = () => {
       <div>
         {videos.map((video, index) => (
           <>
-            <h2 className="text-xl font-bold my-4">Question-{parseInt(video.question) + 1}</h2>
+            <h2 className="text-xl font-bold my-4">Question-{index+1}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-blue-100 p-6 rounded-lg shadow-md flex items-center justify-center">
                 <video controls>
@@ -157,11 +159,11 @@ const InterviewDetails = () => {
               <div className="bg-white p-4 rounded-lg shadow-md text-center flex flex-col justify-center items-center gap-4">
                 <div className="border-2 w-40 border-black rounded-md p-2">
                   <p className="font-semibold">Confidence</p>
-                  <p>2.1</p>
+                  <p>{details?.confidence[index]?.value}</p>
                 </div>
                 <div className="border-2 w-40 border-black rounded-md p-2">
                   <p className="font-semibold">Accuracy</p>
-                  <p>2.1</p>
+                  <p>{details?.accuracy[index]?.value}</p>
                 </div>
               </div>
             </div>
@@ -177,3 +179,13 @@ const InterviewDetails = () => {
 };
 
 export default InterviewDetails;
+
+
+
+
+
+
+
+
+
+

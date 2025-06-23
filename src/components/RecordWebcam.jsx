@@ -2,9 +2,10 @@ import { useState, useRef, useEffect } from "react";
 import Webcam from "react-webcam";
 
 export default function RecordWebcam({
-  startRecording = false,
-  handleRecordedVideo = () => {},
-  videoName = "question",
+  startRecording ,
+  handleRecordedVideo ,
+  question,
+  audioEnabled
 }) {
   const webcamRef = useRef(null);
   const mediaRecorderRef = useRef(null);
@@ -14,7 +15,7 @@ export default function RecordWebcam({
   const timerRef = useRef(null);
   const recordingStartTimeRef = useRef(null);
   const streamRef = useRef(null);
-
+// console.log(question);
   // Initialize webcam when component mounts
   useEffect(() => {
     const initializeWebcam = async () => {
@@ -27,7 +28,6 @@ export default function RecordWebcam({
         if (webcamRef.current) {
           webcamRef.current.srcObject = stream;
         }
-        console.log("Webcam initialized successfully");
       } catch (err) {
         console.error("Error initializing webcam:", err);
       }
@@ -60,7 +60,6 @@ export default function RecordWebcam({
   };
 
   const handleStartCaptureClick = async () => {
-    console.log("Starting capture...");
     setRecordedChunks([]);
     try {
       let stream = streamRef.current;
@@ -77,18 +76,15 @@ export default function RecordWebcam({
 
       let options = { mimeType: "video/mp4; codecs=avc1,mp4a.40.2" };
       if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-        console.log("MP4 not supported, trying WebM...");
         options = { mimeType: "video/webm;codecs=vp8,opus" };
         if (!MediaRecorder.isTypeSupported(options.mimeType)) {
           options = { mimeType: "video/webm" };
           if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-            console.log("Using default MIME type");
             options = {};
           }
         }
       }
       
-      console.log("Recording with MIME type:", options.mimeType || "browser default");
       
       const recorder = new MediaRecorder(stream, options);
       mediaRecorderRef.current = recorder;
@@ -102,6 +98,7 @@ export default function RecordWebcam({
       };
       
       recorder.onstop = () => {
+        (async () => {
         try {
           if (chunks.length > 0) {
             const mimeType = recorder.mimeType || "video/mp4";
@@ -109,7 +106,6 @@ export default function RecordWebcam({
             const finalDuration = recordingStartTimeRef.current 
               ? Math.floor((Date.now() - recordingStartTimeRef.current) / 1000)
               : duration;
-            console.log(`Recording completed. Duration: ${finalDuration}s, Blob size: ${blob.size} bytes, MIME: ${mimeType}`);
             
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
@@ -118,16 +114,18 @@ export default function RecordWebcam({
             a.href = url;
             
             const fileExtension = mimeType.includes("mp4") ? "mp4" : "webm";
-            a.download = `${videoName}.${fileExtension}`;
-            a.click();
+            // a.download = `${videoName}.${fileExtension}`;
+            // a.click();
             
             setTimeout(() => {
               URL.revokeObjectURL(url);
               document.body.removeChild(a);
             }, 100);
-            
-            if (typeof handleRecordedVideo === 'function') {
-              handleRecordedVideo(blob, videoName, recorder, finalDuration);
+            if (typeof handleRecordedVideo === 'function')  {
+              console.log(question)
+
+               await handleRecordedVideo(blob, question, recorder, finalDuration);
+
             }
           } else {
             console.error("No recorded chunks available");
@@ -135,6 +133,7 @@ export default function RecordWebcam({
         } catch (err) {
           console.error("Error in onstop handler:", err);
         }
+      })();
       };
       
       recorder.start(1000);
@@ -148,7 +147,6 @@ export default function RecordWebcam({
         setDuration(elapsedSeconds);
       }, 1000);
       
-      console.log("Recording started successfully");
     } catch (err) {
       console.error("Error starting recording:", err);
       setRecording(false);
@@ -156,7 +154,6 @@ export default function RecordWebcam({
   };
 
   const handleStopCaptureClick = () => {
-    console.log("Stopping capture...");
     if (!recording) {
       console.warn("No active recording to stop");
       return;
@@ -170,7 +167,6 @@ export default function RecordWebcam({
       : duration;
     setDuration(finalDuration);
     
-    console.log(`Stopping recording after ${finalDuration} seconds`);
     
     try {
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
@@ -182,6 +178,7 @@ export default function RecordWebcam({
   };
 
   useEffect(() => {
+    // console.log(startRecording, recording);
     if (startRecording && !recording) {
       handleStartCaptureClick();
     } else if (!startRecording && recording) {
@@ -205,12 +202,12 @@ export default function RecordWebcam({
         screenshotFormat="image/jpeg"
         videoConstraints={{ width: 1280, height: 720, facingMode: "user" }}
         audio={true}
+        muted={true}
         mirrored={true}
         className="w-full h-full object-cover rounded-md"
         onUserMediaError={(err) => console.error("Webcam error:", err)}
         onUserMedia={(stream) => {
           streamRef.current = stream;
-          console.log("Webcam stream ready");
         }}
       />
       {recording && (
