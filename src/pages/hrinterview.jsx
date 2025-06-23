@@ -189,6 +189,11 @@ function HrInterview() {
           question: question,
           videoUrl: videoAnalysisUrl,
           type: 'HR'
+        },
+         {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
       // Store the video_url for analysis APIs

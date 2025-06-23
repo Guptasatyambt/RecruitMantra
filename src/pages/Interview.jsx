@@ -183,6 +183,11 @@ function Interview() {
           question_number: currentQuestionIndex + 1,
           question: question,
           videoUrl: videoAnalysisUrl,
+        },
+         {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
       setVideoUrl(videoAnalysisUrl);

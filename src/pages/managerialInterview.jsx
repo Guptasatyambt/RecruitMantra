@@ -189,6 +189,11 @@ function ManagerialInterview() {
           question: question,
           videoUrl: videoAnalysisUrl,
           type: 'Managerial'
+        },
+         {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
       // Store the video_url for analysis APIs
