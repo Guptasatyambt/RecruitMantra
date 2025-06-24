@@ -182,7 +182,7 @@ function HrInterview() {
       });
 
       console.log("Video uploaded successfully:", uploadResponse.data);
-      await axios.post("https://api.recruitmantra.com/hrInterview/ackServer",
+      await axios.post("http://localhost:5001/hrInterview/ackServer",
         {
           interview_id: interviewId,
           question_number: currentQuestionIndex + 1,
@@ -298,7 +298,7 @@ function HrInterview() {
       );
       setTimeout(() => {
         setIsProcessing(false); // Hide loader (optional)
-        navigate(`/interview-details/${interviewId}?type=HR&&source=interview`);
+        navigate(`/interview-details/${interviewId}?type=HR&source=interview`);
       }, 10000);
       // console.log("Interview ended successfully");
       // navigate(`/interview-details/${interviewId}?type=HR&&source=interview`);
@@ -386,12 +386,24 @@ function HrInterview() {
                   {/* Left Side - Webcam */}
                   <div className="w-1/2">
                     <div className="bg-gray-200 h-96 md:h-[500px] rounded-md relative">
-                      <RecordWebcam
+                      {/* <RecordWebcam
                         startRecording={startRecording && (cameraEnabled || screenSharing)}
                         handleRecordedVideo={handleRecordedVideo}
                         videoName={currentQuestion}
                         audioEnabled={audioEnabled}
-                      />
+                      /> */}
+                      {questions[currentQuestionIndex] ? (
+                        <RecordWebcam
+                          startRecording={startRecording && (cameraEnabled || screenSharing)}
+                          handleRecordedVideo={handleRecordedVideo}
+                          question={questions[currentQuestionIndex]}
+                          audioEnabled={audioEnabled}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <div className="text-gray-700 text-lg font-medium">Loading question...</div>
+                        </div>
+                      )}
                       <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-3">
                         <button
                           className={`${cameraEnabled ? 'bg-blue-600' : 'bg-gray-800'} text-white p-2 rounded`}

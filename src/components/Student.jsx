@@ -182,23 +182,23 @@ const Students = () => {
     const placements = placementData.filter(
       (item) => item.student_id?._id?.toString() === studentId.toString()
     );
-  
+
     if (placements.length === 0) return null;
-  
+
     // Sort by highest package
     const highestPlacement = placements.reduce((max, current) => {
       const maxPackage = parseFloat(max.package_lpa?.$numberDecimal || max.package_lpa || 0);
       const currPackage = parseFloat(current.package_lpa?.$numberDecimal || current.package_lpa || 0);
       return currPackage > maxPackage ? current : max;
     });
-  
+
     return {
       company: highestPlacement.company_name,
       package: parseFloat(highestPlacement.package_lpa?.$numberDecimal || highestPlacement.package_lpa || 0).toFixed(2),
       placementDate: new Date(highestPlacement.placement_date).toLocaleDateString(),
     };
   };
-  
+
 
   const getHighestCTC = () => {
     if (!placementData || placementData.length === 0) return 0;
@@ -420,21 +420,21 @@ const Students = () => {
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
         md:relative md:translate-x-0 transition duration-200 ease-in-out z-30`}>
         <div
-            className="flex items-center space-x-3 cursor-pointer group"
-            onClick={() => navigate("/")}
-          >
-            <div className="relative">
-              <img
-                className="h-12 w-12 transform transition-transform duration-300 "
-                alt="RecruitMantra Logo"
-                src="/assets/logo_RM.png"
-              />
-              <div className="absolute -inset-2 bg-black-100 rounded-full opacity-0 group-hover:opacity-50 transition-opacity duration-300 -z-10"></div>
-            </div>
-            <span className="text-1xl font-bold text-white">
-              RecruitMantra
-            </span>
+          className="flex items-center space-x-3 cursor-pointer group"
+          onClick={() => navigate("/")}
+        >
+          <div className="relative">
+            <img
+              className="h-12 w-12 transform transition-transform duration-300 "
+              alt="RecruitMantra Logo"
+              src="/assets/logo_RM.png"
+            />
+            <div className="absolute -inset-2 bg-black-100 rounded-full opacity-0 group-hover:opacity-50 transition-opacity duration-300 -z-10"></div>
           </div>
+          <span className="text-1xl font-bold text-white">
+            RecruitMantra
+          </span>
+        </div>
 
         <div className="px-4 py-2">
           <div className={`relative ${searchFocused ? 'ring-2 ring-indigo-400' : ''} 
@@ -700,68 +700,68 @@ const Students = () => {
                               </tr>
 
                               {isExpanded && (
-  <>
-    <tr>
-      <td colSpan="7" className="bg-gray-50 border-b px-5 py-6 text-sm text-gray-700">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div><strong>🎓 Roll No:</strong> {student.rollNo || 'N/A'}</div>
-          <div><strong>📅 Year:</strong> {student.year || 'N/A'}</div>
-          <div><strong>🧠 Technical Interviews:</strong> {student.technicalInterview?.length || 0}</div>
-          <div><strong>🗣️ HR Interviews:</strong> {student.hrInterview?.length || 0}</div>
-          <div><strong>🧑‍💼 Managerial Interviews:</strong> {student.managerialInterview?.length || 0}</div>
-          <div><strong>🏷️ Branch:</strong> {student.branch || 'N/A'}</div>
-          <div><strong>📊 CGPA:</strong> {student.cgpa?.$numberDecimal
-            ? parseFloat(student.cgpa.$numberDecimal).toFixed(1)
-            : '-'}</div>
-          <div className="col-span-2">
-            <strong>🏢 Applied Companies:</strong> {(student.appliedCompanies?.name || []).join(', ') || 'N/A'}
-          </div>
-        </div>
-      </td>
-    </tr>
+                                <>
+                                  <tr>
+                                    <td colSpan="7" className="bg-gray-50 border-b px-5 py-6 text-sm text-gray-700">
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div><strong>🎓 Roll No:</strong> {student.rollNo || 'N/A'}</div>
+                                        <div><strong>📅 Year:</strong> {student.year || 'N/A'}</div>
+                                        <div><strong>🧠 Technical Interviews:</strong> {student.technicalInterview?.length || 0}</div>
+                                        <div><strong>🗣️ HR Interviews:</strong> {student.hrInterview?.length || 0}</div>
+                                        <div><strong>🧑‍💼 Managerial Interviews:</strong> {student.managerialInterview?.length || 0}</div>
+                                        <div><strong>🏷️ Branch:</strong> {student.branch || 'N/A'}</div>
+                                        <div><strong>📊 CGPA:</strong> {student.cgpa?.$numberDecimal
+                                          ? parseFloat(student.cgpa.$numberDecimal).toFixed(1)
+                                          : '-'}</div>
+                                        <div className="col-span-2">
+                                          <strong>🏢 Applied Companies:</strong> {(student.appliedCompanies?.name || []).join(', ') || 'N/A'}
+                                        </div>
+                                      </div>
+                                    </td>
+                                  </tr>
 
-    {isPlaced && (
-      <tr>
-        <td colSpan="7" className="bg-gray-100 border-b px-5 py-6 text-sm text-gray-700">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div><strong>✅ Company Name:</strong> {company || 'N/A'}</div>
-            <div><strong>💰 CTC:</strong> {packageLPA || 'N/A'}</div>
-            <div><strong>📆 Placement Date:</strong> {placementDate || 'N/A'}</div>
-          </div>
-        </td>
-      </tr>
-    )}
+                                  {isPlaced && (
+                                    <tr>
+                                      <td colSpan="7" className="bg-gray-100 border-b px-5 py-6 text-sm text-gray-700">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                          <div><strong>✅ Company Name:</strong> {company || 'N/A'}</div>
+                                          <div><strong>💰 CTC:</strong> {packageLPA || 'N/A'}</div>
+                                          <div><strong>📆 Placement Date:</strong> {placementDate || 'N/A'}</div>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  )}
 
-    <tr>
-      <td colSpan="7" className="bg-white border-b px-5 py-5 text-sm">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setSelectedStudent(student);
-              setIsModalOpen(true);
-            }}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-          >
-            ✏️ Update Student Info
-          </button>
-          {!isPlaced && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedStudent(student);
-                setPlacedModalOpen(true);
-              }}
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
-            >
-              🎯 Mark as Placed
-            </button>
-          )}
-        </div>
-      </td>
-    </tr>
-  </>
-)}
+                                  <tr>
+                                    <td colSpan="7" className="bg-white border-b px-5 py-5 text-sm">
+                                      <div className="flex flex-col sm:flex-row gap-3">
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSelectedStudent(student);
+                                            setIsModalOpen(true);
+                                          }}
+                                          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                                        >
+                                          ✏️ Update Student Info
+                                        </button>
+                                        {!isPlaced && (
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setSelectedStudent(student);
+                                              setPlacedModalOpen(true);
+                                            }}
+                                            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+                                          >
+                                            🎯 Mark as Placed
+                                          </button>
+                                        )}
+                                      </div>
+                                    </td>
+                                  </tr>
+                                </>
+                              )}
 
                             </React.Fragment>
                           );
@@ -826,7 +826,9 @@ const Students = () => {
               </div>
             )}
 
-            <form onSubmit={handleAddStudent}>
+            <form
+             onSubmit={handleAddStudent}
+             className="max-w-3xl h-[80vh] overflow-y-auto mx-auto bg-white rounded shadow mt-10">
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>

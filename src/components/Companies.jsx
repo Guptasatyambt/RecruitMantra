@@ -21,8 +21,8 @@ const Companies = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isHiredModalOpen, setIsHiredModalOpen]=useState(false);
-  const [placementData,setPlacementData]=useState(null);
+  const [isHiredModalOpen, setIsHiredModalOpen] = useState(false);
+  const [placementData, setPlacementData] = useState(null);
   const [placedStudents, setPlacedStudents] = useState([]);
   const [stats, setStats] = useState({
     totalCompanies: 0,
@@ -65,7 +65,7 @@ const Companies = () => {
   const [branchChanged, setBranchChanged] = useState(false);
 
   const [emailInput, setEmailInput] = useState('');
-const [hiredFormError, setHiredFormError] = useState('');
+  const [hiredFormError, setHiredFormError] = useState('');
 
   // Fetch user info on component mount
   useEffect(() => {
@@ -130,18 +130,18 @@ const [hiredFormError, setHiredFormError] = useState('');
       // }
       setCompanies(companiesData);
       const res = await collegeadminAPI.getRecentPlacements();
-              if (res.data && res.data.data) {
-                setPlacementData(res.data.data)
-               
-                const placedStudentIds = [];
-      
-                res.data.data.forEach(item => {
-                  if (item.student_id) {
-                    placedStudentIds.push(item.student_id._id);
-                  }
-                });
-                 setPlacedStudents(placedStudentIds);
-              }
+      if (res.data && res.data.data) {
+        setPlacementData(res.data.data)
+
+        const placedStudentIds = [];
+
+        res.data.data.forEach(item => {
+          if (item.student_id) {
+            placedStudentIds.push(item.student_id._id);
+          }
+        });
+        setPlacedStudents(placedStudentIds);
+      }
       // Calculate stats with improved categorization
       const completedCompanies = companiesData.filter(company => company.placeId > 0);
 
@@ -155,7 +155,7 @@ const [hiredFormError, setHiredFormError] = useState('');
         : 0;
 
       // Calculate total students hired
-      
+
       const totalStudentsHired = res.data.data.length
 
       setStats({
@@ -322,31 +322,31 @@ const [hiredFormError, setHiredFormError] = useState('');
   const handleMarkHired = async (e) => {
     e.preventDefault();
     setHiredFormError('');
-  
+
     const emails = emailInput
       .split(',')
       .map(email => email.trim())
       .filter(email => email.length > 0);
-  
+
     if (emails.length === 0 || !selectedCompany?.companyId) {
       setHiredFormError('Please enter valid student emails.');
       return;
     }
-  
+
     try {
       const data = {
         emails,
         company_id: selectedCompany.companyId,
-        ctc:selectedCompany.packageLPA
+        ctc: selectedCompany.packageLPA
       }
       const response = await collegeadminAPI.markStudentsHired(data)
-  
+
       const result = await response.status;
-  
-      if (result!=200) {
+
+      if (result != 200) {
         throw new Error(result.message || 'Failed to mark students hired');
       }
-  
+
       alert('Students marked as hired successfully!');
       setIsHiredModalOpen(false);
       setEmailInput('');
@@ -439,22 +439,22 @@ const [hiredFormError, setHiredFormError] = useState('');
       <div className={`bg-indigo-800 w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform 
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
         md:relative md:translate-x-0 transition duration-200 ease-in-out z-30`}>
-       <div
-            className="flex items-center space-x-3 cursor-pointer group"
-            onClick={() => navigate("/")}
-          >
-            <div className="relative">
-              <img
-                className="h-12 w-12 transform transition-transform duration-300 "
-                alt="RecruitMantra Logo"
-                src="/assets/logo_RM.png"
-              />
-              <div className="absolute -inset-2 bg-black-100 rounded-full opacity-0 group-hover:opacity-50 transition-opacity duration-300 -z-10"></div>
-            </div>
-            <span className="text-1xl font-bold text-white">
-              RecruitMantra
-            </span>
+        <div
+          className="flex items-center space-x-3 cursor-pointer group"
+          onClick={() => navigate("/")}
+        >
+          <div className="relative">
+            <img
+              className="h-12 w-12 transform transition-transform duration-300 "
+              alt="RecruitMantra Logo"
+              src="/assets/logo_RM.png"
+            />
+            <div className="absolute -inset-2 bg-black-100 rounded-full opacity-0 group-hover:opacity-50 transition-opacity duration-300 -z-10"></div>
           </div>
+          <span className="text-1xl font-bold text-white">
+            RecruitMantra
+          </span>
+        </div>
 
 
 
@@ -700,53 +700,53 @@ const [hiredFormError, setHiredFormError] = useState('');
                               </tr>
 
                               {expandedCompanyId === company._id && (
-  <>
-    <tr>
-      <td colSpan="9" className="bg-gray-50 px-5 py-6 border-b text-sm text-gray-700">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div><strong>📍 Location:</strong> {company.location || 'N/A'}</div>
-          <div><strong>🎓 Allowed Branches:</strong> {(company.allowedBranches || []).join(', ') || 'N/A'}</div>
-          <div><strong>📅 Allowed Years:</strong> {(company.allowedYear || []).join(', ') || 'N/A'}</div>
-          <div><strong>📝 Job Description:</strong> {company.jobDescription || 'N/A'}</div>
-          <div><strong>👨‍💼 Role:</strong> {company.role || 'N/A'}</div>
-          <div><strong>⏳ Application Deadline:</strong> {company.applicationDeadline ? new Date(company.applicationDeadline).toLocaleDateString() : 'N/A'}</div>
-          <div className="col-span-2">
-  <strong>✅ Placed Students:</strong>{' '}
-  {(company.placeId || []).length > 0
-    ? company.placeId
-        .map(p => `${p.studentId.firstName} ${p.studentId.lastName}`)
-        .join(', ')
-    : 'N/A'}
-</div>
-        </div>
-      </td>
-    </tr>
-    <tr>
-      <td colSpan="9" className="px-5 py-5 bg-white border-b text-sm">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <button
-            onClick={() => {
-              setSelectedCompany(company);
-              setIsEditModalOpen(true);
-            }}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-          >
-            ✏️ Update Company Info
-          </button>
-          <button
-            onClick={() => {
-              setSelectedCompany(company);
-              setIsHiredModalOpen(true);
-            }}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
-          >
-            🎯 Update Hired Students
-          </button>
-        </div>
-      </td>
-    </tr>
-  </>
-)}
+                                <>
+                                  <tr>
+                                    <td colSpan="9" className="bg-gray-50 px-5 py-6 border-b text-sm text-gray-700">
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div><strong>📍 Location:</strong> {company.location || 'N/A'}</div>
+                                        <div><strong>🎓 Allowed Branches:</strong> {(company.allowedBranches || []).join(', ') || 'N/A'}</div>
+                                        <div><strong>📅 Allowed Years:</strong> {(company.allowedYear || []).join(', ') || 'N/A'}</div>
+                                        <div><strong>📝 Job Description:</strong> {company.jobDescription || 'N/A'}</div>
+                                        <div><strong>👨‍💼 Role:</strong> {company.role || 'N/A'}</div>
+                                        <div><strong>⏳ Application Deadline:</strong> {company.applicationDeadline ? new Date(company.applicationDeadline).toLocaleDateString() : 'N/A'}</div>
+                                        <div className="col-span-2">
+                                          <strong>✅ Placed Students:</strong>{' '}
+                                          {(company.placeId || []).length > 0
+                                            ? company.placeId
+                                              .map(p => `${p.studentId.firstName} ${p.studentId.lastName}`)
+                                              .join(', ')
+                                            : 'N/A'}
+                                        </div>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td colSpan="9" className="px-5 py-5 bg-white border-b text-sm">
+                                      <div className="flex flex-col sm:flex-row gap-3">
+                                        <button
+                                          onClick={() => {
+                                            setSelectedCompany(company);
+                                            setIsEditModalOpen(true);
+                                          }}
+                                          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                                        >
+                                          ✏️ Update Company Info
+                                        </button>
+                                        <button
+                                          onClick={() => {
+                                            setSelectedCompany(company);
+                                            setIsHiredModalOpen(true);
+                                          }}
+                                          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+                                        >
+                                          🎯 Update Hired Students
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                </>
+                              )}
 
 
 
@@ -1070,46 +1070,46 @@ const [hiredFormError, setHiredFormError] = useState('');
         </div>
       )}
       {isHiredModalOpen && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div className="bg-white rounded-lg p-8 max-w-md w-full">
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="text-xl font-semibold">Mark Students as Hired</h3>
-        <button onClick={() => setIsHiredModalOpen(false)} className="text-gray-500 hover:text-gray-700">
-          <X className="w-6 h-6" />
-        </button>
-      </div>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-semibold">Mark Students as Hired</h3>
+              <button onClick={() => setIsHiredModalOpen(false)} className="text-gray-500 hover:text-gray-700">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
 
-      {hiredFormError && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
-          {hiredFormError}
+            {hiredFormError && (
+              <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
+                {hiredFormError}
+              </div>
+            )}
+
+            <form
+              onSubmit={handleMarkHired}
+              className="max-w-3xl mx-auto bg-white rounded shadow"
+            >
+              <div>
+                <label className="block mb-2 font-medium">Enter Student Emails (comma separated)</label>
+                <textarea
+                  value={emailInput}
+                  onChange={(e) => setEmailInput(e.target.value)}
+                  className="w-full mb-4 p-2 border rounded h-32"
+                  placeholder="example1@gmail.com, example2@gmail.com"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              >
+                Mark as Hired
+              </button>
+            </form>
+          </div>
         </div>
       )}
-
-      <form
-        onSubmit={handleMarkHired}
-        className="max-w-3xl mx-auto bg-white rounded shadow"
-      >
-        <div>
-          <label className="block mb-2 font-medium">Enter Student Emails (comma separated)</label>
-          <textarea
-            value={emailInput}
-            onChange={(e) => setEmailInput(e.target.value)}
-            className="w-full mb-4 p-2 border rounded h-32"
-            placeholder="example1@gmail.com, example2@gmail.com"
-            required
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-        >
-          Mark as Hired
-        </button>
-      </form>
-    </div>
-  </div>
-)}
 
     </div>
   );

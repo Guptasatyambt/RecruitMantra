@@ -297,7 +297,7 @@ function ManagerialInterview() {
       );
       setTimeout(() => {
         setIsProcessing(false); // Hide loader (optional)
-        navigate(`/interview-details/${interviewId}?type=Managerial&&source=interview`);
+        navigate(`/interview-details/${interviewId}?type=Managerial&source=interview`);
       }, 10000);
       // console.log("Interview ended successfully");
       // navigate(`/interview-details/${interviewId}?type=Managerial&&source=interview`);
@@ -385,12 +385,24 @@ function ManagerialInterview() {
                   {/* Left Side - Webcam */}
                   <div className="w-1/2">
                     <div className="bg-gray-200 h-96 md:h-[500px] rounded-md relative">
-                      <RecordWebcam
+                      {/* <RecordWebcam
                         startRecording={startRecording && (cameraEnabled || screenSharing)}
                         handleRecordedVideo={handleRecordedVideo}
                         videoName={currentQuestion}
                         audioEnabled={audioEnabled}
-                      />
+                      /> */}
+                      {questions[currentQuestionIndex] ? (
+                        <RecordWebcam
+                          startRecording={startRecording && (cameraEnabled || screenSharing)}
+                          handleRecordedVideo={handleRecordedVideo}
+                          question={questions[currentQuestionIndex]}
+                          audioEnabled={audioEnabled}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <div className="text-gray-700 text-lg font-medium">Loading question...</div>
+                        </div>
+                      )}
                       <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-3">
                         <button
                           className={`${cameraEnabled ? 'bg-blue-600' : 'bg-gray-800'} text-white p-2 rounded`}

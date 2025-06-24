@@ -326,12 +326,12 @@ const Profile = () => {
             {user.role==='default' || user.role==='student' &&(
               <>
             <InterviewResults 
-              technicalInterviews={user.technicalInterview}
-              hrInterviews={user.hrInterview}
-              managerialInterview={user.managerialInterview}
-              seriesInterview={user.seriesInterview}
-              onClickInterview={handleInterviewClick}
-              />
+  technicalInterviews={user.technicalInterview}
+  hrInterviews={user.hrInterview}
+  managerialInterviews={user.managerialInterview}   // ✅ corrected
+  seriesInterviews={user.seriesInterview}           // ✅ corrected
+  onClickInterview={handleInterviewClick}
+/>
               </>
             )}
             <div className="flex justify-end mt-10">
