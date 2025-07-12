@@ -207,10 +207,22 @@ const Companies = () => {
 
     setFormData({
       ...formData,
-      eligibility_criteria: {
-        ...formData.eligibility_criteria,
-        allowed_branches: selectedBranches
+        allowedBranches: selectedBranches
+    });
+  };
+   const handleYearChange = (e) => {
+    const options = e.target.options;
+    const selectedYear = [];
+
+    for (let i = 0; i < options.length; i++) {
+      if (options[i].selected) {
+        selectedYear.push(options[i].value);
       }
+    }
+
+    setFormData({
+      ...formData,
+        allowedYear: selectedYear
     });
   };
   const handleMultiChange = (e, field) => {
@@ -891,7 +903,8 @@ const Companies = () => {
                 <select
                   multiple
                   value={formData.allowedBranches}
-                  onChange={(e) => handleMultiChange(e, 'allowedBranches')}
+                  onChange={(e)=>handleBranchesChange(e)}
+                  // onChange={(e) => handleMultiChange(e, 'allowedBranches')}
                   className="w-full mb-4 p-2 border rounded"
                 >
                   {branches.map((b) => (
@@ -904,7 +917,8 @@ const Companies = () => {
                 <select
                   multiple
                   value={formData.allowedYear}
-                  onChange={(e) => handleMultiChange(e, 'allowedYear')}
+                  onChange={(e)=>handleYearChange(e)}
+                  // onChange={(e) => handleMultiChange(e, 'allowedYear')}
                   className="w-full mb-4 p-2 border rounded"
                 >
                   {[1, 2, 3, 4].map((year) => (
