@@ -65,16 +65,16 @@ function ContactUs() {
                     src="https://internview-assets.s3.ap-south-1.amazonaws.com/batch-13---originals-8-high-resolution-logo-grayscale-transparent+(1).png"
                   />
                   <h3 className="text-2xl font-semibold mb-6">Let's Connect</h3>
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-4">
+                  {/* <div className="space-y-6"> */}
+                    {/* <div className="flex items-center gap-4">
                       <Mail className="w-5 h-5" />
                       <span>support@recruitmantra.com</span>
-                    </div>
-                    <div className="flex items-center gap-4">
+                    </div> */}
+                    {/* <div className="flex items-center gap-4">
                       <Phone className="w-5 h-5" />
                       <span>+91 XXX XXX XXXX</span>
-                    </div>
-                  </div>
+                    </div> */}
+                  {/* </div> */}
                 </div>
                 <div className="mt-8 text-gray-300 text-sm">
                   Working Hours: Monday - Friday, 9:00 AM - 6:00 PM IST

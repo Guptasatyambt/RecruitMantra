@@ -10,18 +10,10 @@ const teamMembers = [
     name: "Satyam Gupta",
     role: "Founder & CEO",
     quote: "Confidence is the product of preparation, and success is its reward.",
-    linkedin: "https://www.linkedin.com/in/satyam-upadhyay-ba0582228/",
-    instagram: "https://www.instagram.com/satya.am._/",
+    linkedin: "https://www.linkedin.com/in/satyam-gupta-2b4792229/",
+    instagram: "https://www.instagram.com/gupta_satyam.12/",
     image: "https://internview-assets.s3.ap-south-1.amazonaws.com/satyam+(2).jpg",
-  },
-  {
-    name: "Upendra Yadav",
-    role: "Chief Technology Officer",
-    quote: "Through technology, we turn preparation into opportunity and dreams into reality.",
-    linkedin: "https://www.linkedin.com/in/upendra-singh-68b94622a/",
-    instagram: "https://www.instagram.com/mr_upen_/",
-    image: "https://internview-assets.s3.ap-south-1.amazonaws.com/upendra+(1).jpg",
-  },
+  }
 ];
 const AboutUs = () => {
   const navigate = useNavigate();
