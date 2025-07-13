@@ -62,6 +62,7 @@ const JobDetails = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
+                    <p><span className="font-semibold">JobId:</span> {job._id}</p>
                     <p><span className="font-semibold">Location:</span> {job.Location}</p>
                     <p><span className="font-semibold">Mode:</span> {job.Mode}</p>
                     <p><span className="font-semibold">Openings:</span> {job.NoOfOpenning}</p>
@@ -69,7 +70,16 @@ const JobDetails = () => {
                 <div>
                     <p><span className="font-semibold">Experience:</span> {job.Experience} years</p>
                     <p><span className="font-semibold">Package:</span> ₹{job.Package} LPA</p>
-                    <p><span className="font-semibold">Skills:</span> {Array.isArray(job.skills) ? job.skills.join(", ") : "N/A"}</p>
+                    <div>
+  <p className="font-semibold">Skills:</p>
+  <ul className="list-disc list-inside">
+    {Array.isArray(job.skills) && job.skills.length > 0 ? (
+      job.skills.map((skill, index) => <li key={index}>{skill}</li>)
+    ) : (
+      <li>N/A</li>
+    )}
+  </ul>
+</div>
                 </div>
             </div>
 
