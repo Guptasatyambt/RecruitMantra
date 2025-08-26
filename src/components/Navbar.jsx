@@ -48,7 +48,7 @@ const Navbar = () => {
         if (role === "student") {
           setDashboardPath("/student-dashboard");
         } else if (role === "college_admin") {
-          if(!response.data.defaultOrStudent.verified){
+          if(!response.data.user.verified){
             navigate("/email-verification?source=college_admin", { state: { token: token } });
           }
           setDashboardPath("/dashboard");

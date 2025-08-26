@@ -55,6 +55,7 @@ const EmailVerification = () => {
 
     try {
       const response = await userAPI.verifyUser(otp);
+      console.log(response);
       if (response.data.success) {
         setMessage(response.data.message);
         navigate(`/upload-documents?source=${source}`);
