@@ -47,12 +47,12 @@ const AdminDashboard = () => {
       setLoading(true);
       const token = localStorage.getItem('token');
       
-      // const response = await axios.get('https://api.recruitmantra.com/user/college-admins', {
-      //   headers: {
-      //     Authorization: `Bearer ${token}`
-      //   }
-      // });
-      const response=await API.collegeAdmins();
+      const response = await axios.get('https://api.recruitmantra.com/user/college-admins', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      // const response=await API.collegeAdmins();
       console.log(response.data.data)
 
       if (response.data && response.data.data) {
